@@ -1,9 +1,11 @@
 package com.synerzip.projectmanagementapp.model;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
@@ -14,6 +16,7 @@ import javax.persistence.Table;
 public class Project {
 
 	@Id
+	@GeneratedValue
 	@Column(name = "project_id")
 	private long projectId;
 	@Column(name = "project_title")
@@ -27,7 +30,7 @@ public class Project {
 
 	@ManyToMany(targetEntity = Employee.class)
 	@JoinTable(name = "project_employee")
-	private Set<Employee> employee;
+	private Set<Employee> employees=new HashSet<Employee>(0);
 
 	public Project() {
 
@@ -73,11 +76,14 @@ public class Project {
 		this.projectFeature = projectFeature;
 	}
 
-	public Set<Employee> getEmployee() {
-		return employee;
+	public Set<Employee> getEmployees() {
+		return employees;
 	}
 
-	public void setEmployee(Set<Employee> employee) {
-		this.employee = employee;
+	public void setEmployees(Set<Employee> employees) {
+		this.employees = employees;
 	}
+	
+	
+
 }

@@ -38,6 +38,8 @@ public class EmployeeServicesImplementation implements EmployeeServices {
 			return employees;
 		} catch (Exception e) {
 			return null;
+		}finally {
+			session.close();
 		}
 	}
 

@@ -1,6 +1,8 @@
 package com.synerzip.projectmanagementapp.services;
 
 import java.util.List;
+
+import com.synerzip.projectmanagementapp.model.Employee;
 import com.synerzip.projectmanagementapp.model.Project;
 
 public interface ProjectServices {
@@ -15,4 +17,5 @@ public interface ProjectServices {
 
 	Project updateProject(Project project, long projectId);
 
+	List<Employee> getProjectEmployees(long projectId);
 }

@@ -13,6 +13,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 
+import com.synerzip.projectmanagementapp.model.Employee;
 import com.synerzip.projectmanagementapp.model.Project;
 import com.synerzip.projectmanagementapp.serviceimplementation.ProjectServiceImplementation;
 
@@ -35,6 +36,13 @@ public class ProjectController {
 			@DefaultValue("5") @QueryParam("size") int size) {
 		return service.getProjects(start, size);
 	}
+	
+	/*@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("{projectId}/employee")
+	public List<Employee> getEmpProject(@PathParam("projectId") long projectId) {
+		return service.getProjectEmployees(projectId);
+	}*/
 
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)

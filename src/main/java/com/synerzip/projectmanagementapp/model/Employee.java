@@ -2,6 +2,7 @@ package com.synerzip.projectmanagementapp.model;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
@@ -10,6 +11,7 @@ import javax.persistence.Table;
 public class Employee {
 
 	@Id
+	@GeneratedValue
 	@Column(name = "emp_id")
 	private long empId;
 	@Column(name = "emp_name")
