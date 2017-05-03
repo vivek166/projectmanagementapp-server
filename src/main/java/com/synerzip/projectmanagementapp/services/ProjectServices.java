@@ -18,4 +18,6 @@ public interface ProjectServices {
 	Project updateProject(Project project, long projectId);
 
 	List<Employee> getProjectEmployees(long projectId);
+	
+	Project updateProjectPartially(Project project, long projectId);
 }

@@ -1,8 +1,8 @@
 package com.synerzip.projectmanagementapp.model;
 
-import java.util.HashSet;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -28,9 +28,9 @@ public class Project {
 	@Column(name = "project_feature")
 	private String projectFeature;
 
-	@ManyToMany(targetEntity = Employee.class)
+	@ManyToMany(targetEntity = Employee.class,  cascade={CascadeType.REMOVE})
 	@JoinTable(name = "project_employee")
-	private Set<Employee> employees=new HashSet<Employee>(0);
+	private Set<Employee> employees;
 
 	public Project() {
 

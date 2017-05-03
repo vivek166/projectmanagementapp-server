@@ -1,6 +1,7 @@
 package com.synerzip.projectmanagementapp.controller;
 
 import javax.ws.rs.GET;
+import javax.ws.rs.HttpMethod;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
@@ -13,7 +14,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 
-import com.synerzip.projectmanagementapp.model.Employee;
+import com.synerzip.projectmanagementapp.httpmethods.Patch.PATCH;
 import com.synerzip.projectmanagementapp.model.Project;
 import com.synerzip.projectmanagementapp.serviceimplementation.ProjectServiceImplementation;
 
@@ -31,18 +32,21 @@ public class ProjectController {
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public List<Project> getProjects(
-			@DefaultValue("1") @QueryParam("start") int start,
+	public List<Project> getProjects(@DefaultValue("1") @QueryParam("start") int start,
 			@DefaultValue("5") @QueryParam("size") int size) {
 		return service.getProjects(start, size);
 	}
-	
-	/*@GET
-	@Produces(MediaType.APPLICATION_JSON)
-	@Path("{projectId}/employee")
-	public List<Employee> getEmpProject(@PathParam("projectId") long projectId) {
-		return service.getProjectEmployees(projectId);
-	}*/
+
+	/*
+	 *
+	 *@GET
+	 * 
+	 * @Produces(MediaType.APPLICATION_JSON)
+	 * 
+	 * @Path("{projectId}/employee") public List<Employee>
+	 * getEmpProject(@PathParam("projectId") long projectId) { return
+	 * service.getProjectEmployees(projectId); }
+	 */
 
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -62,8 +66,15 @@ public class ProjectController {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("{projectId}")
-	public Project updateProject(Project project,
-			@PathParam("projectId") long projectId) {
+	public Project updateProject(Project project, @PathParam("projectId") long projectId) {
 		return service.updateProject(project, projectId);
+	}
+	
+	@PATCH
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("{projectId}")
+	public Project updateProjectPartially(Project project, @PathParam("projectId") long projectId) {
+		return service.updateProjectPartially(project, projectId);
 	}
 }
