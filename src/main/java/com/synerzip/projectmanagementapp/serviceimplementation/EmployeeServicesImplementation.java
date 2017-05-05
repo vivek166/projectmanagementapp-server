@@ -6,6 +6,8 @@ import org.hibernate.Session;
 
 import com.synerzip.projectmanagementapp.dbconnection.EmployeeHibernateUtils;
 import com.synerzip.projectmanagementapp.model.Employee;
+import com.synerzip.projectmanagementapp.model.Project;
+import com.synerzip.projectmanagementapp.model.Project_Employee;
 import com.synerzip.projectmanagementapp.services.EmployeeServices;
 
 public class EmployeeServicesImplementation implements EmployeeServices {
@@ -14,9 +16,10 @@ public class EmployeeServicesImplementation implements EmployeeServices {
 
 		Session session = EmployeeHibernateUtils.getSession();
 		org.hibernate.Transaction tx = session.beginTransaction();
-
+		Employee employee=new Employee();
 		try {
-			Employee employee = (Employee) session.get(Employee.class, empId);
+			employee = (Employee) session.get(Employee.class, empId);
+			employee.setProject_employees(null);
 			tx.commit();
 			return employee;
 		} catch (Exception e) {
@@ -47,15 +50,32 @@ public class EmployeeServicesImplementation implements EmployeeServices {
 
 		Session session = EmployeeHibernateUtils.getSession();
 		org.hibernate.Transaction tx = session.beginTransaction();
-
+		
 		try {
 			session.save(employee);
+			addEmployeeProject(employee);
 			tx.commit();
 			return employee;
 		} catch (Exception e) {
 			return null;
 		} finally {
 			session.close();
+		}
+	}
+
+	private void addEmployeeProject(Employee employee) {
+		Session session = EmployeeHibernateUtils.getSession();
+		Session sessionPE = EmployeeHibernateUtils.getSession();
+		org.hibernate.Transaction tx = sessionPE.beginTransaction();
+		List<Integer> projectIds=employee.getProject_id();
+		for(Integer projectId : projectIds){
+			Project project=(Project)session.get(Project.class, projectId);
+			Project_Employee pe=new Project_Employee();
+			pe.setEmployee(employee);
+			pe.setProject(project);
+			sessionPE.save(pe);
+			sessionPE.flush();
+			tx.commit();
 		}
 	}
 

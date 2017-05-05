@@ -38,14 +38,11 @@ public class ProjectController {
 	}
 
 	/*
-	 *
-	 *@GET
-	 * 
-	 * @Produces(MediaType.APPLICATION_JSON)
-	 * 
-	 * @Path("{projectId}/employee") public List<Employee>
-	 * getEmpProject(@PathParam("projectId") long projectId) { return
-	 * service.getProjectEmployees(projectId); }
+	 @GET
+	 @Produces(MediaType.APPLICATION_JSON)
+	 @Path("{projectId}/employee") public List<Employee>
+	 getEmpProject(@PathParam("projectId") long projectId) { return
+	 service.getProjectEmployees(projectId); }
 	 */
 
 	@POST

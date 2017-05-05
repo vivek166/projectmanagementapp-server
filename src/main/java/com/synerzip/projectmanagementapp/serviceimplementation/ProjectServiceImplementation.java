@@ -10,6 +10,7 @@ import com.synerzip.projectmanagementapp.dbconnection.EmployeeHibernateUtils;
 import com.synerzip.projectmanagementapp.dbconnection.ProjectHibernateUtils;
 import com.synerzip.projectmanagementapp.model.Employee;
 import com.synerzip.projectmanagementapp.model.Project;
+import com.synerzip.projectmanagementapp.model.Project_Employee;
 import com.synerzip.projectmanagementapp.services.ProjectServices;
 
 public class ProjectServiceImplementation implements ProjectServices {
@@ -19,7 +20,7 @@ public class ProjectServiceImplementation implements ProjectServices {
 		Project project = new Project();
 		try {
 			project = (Project) session.get(Project.class, projectId);
-			project.setEmployees(null);
+			project.setProject_employees(null);
 			tx.commit();
 			return project;
 		} catch (Exception e) {
@@ -50,12 +51,34 @@ public class ProjectServiceImplementation implements ProjectServices {
 
 		try {
 			session.save(project);
+			addProjectEmployee(project);
 			tx.commit();
 			return project;
 		} catch (Exception e) {
 			return null;
 		} finally {
 			session.close();
+		}
+	}
+
+	public void addProjectEmployee(Project project) {
+		
+		List<Integer> empIds=project.getEmp_id();
+		for(Integer empId :empIds){
+			try {
+				Session session = EmployeeHibernateUtils.getSession();
+				Session sessionPE = EmployeeHibernateUtils.getSession();
+				org.hibernate.Transaction tx = sessionPE.beginTransaction();
+				Employee employee= (Employee) session.get(Employee.class, (long) empId);
+				Project_Employee pe=new Project_Employee();
+				pe.setEmployee(employee);
+				pe.setProject(project);
+				sessionPE.save(pe);
+				sessionPE.flush();
+				tx.commit();
+			}catch(Exception exception){
+				exception.printStackTrace();
+			}
 		}
 	}
 

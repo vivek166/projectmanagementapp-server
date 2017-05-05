@@ -1,36 +1,53 @@
 package com.synerzip.projectmanagementapp.model;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Entity
-@Table(name="project_employee")
+@Table(name = "project_employee")
 public class Project_Employee {
 	@Id
+	@GeneratedValue
 	private long projectEmpId;
-	private long projectId;
-	private long empId;
-	
-	public Project_Employee() {
 
+	@ManyToOne(cascade = CascadeType.ALL)
+	@JoinColumn(name = "project_id")
+	private Project project;
+
+	@ManyToOne(cascade = CascadeType.ALL)
+	@JoinColumn(name = "emp_id")
+	private Employee employee;
+
+	public Project_Employee() {
 	}
+
 	public long getProjectEmpId() {
 		return projectEmpId;
 	}
+
 	public void setProjectEmpId(long projectEmpId) {
 		this.projectEmpId = projectEmpId;
 	}
-	public long getProjectId() {
-		return projectId;
+
+	public Project getProject() {
+		return project;
 	}
-	public void setProjectId(long projectId) {
-		this.projectId = projectId;
+
+	public void setProject(Project project) {
+		this.project = project;
 	}
-	public long getEmpId() {
-		return empId;
+
+	public Employee getEmployee() {
+		return employee;
 	}
-	public void setEmpId(long empId) {
-		this.empId = empId;
+
+	public void setEmployee(Employee employee) {
+		this.employee = employee;
 	}
+
 }

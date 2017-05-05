@@ -6,17 +6,15 @@ import org.hibernate.service.ServiceRegistryBuilder;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
-import com.synerzip.projectmanagementapp.model.Employee;
-import com.synerzip.projectmanagementapp.model.Project_Employee;
 
-public class EmployeeHibernateUtils {
+public class HibernateUtils {
 
 	static Configuration con;
 	static ServiceRegistry registry;
 	static SessionFactory sf;
 	static {
 		System.out.println("started initialising hibernate config");
-		con = new Configuration().configure().addAnnotatedClass(Employee.class).addAnnotatedClass(Project_Employee.class);
+		con = new Configuration().configure();
 		registry = new ServiceRegistryBuilder().applySettings(
 				con.getProperties()).buildServiceRegistry();
 		sf = con.buildSessionFactory(registry);

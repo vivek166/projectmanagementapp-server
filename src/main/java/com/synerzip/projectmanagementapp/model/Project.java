@@ -1,15 +1,13 @@
 package com.synerzip.projectmanagementapp.model;
 
-import java.util.Set;
-
-import javax.persistence.CascadeType;
+import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 @Entity
 @Table(name = "project")
@@ -27,14 +25,26 @@ public class Project {
 	private String projectDescription;
 	@Column(name = "project_feature")
 	private String projectFeature;
+	
+	@Transient
+	private List<Integer> emp_id;
 
-	@ManyToMany(targetEntity = Employee.class,  cascade={CascadeType.REMOVE})
-	@JoinTable(name = "project_employee")
-	private Set<Employee> employees;
+	@OneToMany(mappedBy = "project")
+	private List<Project_Employee> project_employees;
 
 	public Project() {
 
 	}
+	
+	public List<Integer> getEmp_id() {
+		return emp_id;
+	}
+
+
+	public void setEmp_id(List<Integer> emp_id) {
+		this.emp_id = emp_id;
+	}
+
 
 	public long getProjectId() {
 		return projectId;
@@ -76,14 +86,12 @@ public class Project {
 		this.projectFeature = projectFeature;
 	}
 
-	public Set<Employee> getEmployees() {
-		return employees;
+	public List<Project_Employee> getProject_employees() {
+		return project_employees;
 	}
 
-	public void setEmployees(Set<Employee> employees) {
-		this.employees = employees;
+	public void setProject_employees(List<Project_Employee> project_employees) {
+		this.project_employees = project_employees;
 	}
-	
-	
 
 }
