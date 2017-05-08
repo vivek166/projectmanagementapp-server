@@ -25,20 +25,12 @@ public class Employee {
 	@Column(name = "emp_subject")
 	private String empSubjects;
 	
-	
-	public List<Integer> getProject_id() {
-		return project_id;
-	}
-
-	public void setProject_id(List<Integer> project_id) {
-		this.project_id = project_id;
-	}
-
 	@Transient
-	private List<Integer> project_id;
-
+	private List<Integer> projectIds;
+	
+	
 	@OneToMany(mappedBy="employee")
-	private List<Project_Employee> project_employees;
+	private List<ProjectEmployee> projectEmployees;
 
 	public Employee() {
 
@@ -76,21 +68,19 @@ public class Employee {
 		this.empSubjects = empSubjects;
 	}
 
-	public List<Project_Employee> getProject_employees() {
-		return project_employees;
+	public List<Integer> getProjectIds() {
+		return projectIds;
 	}
 
-	public void setProject_employees(List<Project_Employee> project_employees) {
-		this.project_employees = project_employees;
+	public void setProjectIds(List<Integer> projectIds) {
+		this.projectIds = projectIds;
 	}
 
-	@Override
-	public String toString() {
-		return "Employee [empId=" + empId + ", empName=" + empName + ", empDepartment=" + empDepartment
-				+ ", empSubjects=" + empSubjects + ", project_employees=" + project_employees + "]";
+	public List<ProjectEmployee> getProjectEmployees() {
+		return projectEmployees;
 	}
-	
-	
-	
-	
+
+	public void setProjectEmployees(List<ProjectEmployee> projectEmployees) {
+		this.projectEmployees = projectEmployees;
+	}
 }

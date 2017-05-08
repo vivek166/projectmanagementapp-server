@@ -27,24 +27,14 @@ public class Project {
 	private String projectFeature;
 	
 	@Transient
-	private List<Integer> emp_id;
+	private List<Integer> empIds;
 
 	@OneToMany(mappedBy = "project")
-	private List<Project_Employee> project_employees;
+	private List<ProjectEmployee> projectEmployees;
 
 	public Project() {
 
 	}
-	
-	public List<Integer> getEmp_id() {
-		return emp_id;
-	}
-
-
-	public void setEmp_id(List<Integer> emp_id) {
-		this.emp_id = emp_id;
-	}
-
 
 	public long getProjectId() {
 		return projectId;
@@ -86,12 +76,19 @@ public class Project {
 		this.projectFeature = projectFeature;
 	}
 
-	public List<Project_Employee> getProject_employees() {
-		return project_employees;
+	public List<Integer> getEmpIds() {
+		return empIds;
 	}
 
-	public void setProject_employees(List<Project_Employee> project_employees) {
-		this.project_employees = project_employees;
+	public void setEmpIds(List<Integer> empIds) {
+		this.empIds = empIds;
 	}
 
+	public List<ProjectEmployee> getProjectEmployees() {
+		return projectEmployees;
+	}
+
+	public void setProjectEmployees(List<ProjectEmployee> projectEmployees) {
+		this.projectEmployees = projectEmployees;
+	}
 }

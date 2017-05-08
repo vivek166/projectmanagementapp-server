@@ -32,18 +32,17 @@ public class ProjectController {
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public List<Project> getProjects(@DefaultValue("1") @QueryParam("start") int start,
+	public List<Project> getProjects(@DefaultValue("0") @QueryParam("start") int start,
 			@DefaultValue("5") @QueryParam("size") int size) {
 		return service.getProjects(start, size);
 	}
 
-	/*
-	 @GET
-	 @Produces(MediaType.APPLICATION_JSON)
-	 @Path("{projectId}/employee") public List<Employee>
-	 getEmpProject(@PathParam("projectId") long projectId) { return
-	 service.getProjectEmployees(projectId); }
-	 */
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("{content}")
+	public List<Project> search(@PathParam("content") String content) {
+		return service.search(content);
+	}
 
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -66,7 +65,7 @@ public class ProjectController {
 	public Project updateProject(Project project, @PathParam("projectId") long projectId) {
 		return service.updateProject(project, projectId);
 	}
-	
+
 	@PATCH
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)

@@ -7,7 +7,7 @@ import org.hibernate.Session;
 import com.synerzip.projectmanagementapp.dbconnection.HibernateUtils;
 import com.synerzip.projectmanagementapp.model.Employee;
 import com.synerzip.projectmanagementapp.model.Project;
-import com.synerzip.projectmanagementapp.model.Project_Employee;
+import com.synerzip.projectmanagementapp.model.ProjectEmployee;
 import com.synerzip.projectmanagementapp.services.EmployeeServices;
 
 public class EmployeeServicesImplementation implements EmployeeServices {
@@ -19,7 +19,7 @@ public class EmployeeServicesImplementation implements EmployeeServices {
 		Employee employee=new Employee();
 		try {
 			employee = (Employee) session.get(Employee.class, empId);
-			employee.setProject_employees(null);
+			employee.setProjectEmployees(null);
 			tx.commit();
 			return employee;
 		} catch (Exception e) {
@@ -48,10 +48,9 @@ public class EmployeeServicesImplementation implements EmployeeServices {
 
 		Session session = HibernateUtils.getSession();
 		org.hibernate.Transaction tx = session.beginTransaction();
-		
 		try {
 			session.save(employee);
-			addEmployeeProject(employee);
+			//addEmployeeProject(employee);
 			tx.commit();
 			return employee;
 		} catch (Exception e) {
@@ -65,15 +64,21 @@ public class EmployeeServicesImplementation implements EmployeeServices {
 		Session session = HibernateUtils.getSession();
 		Session sessionPE = HibernateUtils.getSession();
 		org.hibernate.Transaction tx = sessionPE.beginTransaction();
-		List<Integer> projectIds=employee.getProject_id();
+		List<Integer> projectIds=employee.getProjectIds();
 		for(Integer projectId : projectIds){
-			Project project=(Project)session.get(Project.class, projectId);
-			Project_Employee pe=new Project_Employee();
+			try {
+			Project project=(Project)session.get(Project.class, (long) projectId);
+			ProjectEmployee pe=new ProjectEmployee();
 			pe.setEmployee(employee);
 			pe.setProject(project);
 			sessionPE.save(pe);
 			sessionPE.flush();
 			tx.commit();
+			}catch(Exception exception){
+				exception.printStackTrace();
+			}finally {
+				sessionPE.close();
+			}
 		}
 	}
 

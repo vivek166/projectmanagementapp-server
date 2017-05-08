@@ -9,7 +9,7 @@ import com.mysql.jdbc.StringUtils;
 import com.synerzip.projectmanagementapp.dbconnection.HibernateUtils;
 import com.synerzip.projectmanagementapp.model.Employee;
 import com.synerzip.projectmanagementapp.model.Project;
-import com.synerzip.projectmanagementapp.model.Project_Employee;
+import com.synerzip.projectmanagementapp.model.ProjectEmployee;
 import com.synerzip.projectmanagementapp.services.ProjectServices;
 
 public class ProjectServiceImplementation implements ProjectServices {
@@ -19,7 +19,7 @@ public class ProjectServiceImplementation implements ProjectServices {
 		Project project = new Project();
 		try {
 			project = (Project) session.get(Project.class, projectId);
-			project.setProject_employees(null);
+			project.setProjectEmployees(null);
 			tx.commit();
 			return project;
 		} catch (Exception e) {
@@ -50,7 +50,7 @@ public class ProjectServiceImplementation implements ProjectServices {
 
 		try {
 			session.save(project);
-			addProjectEmployee(project);
+			//addProjectEmployee(project);
 			tx.commit();
 			return project;
 		} catch (Exception e) {
@@ -64,11 +64,11 @@ public class ProjectServiceImplementation implements ProjectServices {
 		Session session = HibernateUtils.getSession();
 		Session sessionPE = HibernateUtils.getSession();
 		org.hibernate.Transaction tx = sessionPE.beginTransaction();
-		List<Integer> empIds=project.getEmp_id();
+		List<Integer> empIds=project.getEmpIds();
 		for(Integer empId :empIds){
 			try {
 				Employee employee= (Employee) session.get(Employee.class, (long) empId);
-				Project_Employee pe=new Project_Employee();
+				ProjectEmployee pe=new ProjectEmployee();
 				pe.setEmployee(employee);
 				pe.setProject(project);
 				sessionPE.save(pe);
@@ -156,6 +156,25 @@ public class ProjectServiceImplementation implements ProjectServices {
 			session.flush();
 			tx.commit();
 			return dbProject;
+		} catch (Exception e) {
+			return null;
+		} finally {
+			session.close();
+		}
+	}
+
+	public List<Project> search(String content) {
+		Session session = HibernateUtils.getSession();
+		org.hibernate.Transaction tx = session.beginTransaction();
+
+		try {
+			String searchQuery = "FROM Project";
+			Query query = session.createQuery(searchQuery);
+			List<Project> project=(List<Project>)query.list();
+			session.delete(project);
+			session.flush();
+			tx.commit();
+			return project;
 		} catch (Exception e) {
 			return null;
 		} finally {

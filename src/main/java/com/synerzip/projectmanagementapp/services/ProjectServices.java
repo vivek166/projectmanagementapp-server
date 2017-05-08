@@ -20,4 +20,6 @@ public interface ProjectServices {
 	List<Employee> getProjectEmployees(long projectId);
 	
 	Project updateProjectPartially(Project project, long projectId);
+	
+	List<Project> search(String content);
 }

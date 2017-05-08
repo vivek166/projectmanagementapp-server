@@ -10,7 +10,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "project_employee")
-public class Project_Employee {
+public class ProjectEmployee {
 	@Id
 	@GeneratedValue
 	private long projectEmpId;
@@ -23,7 +23,7 @@ public class Project_Employee {
 	@JoinColumn(name = "emp_id")
 	private Employee employee;
 
-	public Project_Employee() {
+	public ProjectEmployee() {
 	}
 
 	public long getProjectEmpId() {

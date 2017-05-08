@@ -13,6 +13,6 @@
 		<property name="show_sql">true</property>
 		<mapping class="com.synerzip.projectmanagementapp.model.Employee" />
 		<mapping class="com.synerzip.projectmanagementapp.model.Project" />
-		<mapping class="com.synerzip.projectmanagementapp.model.Project_Employee" />
+		<mapping class="com.synerzip.projectmanagementapp.model.ProjectEmployee" />
 	</session-factory>
 </hibernate-configuration>
