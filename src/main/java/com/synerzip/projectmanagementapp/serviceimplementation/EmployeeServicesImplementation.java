@@ -4,7 +4,7 @@ import java.util.List;
 import org.hibernate.Query;
 import org.hibernate.Session;
 
-import com.synerzip.projectmanagementapp.dbconnection.EmployeeHibernateUtils;
+import com.synerzip.projectmanagementapp.dbconnection.HibernateUtils;
 import com.synerzip.projectmanagementapp.model.Employee;
 import com.synerzip.projectmanagementapp.model.Project;
 import com.synerzip.projectmanagementapp.model.Project_Employee;
@@ -14,7 +14,7 @@ public class EmployeeServicesImplementation implements EmployeeServices {
 
 	public Employee getEmployee(long empId) {
 
-		Session session = EmployeeHibernateUtils.getSession();
+		Session session = HibernateUtils.getSession();
 		org.hibernate.Transaction tx = session.beginTransaction();
 		Employee employee=new Employee();
 		try {
@@ -30,7 +30,7 @@ public class EmployeeServicesImplementation implements EmployeeServices {
 	}
 
 	public List<Employee> getEmployees(int start, int size) {
-		Session session = EmployeeHibernateUtils.getSession();
+		Session session = HibernateUtils.getSession();
 		session.beginTransaction();
 		try {
 			Query query = session
@@ -41,14 +41,12 @@ public class EmployeeServicesImplementation implements EmployeeServices {
 			return employees;
 		} catch (Exception e) {
 			return null;
-		}finally {
-			session.close();
 		}
 	}
 
 	public Employee addEmployee(Employee employee) {
 
-		Session session = EmployeeHibernateUtils.getSession();
+		Session session = HibernateUtils.getSession();
 		org.hibernate.Transaction tx = session.beginTransaction();
 		
 		try {
@@ -64,8 +62,8 @@ public class EmployeeServicesImplementation implements EmployeeServices {
 	}
 
 	private void addEmployeeProject(Employee employee) {
-		Session session = EmployeeHibernateUtils.getSession();
-		Session sessionPE = EmployeeHibernateUtils.getSession();
+		Session session = HibernateUtils.getSession();
+		Session sessionPE = HibernateUtils.getSession();
 		org.hibernate.Transaction tx = sessionPE.beginTransaction();
 		List<Integer> projectIds=employee.getProject_id();
 		for(Integer projectId : projectIds){
@@ -81,7 +79,7 @@ public class EmployeeServicesImplementation implements EmployeeServices {
 
 	public String deleteEmployee(long empId) {
 
-		Session session = EmployeeHibernateUtils.getSession();
+		Session session = HibernateUtils.getSession();
 		org.hibernate.Transaction tx = session.beginTransaction();
 
 		try {
@@ -99,7 +97,7 @@ public class EmployeeServicesImplementation implements EmployeeServices {
 	}
 
 	public Employee updateEmployee(Employee employee, long empId) {
-		Session session = EmployeeHibernateUtils.getSession();
+		Session session = HibernateUtils.getSession();
 		org.hibernate.Transaction tx = session.beginTransaction();
 
 		try {

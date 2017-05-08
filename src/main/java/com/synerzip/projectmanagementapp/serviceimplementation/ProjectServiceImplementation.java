@@ -6,8 +6,7 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 
 import com.mysql.jdbc.StringUtils;
-import com.synerzip.projectmanagementapp.dbconnection.EmployeeHibernateUtils;
-import com.synerzip.projectmanagementapp.dbconnection.ProjectHibernateUtils;
+import com.synerzip.projectmanagementapp.dbconnection.HibernateUtils;
 import com.synerzip.projectmanagementapp.model.Employee;
 import com.synerzip.projectmanagementapp.model.Project;
 import com.synerzip.projectmanagementapp.model.Project_Employee;
@@ -15,7 +14,7 @@ import com.synerzip.projectmanagementapp.services.ProjectServices;
 
 public class ProjectServiceImplementation implements ProjectServices {
 	public Project getProject(long projectId) {
-		Session session = ProjectHibernateUtils.getSession();
+		Session session = HibernateUtils.getSession();
 		org.hibernate.Transaction tx = session.beginTransaction();
 		Project project = new Project();
 		try {
@@ -31,7 +30,7 @@ public class ProjectServiceImplementation implements ProjectServices {
 	}
 
 	public List<Project> getProjects(int start, int size) {
-		Session session = ProjectHibernateUtils.getSession();
+		Session session = HibernateUtils.getSession();
 		session.beginTransaction();
 		try {
 			Query query = session.createQuery("from com.synerzip.projectmanagementapp.model.Project");
@@ -46,7 +45,7 @@ public class ProjectServiceImplementation implements ProjectServices {
 
 	public Project addProject(Project project) {
 
-		Session session = ProjectHibernateUtils.getSession();
+		Session session = HibernateUtils.getSession();
 		org.hibernate.Transaction tx = session.beginTransaction();
 
 		try {
@@ -62,13 +61,12 @@ public class ProjectServiceImplementation implements ProjectServices {
 	}
 
 	public void addProjectEmployee(Project project) {
-		
+		Session session = HibernateUtils.getSession();
+		Session sessionPE = HibernateUtils.getSession();
+		org.hibernate.Transaction tx = sessionPE.beginTransaction();
 		List<Integer> empIds=project.getEmp_id();
 		for(Integer empId :empIds){
 			try {
-				Session session = EmployeeHibernateUtils.getSession();
-				Session sessionPE = EmployeeHibernateUtils.getSession();
-				org.hibernate.Transaction tx = sessionPE.beginTransaction();
 				Employee employee= (Employee) session.get(Employee.class, (long) empId);
 				Project_Employee pe=new Project_Employee();
 				pe.setEmployee(employee);
@@ -78,13 +76,15 @@ public class ProjectServiceImplementation implements ProjectServices {
 				tx.commit();
 			}catch(Exception exception){
 				exception.printStackTrace();
+			}finally {
+				sessionPE.close();
 			}
 		}
 	}
 
 	public String deleteProject(long projectId) {
 
-		Session session = ProjectHibernateUtils.getSession();
+		Session session = HibernateUtils.getSession();
 		org.hibernate.Transaction tx = session.beginTransaction();
 
 		try {
@@ -104,7 +104,7 @@ public class ProjectServiceImplementation implements ProjectServices {
 	}
 
 	public Project updateProject(Project project, long projectId) {
-		Session session = ProjectHibernateUtils.getSession();
+		Session session = HibernateUtils.getSession();
 		org.hibernate.Transaction tx = session.beginTransaction();
 		try {
 			session.get(Project.class, projectId);
@@ -119,7 +119,7 @@ public class ProjectServiceImplementation implements ProjectServices {
 	}
 
 	public List<Employee> getProjectEmployees(long projectId) {
-		Session session = EmployeeHibernateUtils.getSession();
+		Session session = HibernateUtils.getSession();
 		org.hibernate.Transaction tx = session.beginTransaction();
 		try {
 			Query query = session.createQuery(
@@ -136,7 +136,7 @@ public class ProjectServiceImplementation implements ProjectServices {
 	}
 
 	public Project updateProjectPartially(Project project, long projectId) {
-		Session session = EmployeeHibernateUtils.getSession();
+		Session session = HibernateUtils.getSession();
 		org.hibernate.Transaction tx = session.beginTransaction();
 		try {
 			Project dbProject=(Project)session.get(Project.class, projectId);
