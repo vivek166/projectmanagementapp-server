@@ -1,8 +1,15 @@
 package com.synerzip.projectmanagementapp.serviceimplementation;
 
 import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.Persistence;
+
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.search.jpa.FullTextEntityManager;
+import org.hibernate.search.jpa.Search;
+import org.hibernate.search.query.dsl.QueryBuilder;
 
 import com.synerzip.projectmanagementapp.dbconnection.HibernateUtils;
 import com.synerzip.projectmanagementapp.model.Employee;
@@ -44,6 +51,39 @@ public class EmployeeServicesImplementation implements EmployeeServices {
 		}
 	}
 
+	public List<Employee> searchEmployee(String content) {
+		EntityManager entityManager = Persistence.createEntityManagerFactory(
+				"MumzHibernateSearch").createEntityManager();
+		entityManager.getTransaction().begin();
+		FullTextEntityManager fullTextEntityManager = Search
+				.getFullTextEntityManager(entityManager);
+		try {
+			//fullTextEntityManager.createIndexer().startAndWait();
+			QueryBuilder qb = fullTextEntityManager.getSearchFactory()
+					.buildQueryBuilder().forEntity(Employee.class).get();
+			org.apache.lucene.search.Query query = qb.keyword()
+					.onFields("empId","empName","empDepartment","empSubjects").matching(content)
+					.createQuery();
+			javax.persistence.Query jpaQuery = fullTextEntityManager.createFullTextQuery(query,Employee.class);
+			jpaQuery.setFirstResult(0);
+			jpaQuery.setMaxResults(3);
+			List<Employee> employeeResult =jpaQuery.getResultList();
+			if (employeeResult != null) {
+				return employeeResult;
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			if (fullTextEntityManager != null) {
+				fullTextEntityManager.close();
+			}
+			fullTextEntityManager = null;
+		}
+		entityManager.getTransaction().commit();
+		return null;
+	}
+	
 	public Employee addEmployee(Employee employee) {
 
 		Session session = HibernateUtils.getSession();

@@ -5,7 +5,16 @@ import javax.ws.rs.HttpMethod;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+
+import org.hibernate.search.jpa.FullTextEntityManager;
+import org.hibernate.search.jpa.Search;
+import org.hibernate.search.query.dsl.QueryBuilder;
+
 import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.Persistence;
+import javax.persistence.Query;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
@@ -25,7 +34,7 @@ public class ProjectController {
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path("{projectId}")
+	@Path("/{projectId}")
 	public Project getProject(@PathParam("projectId") long projectId) {
 		return service.getProject(projectId);
 	}
@@ -36,12 +45,12 @@ public class ProjectController {
 			@DefaultValue("5") @QueryParam("size") int size) {
 		return service.getProjects(start, size);
 	}
-
+	
 	@GET
+	@Path("/search")
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path("{content}")
-	public List<Project> search(@PathParam("content") String content) {
-		return service.search(content);
+	public List<Project> searchProject(@QueryParam("query") String query) {
+		return service.searchProject(query);
 	}
 
 	@POST
@@ -50,7 +59,7 @@ public class ProjectController {
 	public Project addProject(Project project) {
 		return service.addProject(project);
 	}
-
+	
 	@DELETE
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("{projectId}")

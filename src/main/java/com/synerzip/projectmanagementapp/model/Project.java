@@ -9,20 +9,37 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import org.hibernate.search.annotations.Analyze;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Index;
+import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.Store;
+
 @Entity
 @Table(name = "project")
+@Indexed
 public class Project {
 
 	@Id
 	@GeneratedValue
+	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
 	@Column(name = "project_id")
 	private long projectId;
+	
+	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
 	@Column(name = "project_title")
 	private String projectTitle;
+	
+	
+	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
 	@Column(name = "technology_used")
 	private String technologyUsed;
+	
+	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
 	@Column(name = "project_description")
 	private String projectDescription;
+	
+	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
 	@Column(name = "project_feature")
 	private String projectFeature;
 	
@@ -91,4 +108,13 @@ public class Project {
 	public void setProjectEmployees(List<ProjectEmployee> projectEmployees) {
 		this.projectEmployees = projectEmployees;
 	}
+
+	@Override
+	public String toString() {
+		return "Project [projectId=" + projectId + ", projectTitle=" + projectTitle + ", technologyUsed="
+				+ technologyUsed + ", projectDescription=" + projectDescription + ", projectFeature=" + projectFeature
+				+ ", empIds=" + empIds + ", projectEmployees=" + projectEmployees + "]";
+	}
+	
+	
 }

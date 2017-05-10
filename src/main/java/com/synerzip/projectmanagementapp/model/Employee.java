@@ -10,18 +10,32 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import org.hibernate.search.annotations.Analyze;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Index;
+import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.Store;
+
 @Entity
 @Table(name = "employee")
+@Indexed
 public class Employee {
 
 	@Id
 	@GeneratedValue
+	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
 	@Column(name = "emp_id")
 	private long empId;
+	
+	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
 	@Column(name = "emp_name")
 	private String empName;
+	
+	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
 	@Column(name = "emp_department")
 	private String empDepartment;
+	
+	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
 	@Column(name = "emp_subject")
 	private String empSubjects;
 	
@@ -82,5 +96,12 @@ public class Employee {
 
 	public void setProjectEmployees(List<ProjectEmployee> projectEmployees) {
 		this.projectEmployees = projectEmployees;
+	}
+
+	@Override
+	public String toString() {
+		return "Employee [empId=" + empId + ", empName=" + empName + ", empDepartment=" + empDepartment
+				+ ", empSubjects=" + empSubjects + ", projectIds=" + projectIds + ", projectEmployees="
+				+ projectEmployees + "]";
 	}
 }

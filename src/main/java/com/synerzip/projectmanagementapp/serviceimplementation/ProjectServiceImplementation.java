@@ -2,8 +2,14 @@ package com.synerzip.projectmanagementapp.serviceimplementation;
 
 import java.util.List;
 
+import javax.persistence.EntityManager;
+import javax.persistence.Persistence;
+
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.search.jpa.FullTextEntityManager;
+import org.hibernate.search.jpa.Search;
+import org.hibernate.search.query.dsl.QueryBuilder;
 
 import com.mysql.jdbc.StringUtils;
 import com.synerzip.projectmanagementapp.dbconnection.HibernateUtils;
@@ -42,6 +48,40 @@ public class ProjectServiceImplementation implements ProjectServices {
 			return null;
 		}
 	}
+	
+	public List<Project> searchProject(String content) {
+		EntityManager entityManager = Persistence.createEntityManagerFactory(
+				"MumzHibernateSearch").createEntityManager();
+		entityManager.getTransaction().begin();
+		FullTextEntityManager fullTextEntityManager = Search
+				.getFullTextEntityManager(entityManager);
+		try {
+			//fullTextEntityManager.createIndexer().startAndWait();
+			QueryBuilder qb = fullTextEntityManager.getSearchFactory()
+					.buildQueryBuilder().forEntity(Project.class).get();
+			org.apache.lucene.search.Query query = qb.keyword()
+					.onFields("projectId","technologyUsed","projectFeature", "projectDescription").matching(content)
+					.createQuery();
+			javax.persistence.Query jpaQuery = fullTextEntityManager.createFullTextQuery(query,Project.class);
+			jpaQuery.setFirstResult(0);
+			jpaQuery.setMaxResults(3);
+			List<Project> projectResult =jpaQuery.getResultList();
+			if (projectResult != null) {
+				return projectResult;
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			if (fullTextEntityManager != null) {
+				fullTextEntityManager.close();
+			}
+			fullTextEntityManager = null;
+		}
+		entityManager.getTransaction().commit();
+		return null;
+	}
+
 
 	public Project addProject(Project project) {
 
@@ -163,22 +203,5 @@ public class ProjectServiceImplementation implements ProjectServices {
 		}
 	}
 
-	public List<Project> search(String content) {
-		Session session = HibernateUtils.getSession();
-		org.hibernate.Transaction tx = session.beginTransaction();
 
-		try {
-			String searchQuery = "FROM Project";
-			Query query = session.createQuery(searchQuery);
-			List<Project> project=(List<Project>)query.list();
-			session.delete(project);
-			session.flush();
-			tx.commit();
-			return project;
-		} catch (Exception e) {
-			return null;
-		} finally {
-			session.close();
-		}
-	}
 }

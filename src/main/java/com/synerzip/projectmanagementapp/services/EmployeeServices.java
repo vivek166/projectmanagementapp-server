@@ -1,6 +1,8 @@
 package com.synerzip.projectmanagementapp.services;
 
 import java.util.List;
+
+
 import com.synerzip.projectmanagementapp.model.Employee;
 
 public interface EmployeeServices {
@@ -14,4 +16,6 @@ public interface EmployeeServices {
 	String deleteEmployee(long empId);
 
 	Employee updateEmployee(Employee employee, long empId);
+	
+	List<Employee> searchEmployee(String content);
 }

@@ -24,7 +24,7 @@ public class EmployeeController {
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path("{empId}")
+	@Path("/{empId}")
 	public Employee getEmployee(@PathParam("empId") long empId) {
 		return service.getEmployee(empId);
 	}
@@ -35,6 +35,13 @@ public class EmployeeController {
 			@DefaultValue("1") @QueryParam("start") int start,
 			@DefaultValue("5") @QueryParam("size") int size) {
 		return service.getEmployees(start, size);
+	}
+	
+	@GET
+	@Path("/search")
+	@Produces(MediaType.APPLICATION_JSON)
+	public List<Employee> searchEmployee(@QueryParam("query") String query) {
+		return service.searchEmployee(query);
 	}
 
 	@POST
