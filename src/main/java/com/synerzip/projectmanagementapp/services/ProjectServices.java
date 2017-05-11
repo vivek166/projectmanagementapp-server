@@ -2,16 +2,16 @@ package com.synerzip.projectmanagementapp.services;
 
 import java.util.List;
 
-
 import com.synerzip.projectmanagementapp.model.Employee;
+import com.synerzip.projectmanagementapp.model.PageResult;
 import com.synerzip.projectmanagementapp.model.Project;
 
 public interface ProjectServices {
 
 	Project getProject(long projectId);
 
-	List<Project> getProjects(int start, int size);
-	
+	PageResult<Project> getProjects(int start, int size, String content);
+
 	Project addProject(Project project);
 
 	String deleteProject(long projectId);
@@ -19,8 +19,8 @@ public interface ProjectServices {
 	Project updateProject(Project project, long projectId);
 
 	List<Employee> getProjectEmployees(long projectId);
-	
+
 	Project updateProjectPartially(Project project, long projectId);
-	
-	List<Project> searchProject(String content);
+
+	PageResult<Project> searchProject(int start, int size, String content);
 }

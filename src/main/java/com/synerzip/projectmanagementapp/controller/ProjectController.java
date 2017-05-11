@@ -24,6 +24,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 
 import com.synerzip.projectmanagementapp.httpmethods.Patch.PATCH;
+import com.synerzip.projectmanagementapp.model.PageResult;
 import com.synerzip.projectmanagementapp.model.Project;
 import com.synerzip.projectmanagementapp.serviceimplementation.ProjectServiceImplementation;
 
@@ -41,16 +42,17 @@ public class ProjectController {
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public List<Project> getProjects(@DefaultValue("0") @QueryParam("start") int start,
-			@DefaultValue("5") @QueryParam("size") int size) {
-		return service.getProjects(start, size);
+	public PageResult<Project> getProjects(@DefaultValue("0") @QueryParam("start") int start,
+			@DefaultValue("5") @QueryParam("size") int size, @DefaultValue("") @QueryParam("query") String query) {
+		return service.getProjects(start, size, query);
 	}
-	
+
 	@GET
 	@Path("/search")
 	@Produces(MediaType.APPLICATION_JSON)
-	public List<Project> searchProject(@QueryParam("query") String query) {
-		return service.searchProject(query);
+	public PageResult<Project> searchProject(@DefaultValue("0") @QueryParam("start") int start,
+			@DefaultValue("5") @QueryParam("size") int size, @QueryParam("query") String query) {
+		return service.searchProject(start, size, query);
 	}
 
 	@POST
@@ -59,7 +61,7 @@ public class ProjectController {
 	public Project addProject(Project project) {
 		return service.addProject(project);
 	}
-	
+
 	@DELETE
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("{projectId}")

@@ -23,7 +23,7 @@ public class EmployeeServicesImplementation implements EmployeeServices {
 
 		Session session = HibernateUtils.getSession();
 		org.hibernate.Transaction tx = session.beginTransaction();
-		Employee employee=new Employee();
+		Employee employee = new Employee();
 		try {
 			employee = (Employee) session.get(Employee.class, empId);
 			employee.setProjectEmployees(null);
@@ -36,38 +36,41 @@ public class EmployeeServicesImplementation implements EmployeeServices {
 		}
 	}
 
-	public List<Employee> getEmployees(int start, int size) {
+	public List<Employee> getEmployees(int start, int size, String content) {
 		Session session = HibernateUtils.getSession();
 		session.beginTransaction();
-		try {
-			Query query = session
-					.createQuery("from com.synerzip.projectmanagementapp.model.Employee");
-			query.setFirstResult(start);
-			query.setMaxResults(size);
-			List<Employee> employees = query.list();
-			return employees;
-		} catch (Exception e) {
-			return null;
+		if (content.length() == 0) {
+			try {
+				Query query = session.createQuery("from com.synerzip.projectmanagementapp.model.Employee");
+				query.setFirstResult(start);
+				query.setMaxResults(size);
+				List<Employee> employees = query.list();
+				int count = ((Long)session.createQuery("select count(*) from com.synerzip.projectmanagementapp.model.Employee").uniqueResult()).intValue();
+				System.out.println(count);
+				return employees;
+			} catch (Exception e) {
+				return null;
+			}
+		} else {
+			return searchEmployee(start, size, content);
 		}
 	}
 
-	public List<Employee> searchEmployee(String content) {
-		EntityManager entityManager = Persistence.createEntityManagerFactory(
-				"MumzHibernateSearch").createEntityManager();
+	public List<Employee> searchEmployee(int start, int size, String content) {
+		EntityManager entityManager = Persistence.createEntityManagerFactory("MumzHibernateSearch")
+				.createEntityManager();
 		entityManager.getTransaction().begin();
-		FullTextEntityManager fullTextEntityManager = Search
-				.getFullTextEntityManager(entityManager);
+		FullTextEntityManager fullTextEntityManager = Search.getFullTextEntityManager(entityManager);
 		try {
-			//fullTextEntityManager.createIndexer().startAndWait();
-			QueryBuilder qb = fullTextEntityManager.getSearchFactory()
-					.buildQueryBuilder().forEntity(Employee.class).get();
+			// fullTextEntityManager.createIndexer().startAndWait();
+			QueryBuilder qb = fullTextEntityManager.getSearchFactory().buildQueryBuilder().forEntity(Employee.class)
+					.get();
 			org.apache.lucene.search.Query query = qb.keyword()
-					.onFields("empId","empName","empDepartment","empSubjects").matching(content)
-					.createQuery();
-			javax.persistence.Query jpaQuery = fullTextEntityManager.createFullTextQuery(query,Employee.class);
-			jpaQuery.setFirstResult(0);
-			jpaQuery.setMaxResults(3);
-			List<Employee> employeeResult =jpaQuery.getResultList();
+					.onFields("empId", "empName", "empDepartment", "empSubjects").matching(content).createQuery();
+			javax.persistence.Query jpaQuery = fullTextEntityManager.createFullTextQuery(query, Employee.class);
+			jpaQuery.setFirstResult(start);
+			jpaQuery.setMaxResults(size);
+			List<Employee> employeeResult = jpaQuery.getResultList();
 			if (employeeResult != null) {
 				return employeeResult;
 			}
@@ -83,14 +86,14 @@ public class EmployeeServicesImplementation implements EmployeeServices {
 		entityManager.getTransaction().commit();
 		return null;
 	}
-	
+
 	public Employee addEmployee(Employee employee) {
 
 		Session session = HibernateUtils.getSession();
 		org.hibernate.Transaction tx = session.beginTransaction();
 		try {
 			session.save(employee);
-			//addEmployeeProject(employee);
+			// addEmployeeProject(employee);
 			tx.commit();
 			return employee;
 		} catch (Exception e) {
@@ -104,19 +107,19 @@ public class EmployeeServicesImplementation implements EmployeeServices {
 		Session session = HibernateUtils.getSession();
 		Session sessionPE = HibernateUtils.getSession();
 		org.hibernate.Transaction tx = sessionPE.beginTransaction();
-		List<Integer> projectIds=employee.getProjectIds();
-		for(Integer projectId : projectIds){
+		List<Integer> projectIds = employee.getProjectIds();
+		for (Integer projectId : projectIds) {
 			try {
-			Project project=(Project)session.get(Project.class, (long) projectId);
-			ProjectEmployee pe=new ProjectEmployee();
-			pe.setEmployee(employee);
-			pe.setProject(project);
-			sessionPE.save(pe);
-			sessionPE.flush();
-			tx.commit();
-			}catch(Exception exception){
+				Project project = (Project) session.get(Project.class, (long) projectId);
+				ProjectEmployee pe = new ProjectEmployee();
+				pe.setEmployee(employee);
+				pe.setProject(project);
+				sessionPE.save(pe);
+				sessionPE.flush();
+				tx.commit();
+			} catch (Exception exception) {
 				exception.printStackTrace();
-			}finally {
+			} finally {
 				sessionPE.close();
 			}
 		}

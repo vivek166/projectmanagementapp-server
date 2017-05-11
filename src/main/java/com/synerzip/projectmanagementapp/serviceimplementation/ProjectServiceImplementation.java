@@ -14,6 +14,7 @@ import org.hibernate.search.query.dsl.QueryBuilder;
 import com.mysql.jdbc.StringUtils;
 import com.synerzip.projectmanagementapp.dbconnection.HibernateUtils;
 import com.synerzip.projectmanagementapp.model.Employee;
+import com.synerzip.projectmanagementapp.model.PageResult;
 import com.synerzip.projectmanagementapp.model.Project;
 import com.synerzip.projectmanagementapp.model.ProjectEmployee;
 import com.synerzip.projectmanagementapp.services.ProjectServices;
@@ -35,39 +36,48 @@ public class ProjectServiceImplementation implements ProjectServices {
 		}
 	}
 
-	public List<Project> getProjects(int start, int size) {
+	public PageResult<Project> getProjects(int start, int size, String content) {
 		Session session = HibernateUtils.getSession();
-		session.beginTransaction();
-		try {
-			Query query = session.createQuery("from com.synerzip.projectmanagementapp.model.Project");
-			query.setFirstResult(start);
-			query.setMaxResults(size);
-			List<Project> projects = query.list();
-			return projects;
-		} catch (Exception e) {
-			return null;
+		if (org.apache.commons.lang.StringUtils.isEmpty(content)) {
+			try {
+				Query query = session.createQuery("from com.synerzip.projectmanagementapp.model.Project");
+				query.setFirstResult(start);
+				query.setMaxResults(size);
+				List<Project> projects = query.list();
+				int count = ((Long) session
+						.createQuery("select count(*) from com.synerzip.projectmanagementapp.model.Project")
+						.uniqueResult()).intValue();
+				PageResult<Project> pageResult = new PageResult<Project>();
+				pageResult.setData(projects);
+				pageResult.setTotalResult(count);
+				return pageResult;
+			} catch (Exception e) {
+				e.printStackTrace();
+				return null;
+			}
+		} else {
+			return searchProject(start, size, content);
 		}
 	}
-	
-	public List<Project> searchProject(String content) {
-		EntityManager entityManager = Persistence.createEntityManagerFactory(
-				"MumzHibernateSearch").createEntityManager();
+
+	public PageResult<Project> searchProject(int start, int size, String content) {
+		EntityManager entityManager = Persistence.createEntityManagerFactory("MumzHibernateSearch")
+				.createEntityManager();
 		entityManager.getTransaction().begin();
-		FullTextEntityManager fullTextEntityManager = Search
-				.getFullTextEntityManager(entityManager);
+		FullTextEntityManager fullTextEntityManager = Search.getFullTextEntityManager(entityManager);
 		try {
-			//fullTextEntityManager.createIndexer().startAndWait();
-			QueryBuilder qb = fullTextEntityManager.getSearchFactory()
-					.buildQueryBuilder().forEntity(Project.class).get();
+			// fullTextEntityManager.createIndexer().startAndWait();
+			QueryBuilder qb = fullTextEntityManager.getSearchFactory().buildQueryBuilder().forEntity(Project.class)
+					.get();
 			org.apache.lucene.search.Query query = qb.keyword()
-					.onFields("projectId","technologyUsed","projectFeature", "projectDescription").matching(content)
+					.onFields("projectId", "technologyUsed", "projectFeature", "projectDescription").matching(content)
 					.createQuery();
-			javax.persistence.Query jpaQuery = fullTextEntityManager.createFullTextQuery(query,Project.class);
-			jpaQuery.setFirstResult(0);
-			jpaQuery.setMaxResults(3);
-			List<Project> projectResult =jpaQuery.getResultList();
+			javax.persistence.Query jpaQuery = fullTextEntityManager.createFullTextQuery(query, Project.class);
+			jpaQuery.setFirstResult(start);
+			jpaQuery.setMaxResults(size);
+			List<Project> projectResult = jpaQuery.getResultList();
 			if (projectResult != null) {
-				return projectResult;
+				return (PageResult<Project>) projectResult;
 			}
 
 		} catch (Exception e) {
@@ -82,7 +92,6 @@ public class ProjectServiceImplementation implements ProjectServices {
 		return null;
 	}
 
-
 	public Project addProject(Project project) {
 
 		Session session = HibernateUtils.getSession();
@@ -90,7 +99,7 @@ public class ProjectServiceImplementation implements ProjectServices {
 
 		try {
 			session.save(project);
-			//addProjectEmployee(project);
+			// addProjectEmployee(project);
 			tx.commit();
 			return project;
 		} catch (Exception e) {
@@ -104,19 +113,19 @@ public class ProjectServiceImplementation implements ProjectServices {
 		Session session = HibernateUtils.getSession();
 		Session sessionPE = HibernateUtils.getSession();
 		org.hibernate.Transaction tx = sessionPE.beginTransaction();
-		List<Integer> empIds=project.getEmpIds();
-		for(Integer empId :empIds){
+		List<Integer> empIds = project.getEmpIds();
+		for (Integer empId : empIds) {
 			try {
-				Employee employee= (Employee) session.get(Employee.class, (long) empId);
-				ProjectEmployee pe=new ProjectEmployee();
+				Employee employee = (Employee) session.get(Employee.class, (long) empId);
+				ProjectEmployee pe = new ProjectEmployee();
 				pe.setEmployee(employee);
 				pe.setProject(project);
 				sessionPE.save(pe);
 				sessionPE.flush();
 				tx.commit();
-			}catch(Exception exception){
+			} catch (Exception exception) {
 				exception.printStackTrace();
-			}finally {
+			} finally {
 				sessionPE.close();
 			}
 		}
@@ -131,7 +140,7 @@ public class ProjectServiceImplementation implements ProjectServices {
 			String deleteQuery = "FROM Project WHERE project_id = :project_id";
 			Query query = session.createQuery(deleteQuery);
 			query.setParameter("project_id", projectId);
-			Project project=(Project)query.list().get(0);
+			Project project = (Project) query.list().get(0);
 			session.delete(project);
 			session.flush();
 			tx.commit();
@@ -179,7 +188,7 @@ public class ProjectServiceImplementation implements ProjectServices {
 		Session session = HibernateUtils.getSession();
 		org.hibernate.Transaction tx = session.beginTransaction();
 		try {
-			Project dbProject=(Project)session.get(Project.class, projectId);
+			Project dbProject = (Project) session.get(Project.class, projectId);
 			if (!StringUtils.isEmptyOrWhitespaceOnly(project.getProjectTitle())) {
 				dbProject.setProjectTitle(project.getProjectTitle());
 			}
@@ -202,6 +211,5 @@ public class ProjectServiceImplementation implements ProjectServices {
 			session.close();
 		}
 	}
-
 
 }

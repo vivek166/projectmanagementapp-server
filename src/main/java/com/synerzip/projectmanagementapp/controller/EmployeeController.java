@@ -31,17 +31,17 @@ public class EmployeeController {
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public List<Employee> getEmployees(
-			@DefaultValue("1") @QueryParam("start") int start,
-			@DefaultValue("5") @QueryParam("size") int size) {
-		return service.getEmployees(start, size);
+	public List<Employee> getEmployees(@DefaultValue("0") @QueryParam("start") int start,
+			@DefaultValue("5") @QueryParam("size") int size, @DefaultValue("") @QueryParam("query") String query) {
+		return service.getEmployees(start, size, query);
 	}
-	
+
 	@GET
 	@Path("/search")
 	@Produces(MediaType.APPLICATION_JSON)
-	public List<Employee> searchEmployee(@QueryParam("query") String query) {
-		return service.searchEmployee(query);
+	public List<Employee> searchEmployee(@DefaultValue("0") @QueryParam("start") int start,
+			@DefaultValue("5") @QueryParam("size") int size, @QueryParam("query") String query) {
+		return service.searchEmployee(start, size, query);
 	}
 
 	@POST
@@ -62,8 +62,7 @@ public class EmployeeController {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("{empId}")
-	public Employee updateEmployee(Employee employee,
-			@PathParam("empId") long empId) {
+	public Employee updateEmployee(Employee employee, @PathParam("empId") long empId) {
 		return service.updateEmployee(employee, empId);
 	}
 }
