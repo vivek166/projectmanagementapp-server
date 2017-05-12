@@ -26,7 +26,7 @@ public class ProjectServiceImplementation implements ProjectServices {
 		Project project = new Project();
 		try {
 			project = (Project) session.get(Project.class, projectId);
-			project.setProjectEmployees(null);
+			//project.setProjectEmployees(null);
 			tx.commit();
 			return project;
 		} catch (Exception e) {
@@ -36,8 +36,9 @@ public class ProjectServiceImplementation implements ProjectServices {
 		}
 	}
 
-	public PageResult<Project> getProjects(int start, int size, String content) {
+	public PageResult getProjects(int start, int size, String content) {
 		Session session = HibernateUtils.getSession();
+		session.getTransaction().begin();
 		if (org.apache.commons.lang.StringUtils.isEmpty(content)) {
 			try {
 				Query query = session.createQuery("from com.synerzip.projectmanagementapp.model.Project");
@@ -47,20 +48,25 @@ public class ProjectServiceImplementation implements ProjectServices {
 				int count = ((Long) session
 						.createQuery("select count(*) from com.synerzip.projectmanagementapp.model.Project")
 						.uniqueResult()).intValue();
-				PageResult<Project> pageResult = new PageResult<Project>();
-				pageResult.setData(projects);
-				pageResult.setTotalResult(count);
-				return pageResult;
+				session.flush();
+				session.getTransaction().commit();
+				PageResult pageResults = new PageResult();
+				pageResults.setData(projects);
+				pageResults.setTotalResult(count);
+				return pageResults;
 			} catch (Exception e) {
 				e.printStackTrace();
-				return null;
+			}finally {
+				session.close();
 			}
 		} else {
 			return searchProject(start, size, content);
 		}
+		session.getTransaction().commit();
+		return null;
 	}
 
-	public PageResult<Project> searchProject(int start, int size, String content) {
+	public PageResult searchProject(int start, int size, String content) {
 		EntityManager entityManager = Persistence.createEntityManagerFactory("MumzHibernateSearch")
 				.createEntityManager();
 		entityManager.getTransaction().begin();
@@ -77,7 +83,10 @@ public class ProjectServiceImplementation implements ProjectServices {
 			jpaQuery.setMaxResults(size);
 			List<Project> projectResult = jpaQuery.getResultList();
 			if (projectResult != null) {
-				return (PageResult<Project>) projectResult;
+				PageResult pageResults = new PageResult();
+				pageResults.setData(projectResult);
+				pageResults.setTotalResult(0);
+				return pageResults;
 			}
 
 		} catch (Exception e) {

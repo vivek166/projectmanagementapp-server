@@ -13,6 +13,7 @@ import org.hibernate.search.query.dsl.QueryBuilder;
 
 import com.synerzip.projectmanagementapp.dbconnection.HibernateUtils;
 import com.synerzip.projectmanagementapp.model.Employee;
+import com.synerzip.projectmanagementapp.model.PageResult;
 import com.synerzip.projectmanagementapp.model.Project;
 import com.synerzip.projectmanagementapp.model.ProjectEmployee;
 import com.synerzip.projectmanagementapp.services.EmployeeServices;
@@ -26,7 +27,7 @@ public class EmployeeServicesImplementation implements EmployeeServices {
 		Employee employee = new Employee();
 		try {
 			employee = (Employee) session.get(Employee.class, empId);
-			employee.setProjectEmployees(null);
+			//employee.setProjectEmployees(null);
 			tx.commit();
 			return employee;
 		} catch (Exception e) {
@@ -36,7 +37,7 @@ public class EmployeeServicesImplementation implements EmployeeServices {
 		}
 	}
 
-	public List<Employee> getEmployees(int start, int size, String content) {
+	public PageResult getEmployees(int start, int size, String content) {
 		Session session = HibernateUtils.getSession();
 		session.beginTransaction();
 		if (content.length() == 0) {
@@ -46,17 +47,23 @@ public class EmployeeServicesImplementation implements EmployeeServices {
 				query.setMaxResults(size);
 				List<Employee> employees = query.list();
 				int count = ((Long)session.createQuery("select count(*) from com.synerzip.projectmanagementapp.model.Employee").uniqueResult()).intValue();
-				System.out.println(count);
-				return employees;
+				session.flush();
+				session.getTransaction().commit();
+				PageResult pageResults = new PageResult();
+				pageResults.setData(employees);
+				pageResults.setTotalResult(count);
+				return pageResults;
 			} catch (Exception e) {
-				return null;
+				e.printStackTrace();
 			}
 		} else {
 			return searchEmployee(start, size, content);
 		}
+		session.getTransaction().commit();
+		return null;
 	}
 
-	public List<Employee> searchEmployee(int start, int size, String content) {
+	public PageResult searchEmployee(int start, int size, String content) {
 		EntityManager entityManager = Persistence.createEntityManagerFactory("MumzHibernateSearch")
 				.createEntityManager();
 		entityManager.getTransaction().begin();
@@ -72,7 +79,10 @@ public class EmployeeServicesImplementation implements EmployeeServices {
 			jpaQuery.setMaxResults(size);
 			List<Employee> employeeResult = jpaQuery.getResultList();
 			if (employeeResult != null) {
-				return employeeResult;
+				PageResult pageResults = new PageResult();
+				pageResults.setData(employeeResult);
+				pageResults.setTotalResult(0);
+				return pageResults;
 			}
 
 		} catch (Exception e) {

@@ -43,8 +43,8 @@ public class Employee {
 	private List<Integer> projectIds;
 	
 	
-	@OneToMany(mappedBy="employee")
-	private List<ProjectEmployee> projectEmployees;
+	/*@OneToMany(mappedBy="employee")
+	private List<ProjectEmployee> projectEmployees;*/
 
 	public Employee() {
 
@@ -90,18 +90,19 @@ public class Employee {
 		this.projectIds = projectIds;
 	}
 
-	public List<ProjectEmployee> getProjectEmployees() {
+	@Override
+	public String toString() {
+		return "Employee [empId=" + empId + ", empName=" + empName + ", empDepartment=" + empDepartment
+				+ ", empSubjects=" + empSubjects + ", projectIds=" + projectIds + "]";
+	}
+
+	/*public List<ProjectEmployee> getProjectEmployees() {
 		return projectEmployees;
 	}
 
 	public void setProjectEmployees(List<ProjectEmployee> projectEmployees) {
 		this.projectEmployees = projectEmployees;
-	}
+	}*/
 
-	@Override
-	public String toString() {
-		return "Employee [empId=" + empId + ", empName=" + empName + ", empDepartment=" + empDepartment
-				+ ", empSubjects=" + empSubjects + ", projectIds=" + projectIds + ", projectEmployees="
-				+ projectEmployees + "]";
-	}
+	
 }

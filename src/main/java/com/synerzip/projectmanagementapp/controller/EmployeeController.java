@@ -15,6 +15,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import com.synerzip.projectmanagementapp.model.Employee;
+import com.synerzip.projectmanagementapp.model.PageResult;
 import com.synerzip.projectmanagementapp.serviceimplementation.EmployeeServicesImplementation;
 
 @Path("/employee")
@@ -31,7 +32,7 @@ public class EmployeeController {
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public List<Employee> getEmployees(@DefaultValue("0") @QueryParam("start") int start,
+	public PageResult getEmployees(@DefaultValue("0") @QueryParam("start") int start,
 			@DefaultValue("5") @QueryParam("size") int size, @DefaultValue("") @QueryParam("query") String query) {
 		return service.getEmployees(start, size, query);
 	}
@@ -39,7 +40,7 @@ public class EmployeeController {
 	@GET
 	@Path("/search")
 	@Produces(MediaType.APPLICATION_JSON)
-	public List<Employee> searchEmployee(@DefaultValue("0") @QueryParam("start") int start,
+	public PageResult searchEmployee(@DefaultValue("0") @QueryParam("start") int start,
 			@DefaultValue("5") @QueryParam("size") int size, @QueryParam("query") String query) {
 		return service.searchEmployee(start, size, query);
 	}

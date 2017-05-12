@@ -46,8 +46,8 @@ public class Project {
 	@Transient
 	private List<Integer> empIds;
 
-	@OneToMany(mappedBy = "project")
-	private List<ProjectEmployee> projectEmployees;
+	/*@OneToMany(mappedBy = "project")
+	private List<ProjectEmployee> projectEmployees;*/
 
 	public Project() {
 
@@ -101,20 +101,28 @@ public class Project {
 		this.empIds = empIds;
 	}
 
-	public List<ProjectEmployee> getProjectEmployees() {
+	@Override
+	public String toString() {
+		return "Project [projectId=" + projectId + ", projectTitle=" + projectTitle + ", technologyUsed="
+				+ technologyUsed + ", projectDescription=" + projectDescription + ", projectFeature=" + projectFeature
+				+ ", empIds=" + empIds + "]";
+	}
+
+	/*public List<ProjectEmployee> getProjectEmployees() {
 		return projectEmployees;
 	}
 
 	public void setProjectEmployees(List<ProjectEmployee> projectEmployees) {
 		this.projectEmployees = projectEmployees;
-	}
+	}*/
 
-	@Override
+	/*@Override
 	public String toString() {
 		return "Project [projectId=" + projectId + ", projectTitle=" + projectTitle + ", technologyUsed="
 				+ technologyUsed + ", projectDescription=" + projectDescription + ", projectFeature=" + projectFeature
-				+ ", empIds=" + empIds + ", projectEmployees=" + projectEmployees + "]";
-	}
+				+ ", empIds=" + empIds + ", projectEmployees=]";
+	}*/
+	
 	
 	
 }

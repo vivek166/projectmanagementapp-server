@@ -4,8 +4,11 @@ import javax.ws.rs.GET;
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
+import org.codehaus.jackson.map.ObjectMapper;
 import org.hibernate.search.jpa.FullTextEntityManager;
 import org.hibernate.search.jpa.Search;
 import org.hibernate.search.query.dsl.QueryBuilder;
@@ -42,15 +45,15 @@ public class ProjectController {
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public PageResult<Project> getProjects(@DefaultValue("0") @QueryParam("start") int start,
+	public PageResult getProjects(@DefaultValue("0") @QueryParam("start") int start,
 			@DefaultValue("5") @QueryParam("size") int size, @DefaultValue("") @QueryParam("query") String query) {
-		return service.getProjects(start, size, query);
+			return service.getProjects(start, size, query);
 	}
 
 	@GET
 	@Path("/search")
 	@Produces(MediaType.APPLICATION_JSON)
-	public PageResult<Project> searchProject(@DefaultValue("0") @QueryParam("start") int start,
+	public PageResult searchProject(@DefaultValue("0") @QueryParam("start") int start,
 			@DefaultValue("5") @QueryParam("size") int size, @QueryParam("query") String query) {
 		return service.searchProject(start, size, query);
 	}
