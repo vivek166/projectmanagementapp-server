@@ -8,11 +8,14 @@ import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.codehaus.jackson.JsonGenerationException;
+import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.hibernate.search.jpa.FullTextEntityManager;
 import org.hibernate.search.jpa.Search;
 import org.hibernate.search.query.dsl.QueryBuilder;
 
+import java.io.IOException;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -36,54 +39,43 @@ public class ProjectController {
 
 	ProjectServiceImplementation service = new ProjectServiceImplementation();
 
-	@GET
-	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/{projectId}")
+	@GET@Produces(MediaType.APPLICATION_JSON)@Path("/{projectId}")
 	public Project getProject(@PathParam("projectId") long projectId) {
 		return service.getProject(projectId);
 	}
 
-	@GET
-	@Produces(MediaType.APPLICATION_JSON)
-	public PageResult getProjects(@DefaultValue("0") @QueryParam("start") int start,
-			@DefaultValue("5") @QueryParam("size") int size, @DefaultValue("") @QueryParam("query") String query) {
-			return service.getProjects(start, size, query);
+	@GET@Produces(MediaType.APPLICATION_JSON)
+	public String getProjects(@DefaultValue("0")@QueryParam("start") int start, @DefaultValue("5")@QueryParam("size") int size, @DefaultValue("")@QueryParam("query") String query)
+	throws JsonGenerationException,
+	JsonMappingException,
+	IOException {
+
+		return new ObjectMapper().writeValueAsString(service.getProjects(start, size, query));
 	}
 
-	@GET
-	@Path("/search")
-	@Produces(MediaType.APPLICATION_JSON)
-	public PageResult searchProject(@DefaultValue("0") @QueryParam("start") int start,
-			@DefaultValue("5") @QueryParam("size") int size, @QueryParam("query") String query) {
-		return service.searchProject(start, size, query);
+	@GET@Path("/search")@Produces(MediaType.APPLICATION_JSON)
+	public String searchProject(@DefaultValue("0")@QueryParam("start") int start, @DefaultValue("5")@QueryParam("size") int size, @QueryParam("query") String query) throws JsonGenerationException,
+	JsonMappingException,
+	IOException {
+		return new ObjectMapper().writeValueAsString(service.searchProject(start, size, query));
 	}
 
-	@POST
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON)
+	@POST@Consumes(MediaType.APPLICATION_JSON)@Produces(MediaType.APPLICATION_JSON)
 	public Project addProject(Project project) {
 		return service.addProject(project);
 	}
 
-	@DELETE
-	@Produces(MediaType.APPLICATION_JSON)
-	@Path("{projectId}")
+	@DELETE@Produces(MediaType.APPLICATION_JSON)@Path("{projectId}")
 	public String deleteProject(@PathParam("projectId") long projectId) {
 		return service.deleteProject(projectId);
 	}
 
-	@PUT
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON)
-	@Path("{projectId}")
+	@PUT@Consumes(MediaType.APPLICATION_JSON)@Produces(MediaType.APPLICATION_JSON)@Path("{projectId}")
 	public Project updateProject(Project project, @PathParam("projectId") long projectId) {
 		return service.updateProject(project, projectId);
 	}
 
-	@PATCH
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON)
-	@Path("{projectId}")
+	@PATCH@Consumes(MediaType.APPLICATION_JSON)@Produces(MediaType.APPLICATION_JSON)@Path("{projectId}")
 	public Project updateProjectPartially(Project project, @PathParam("projectId") long projectId) {
 		return service.updateProjectPartially(project, projectId);
 	}

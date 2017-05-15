@@ -29,7 +29,7 @@ public class ProjectServiceImplementation implements ProjectServices {
 			//project.setProjectEmployees(null);
 			tx.commit();
 			return project;
-		} catch (Exception e) {
+		} catch(Exception e) {
 			return null;
 		} finally {
 			session.close();
@@ -44,19 +44,17 @@ public class ProjectServiceImplementation implements ProjectServices {
 				Query query = session.createQuery("from com.synerzip.projectmanagementapp.model.Project");
 				query.setFirstResult(start);
 				query.setMaxResults(size);
-				List<Project> projects = query.list();
-				int count = ((Long) session
-						.createQuery("select count(*) from com.synerzip.projectmanagementapp.model.Project")
-						.uniqueResult()).intValue();
+				List < Project > projects = query.list();
+				int count = ((Long) session.createQuery("select count(*) from com.synerzip.projectmanagementapp.model.Project").uniqueResult()).intValue();
 				session.flush();
 				session.getTransaction().commit();
 				PageResult pageResults = new PageResult();
 				pageResults.setData(projects);
 				pageResults.setTotalResult(count);
 				return pageResults;
-			} catch (Exception e) {
+			} catch(Exception e) {
 				e.printStackTrace();
-			}finally {
+			} finally {
 				session.close();
 			}
 		} else {
@@ -67,29 +65,26 @@ public class ProjectServiceImplementation implements ProjectServices {
 	}
 
 	public PageResult searchProject(int start, int size, String content) {
-		EntityManager entityManager = Persistence.createEntityManagerFactory("MumzHibernateSearch")
-				.createEntityManager();
+		EntityManager entityManager = Persistence.createEntityManagerFactory("MumzHibernateSearch").createEntityManager();
 		entityManager.getTransaction().begin();
 		FullTextEntityManager fullTextEntityManager = Search.getFullTextEntityManager(entityManager);
 		try {
 			// fullTextEntityManager.createIndexer().startAndWait();
-			QueryBuilder qb = fullTextEntityManager.getSearchFactory().buildQueryBuilder().forEntity(Project.class)
-					.get();
-			org.apache.lucene.search.Query query = qb.keyword()
-					.onFields("projectId", "technologyUsed", "projectFeature", "projectDescription").matching(content)
-					.createQuery();
+			QueryBuilder qb = fullTextEntityManager.getSearchFactory().buildQueryBuilder().forEntity(Project.class).get();
+			org.apache.lucene.search.Query query = qb.keyword().onFields("projectId", "technologyUsed", "projectFeature", "projectDescription").matching(content).createQuery();
 			javax.persistence.Query jpaQuery = fullTextEntityManager.createFullTextQuery(query, Project.class);
+			int count = jpaQuery.getResultList().size();
 			jpaQuery.setFirstResult(start);
 			jpaQuery.setMaxResults(size);
-			List<Project> projectResult = jpaQuery.getResultList();
+			List < Project > projectResult = jpaQuery.getResultList();
 			if (projectResult != null) {
 				PageResult pageResults = new PageResult();
 				pageResults.setData(projectResult);
-				pageResults.setTotalResult(0);
+				pageResults.setTotalResult(count);
 				return pageResults;
 			}
 
-		} catch (Exception e) {
+		} catch(Exception e) {
 			e.printStackTrace();
 		} finally {
 			if (fullTextEntityManager != null) {
@@ -111,7 +106,7 @@ public class ProjectServiceImplementation implements ProjectServices {
 			// addProjectEmployee(project);
 			tx.commit();
 			return project;
-		} catch (Exception e) {
+		} catch(Exception e) {
 			return null;
 		} finally {
 			session.close();
@@ -122,8 +117,8 @@ public class ProjectServiceImplementation implements ProjectServices {
 		Session session = HibernateUtils.getSession();
 		Session sessionPE = HibernateUtils.getSession();
 		org.hibernate.Transaction tx = sessionPE.beginTransaction();
-		List<Integer> empIds = project.getEmpIds();
-		for (Integer empId : empIds) {
+		List < Integer > empIds = project.getEmpIds();
+		for (Integer empId: empIds) {
 			try {
 				Employee employee = (Employee) session.get(Employee.class, (long) empId);
 				ProjectEmployee pe = new ProjectEmployee();
@@ -132,7 +127,7 @@ public class ProjectServiceImplementation implements ProjectServices {
 				sessionPE.save(pe);
 				sessionPE.flush();
 				tx.commit();
-			} catch (Exception exception) {
+			} catch(Exception exception) {
 				exception.printStackTrace();
 			} finally {
 				sessionPE.close();
@@ -153,7 +148,7 @@ public class ProjectServiceImplementation implements ProjectServices {
 			session.delete(project);
 			session.flush();
 			tx.commit();
-		} catch (Exception e) {
+		} catch(Exception e) {
 			return null;
 		} finally {
 			session.close();
@@ -169,24 +164,22 @@ public class ProjectServiceImplementation implements ProjectServices {
 			session.update(project);
 			tx.commit();
 			return project;
-		} catch (Exception e) {
+		} catch(Exception e) {
 			return null;
 		} finally {
 			session.close();
 		}
 	}
 
-	public List<Employee> getProjectEmployees(long projectId) {
+	public List < Employee > getProjectEmployees(long projectId) {
 		Session session = HibernateUtils.getSession();
 		org.hibernate.Transaction tx = session.beginTransaction();
 		try {
-			Query query = session.createQuery(
-					"from com.synerzip.projectmanagementapp.model.Employee e join project_employee pe on e.emp_id=pe.employees_emp_id "
-							+ "WHERE pe.project_project_id = :project_id");
+			Query query = session.createQuery("from com.synerzip.projectmanagementapp.model.Employee e join project_employee pe on e.emp_id=pe.employees_emp_id " + "WHERE pe.project_project_id = :project_id");
 			query.setParameter("project_id", projectId);
-			List<Employee> listResult = query.list();
+			List < Employee > listResult = query.list();
 			return listResult;
-		} catch (Exception e) {
+		} catch(Exception e) {
 			return null;
 		} finally {
 			session.close();
@@ -214,7 +207,7 @@ public class ProjectServiceImplementation implements ProjectServices {
 			session.flush();
 			tx.commit();
 			return dbProject;
-		} catch (Exception e) {
+		} catch(Exception e) {
 			return null;
 		} finally {
 			session.close();

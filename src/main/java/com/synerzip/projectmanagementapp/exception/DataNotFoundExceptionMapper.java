@@ -8,14 +8,14 @@ import javax.ws.rs.ext.Provider;
 import com.synerzip.projectmanagementapp.model.ErrorMessage;
 
 @Provider
-public class DataNotFoundExceptionMapper /*implements ExceptionMapper<DataNotFoundException>*/ {
+public final class DataNotFoundExceptionMapper implements ExceptionMapper<DataNotFoundException> {
 
-	/*@Override
-	public Response toResponse(DataNotFoundException exception) {
+	@Override
+	public Response toResponse(final DataNotFoundException exception) {
 		ErrorMessage errorMessage=new ErrorMessage(exception.getMessage(), 404 ,"https:github.com/vivek166");
 		return Response.status(Status.NOT_FOUND)
 				.entity(errorMessage)
 				.build();
-	}*/
+	}
 
 }

@@ -30,7 +30,7 @@ public class EmployeeServicesImplementation implements EmployeeServices {
 			//employee.setProjectEmployees(null);
 			tx.commit();
 			return employee;
-		} catch (Exception e) {
+		} catch(Exception e) {
 			return null;
 		} finally {
 			session.close();
@@ -45,15 +45,15 @@ public class EmployeeServicesImplementation implements EmployeeServices {
 				Query query = session.createQuery("from com.synerzip.projectmanagementapp.model.Employee");
 				query.setFirstResult(start);
 				query.setMaxResults(size);
-				List<Employee> employees = query.list();
-				int count = ((Long)session.createQuery("select count(*) from com.synerzip.projectmanagementapp.model.Employee").uniqueResult()).intValue();
+				List < Employee > employees = query.list();
+				int count = ((Long) session.createQuery("select count(*) from com.synerzip.projectmanagementapp.model.Employee").uniqueResult()).intValue();
 				session.flush();
 				session.getTransaction().commit();
 				PageResult pageResults = new PageResult();
 				pageResults.setData(employees);
 				pageResults.setTotalResult(count);
 				return pageResults;
-			} catch (Exception e) {
+			} catch(Exception e) {
 				e.printStackTrace();
 			}
 		} else {
@@ -64,28 +64,26 @@ public class EmployeeServicesImplementation implements EmployeeServices {
 	}
 
 	public PageResult searchEmployee(int start, int size, String content) {
-		EntityManager entityManager = Persistence.createEntityManagerFactory("MumzHibernateSearch")
-				.createEntityManager();
+		EntityManager entityManager = Persistence.createEntityManagerFactory("MumzHibernateSearch").createEntityManager();
 		entityManager.getTransaction().begin();
 		FullTextEntityManager fullTextEntityManager = Search.getFullTextEntityManager(entityManager);
 		try {
 			// fullTextEntityManager.createIndexer().startAndWait();
-			QueryBuilder qb = fullTextEntityManager.getSearchFactory().buildQueryBuilder().forEntity(Employee.class)
-					.get();
-			org.apache.lucene.search.Query query = qb.keyword()
-					.onFields("empId", "empName", "empDepartment", "empSubjects").matching(content).createQuery();
+			QueryBuilder qb = fullTextEntityManager.getSearchFactory().buildQueryBuilder().forEntity(Employee.class).get();
+			org.apache.lucene.search.Query query = qb.keyword().onFields("empId", "empName", "empDepartment", "empSubjects").matching(content).createQuery();
 			javax.persistence.Query jpaQuery = fullTextEntityManager.createFullTextQuery(query, Employee.class);
 			jpaQuery.setFirstResult(start);
 			jpaQuery.setMaxResults(size);
-			List<Employee> employeeResult = jpaQuery.getResultList();
+			int count = jpaQuery.getResultList().size();
+			List < Employee > employeeResult = jpaQuery.getResultList();
 			if (employeeResult != null) {
 				PageResult pageResults = new PageResult();
 				pageResults.setData(employeeResult);
-				pageResults.setTotalResult(0);
+				pageResults.setTotalResult(count);
 				return pageResults;
 			}
 
-		} catch (Exception e) {
+		} catch(Exception e) {
 			e.printStackTrace();
 		} finally {
 			if (fullTextEntityManager != null) {
@@ -106,7 +104,7 @@ public class EmployeeServicesImplementation implements EmployeeServices {
 			// addEmployeeProject(employee);
 			tx.commit();
 			return employee;
-		} catch (Exception e) {
+		} catch(Exception e) {
 			return null;
 		} finally {
 			session.close();
@@ -117,8 +115,8 @@ public class EmployeeServicesImplementation implements EmployeeServices {
 		Session session = HibernateUtils.getSession();
 		Session sessionPE = HibernateUtils.getSession();
 		org.hibernate.Transaction tx = sessionPE.beginTransaction();
-		List<Integer> projectIds = employee.getProjectIds();
-		for (Integer projectId : projectIds) {
+		List < Integer > projectIds = employee.getProjectIds();
+		for (Integer projectId: projectIds) {
 			try {
 				Project project = (Project) session.get(Project.class, (long) projectId);
 				ProjectEmployee pe = new ProjectEmployee();
@@ -127,7 +125,7 @@ public class EmployeeServicesImplementation implements EmployeeServices {
 				sessionPE.save(pe);
 				sessionPE.flush();
 				tx.commit();
-			} catch (Exception exception) {
+			} catch(Exception exception) {
 				exception.printStackTrace();
 			} finally {
 				sessionPE.close();
@@ -146,7 +144,7 @@ public class EmployeeServicesImplementation implements EmployeeServices {
 			query.setParameter("emp_id", empId);
 			query.executeUpdate();
 			tx.commit();
-		} catch (Exception e) {
+		} catch(Exception e) {
 			return null;
 		} finally {
 			session.close();
@@ -166,7 +164,7 @@ public class EmployeeServicesImplementation implements EmployeeServices {
 			session.save(employee);
 			tx.commit();
 			return employee;
-		} catch (Exception e) {
+		} catch(Exception e) {
 			return null;
 		} finally {
 			session.close();

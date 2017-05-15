@@ -16,39 +16,30 @@ import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
 
-@Entity
-@Table(name = "employee")
-@Indexed
+@Entity@Table(name = "employee")@Indexed
 public class Employee {
 
-	@Id
-	@GeneratedValue
-	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
-	@Column(name = "emp_id")
+	@Id@GeneratedValue@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)@Column(name = "emp_id")
 	private long empId;
-	
-	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
-	@Column(name = "emp_name")
+
+	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)@Column(name = "emp_name")
 	private String empName;
-	
-	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
-	@Column(name = "emp_department")
+
+	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)@Column(name = "emp_department")
 	private String empDepartment;
-	
-	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
-	@Column(name = "emp_subject")
+
+	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)@Column(name = "emp_subject")
 	private String empSubjects;
-	
+
 	@Transient
-	private List<Integer> projectIds;
-	
-	
+	private List < Integer > projectIds;
+
 	/*@OneToMany(mappedBy="employee")
 	private List<ProjectEmployee> projectEmployees;*/
 
 	public Employee() {
 
-	}
+}
 
 	public long getEmpId() {
 		return empId;
@@ -82,18 +73,17 @@ public class Employee {
 		this.empSubjects = empSubjects;
 	}
 
-	public List<Integer> getProjectIds() {
+	public List < Integer > getProjectIds() {
 		return projectIds;
 	}
 
-	public void setProjectIds(List<Integer> projectIds) {
+	public void setProjectIds(List < Integer > projectIds) {
 		this.projectIds = projectIds;
 	}
 
 	@Override
 	public String toString() {
-		return "Employee [empId=" + empId + ", empName=" + empName + ", empDepartment=" + empDepartment
-				+ ", empSubjects=" + empSubjects + ", projectIds=" + projectIds + "]";
+		return "Employee [empId=" + empId + ", empName=" + empName + ", empDepartment=" + empDepartment + ", empSubjects=" + empSubjects + ", projectIds=" + projectIds + "]";
 	}
 
 	/*public List<ProjectEmployee> getProjectEmployees() {
@@ -104,5 +94,4 @@ public class Employee {
 		this.projectEmployees = projectEmployees;
 	}*/
 
-	
 }

@@ -15,43 +15,33 @@ import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
 
-@Entity
-@Table(name = "project")
-@Indexed
+@Entity@Table(name = "project")@Indexed
 public class Project {
 
-	@Id
-	@GeneratedValue
-	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
-	@Column(name = "project_id")
+	@Id@GeneratedValue@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)@Column(name = "project_id")
 	private long projectId;
-	
-	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
-	@Column(name = "project_title")
+
+	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)@Column(name = "project_title")
 	private String projectTitle;
-	
-	
-	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
-	@Column(name = "technology_used")
+
+	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)@Column(name = "technology_used")
 	private String technologyUsed;
-	
-	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
-	@Column(name = "project_description")
+
+	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)@Column(name = "project_description")
 	private String projectDescription;
-	
-	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
-	@Column(name = "project_feature")
+
+	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)@Column(name = "project_feature")
 	private String projectFeature;
-	
+
 	@Transient
-	private List<Integer> empIds;
+	private List < Integer > empIds;
 
 	/*@OneToMany(mappedBy = "project")
 	private List<ProjectEmployee> projectEmployees;*/
 
 	public Project() {
 
-	}
+}
 
 	public long getProjectId() {
 		return projectId;
@@ -93,20 +83,20 @@ public class Project {
 		this.projectFeature = projectFeature;
 	}
 
-	public List<Integer> getEmpIds() {
+	public List < Integer > getEmpIds() {
 		return empIds;
 	}
 
-	public void setEmpIds(List<Integer> empIds) {
+	public void setEmpIds(List < Integer > empIds) {
 		this.empIds = empIds;
 	}
 
-	@Override
+	/*@Override
 	public String toString() {
-		return "Project [projectId=" + projectId + ", projectTitle=" + projectTitle + ", technologyUsed="
+		return "[projectId=" + projectId + ", projectTitle=" + projectTitle + ", technologyUsed="
 				+ technologyUsed + ", projectDescription=" + projectDescription + ", projectFeature=" + projectFeature
 				+ ", empIds=" + empIds + "]";
-	}
+	}*/
 
 	/*public List<ProjectEmployee> getProjectEmployees() {
 		return projectEmployees;
@@ -122,7 +112,5 @@ public class Project {
 				+ technologyUsed + ", projectDescription=" + projectDescription + ", projectFeature=" + projectFeature
 				+ ", empIds=" + empIds + ", projectEmployees=]";
 	}*/
-	
-	
-	
+
 }
