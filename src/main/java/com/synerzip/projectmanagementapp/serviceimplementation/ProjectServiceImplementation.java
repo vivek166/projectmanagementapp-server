@@ -5,6 +5,7 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.Persistence;
 
+import org.hibernate.ObjectNotFoundException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.search.jpa.FullTextEntityManager;
@@ -23,9 +24,8 @@ public class ProjectServiceImplementation implements ProjectServices {
 	public Project getProject(long projectId) {
 		Session session = HibernateUtils.getSession();
 		org.hibernate.Transaction tx = session.beginTransaction();
-		Project project = new Project();
 		try {
-			project = (Project) session.get(Project.class, projectId);
+			Project project = (Project) session.get(Project.class, projectId);
 			//project.setProjectEmployees(null);
 			tx.commit();
 			return project;
@@ -107,7 +107,7 @@ public class ProjectServiceImplementation implements ProjectServices {
 			tx.commit();
 			return project;
 		} catch(Exception e) {
-			return null;
+			throw new java.nio.channels.OverlappingFileLockException();
 		} finally {
 			session.close();
 		}
@@ -149,7 +149,7 @@ public class ProjectServiceImplementation implements ProjectServices {
 			session.flush();
 			tx.commit();
 		} catch(Exception e) {
-			return null;
+			throw new ObjectNotFoundException(e, "no record found");
 		} finally {
 			session.close();
 		}

@@ -7,7 +7,7 @@ public class ErrorMessage {
 	private String errorMessage;
 	private int errorCode;
 	private String documentation;
-	
+
 	public ErrorMessage() {
 
 	}
@@ -42,5 +42,5 @@ public class ErrorMessage {
 		this.errorCode = errorCode;
 		this.documentation = documentation;
 	}
-	
+
 }
