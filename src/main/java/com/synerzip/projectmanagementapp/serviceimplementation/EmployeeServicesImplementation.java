@@ -3,8 +3,11 @@ package com.synerzip.projectmanagementapp.serviceimplementation;
 import java.util.List;
 
 import javax.persistence.EntityManager;
+import javax.persistence.EntityNotFoundException;
 import javax.persistence.Persistence;
 
+import org.hibernate.HibernateException;
+import org.hibernate.ObjectNotFoundException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.search.jpa.FullTextEntityManager;
@@ -20,70 +23,78 @@ import com.synerzip.projectmanagementapp.services.EmployeeServices;
 
 public class EmployeeServicesImplementation implements EmployeeServices {
 
-	public Employee getEmployee(long empId) {
-
+	public Employee get(long empId) {
 		Session session = HibernateUtils.getSession();
-		org.hibernate.Transaction tx = session.beginTransaction();
-		Employee employee = new Employee();
+		Employee employee;
 		try {
 			employee = (Employee) session.get(Employee.class, empId);
-			//employee.setProjectEmployees(null);
-			tx.commit();
-			return employee;
-		} catch(Exception e) {
-			return null;
+			// employee.setProjectEmployees(null);
+			if (employee == null) {
+				throw new EntityNotFoundException("record not found with id " + empId);
+			}
+		} catch (HibernateException e) {
+			throw new HibernateException("database error");
 		} finally {
 			session.close();
 		}
+		return employee;
 	}
 
-	public PageResult getEmployees(int start, int size, String content) {
+	public PageResult gets(int start, int size, String content) {
 		Session session = HibernateUtils.getSession();
-		session.beginTransaction();
-		if (content.length() == 0) {
+		if (org.apache.commons.lang.StringUtils.isEmpty(content)) {
 			try {
-				Query query = session.createQuery("from com.synerzip.projectmanagementapp.model.Employee");
-				query.setFirstResult(start);
-				query.setMaxResults(size);
-				List < Employee > employees = query.list();
-				int count = ((Long) session.createQuery("select count(*) from com.synerzip.projectmanagementapp.model.Employee").uniqueResult()).intValue();
-				session.flush();
-				session.getTransaction().commit();
-				PageResult pageResults = new PageResult();
-				pageResults.setData(employees);
-				pageResults.setTotalResult(count);
-				return pageResults;
-			} catch(Exception e) {
-				e.printStackTrace();
+				int count = ((Long) session
+						.createQuery("select count(*) from com.synerzip.projectmanagementapp.model.Employee")
+						.uniqueResult()).intValue();
+				if(count>0){
+					Query query = session.createQuery("from com.synerzip.projectmanagementapp.model.Employee");
+					query.setFirstResult(start);
+					query.setMaxResults(size);
+					List<Employee> employees = query.list();
+					session.flush();
+					PageResult pageResults = new PageResult();
+					pageResults.setData(employees);
+					pageResults.setTotalResult(count);
+					return pageResults;
+				}else {
+					throw new EntityNotFoundException("no record found ");
+				}
+			} catch (Exception e) {
+				throw new EntityNotFoundException("database error");
+			} finally {
+				session.close();
 			}
 		} else {
-			return searchEmployee(start, size, content);
+			return search(start, size, content);
 		}
-		session.getTransaction().commit();
-		return null;
 	}
 
-	public PageResult searchEmployee(int start, int size, String content) {
-		EntityManager entityManager = Persistence.createEntityManagerFactory("MumzHibernateSearch").createEntityManager();
-		entityManager.getTransaction().begin();
+	public PageResult search(int start, int size, String content) {
+		EntityManager entityManager = Persistence.createEntityManagerFactory("HibernatePersistence")
+				.createEntityManager();
 		FullTextEntityManager fullTextEntityManager = Search.getFullTextEntityManager(entityManager);
 		try {
 			// fullTextEntityManager.createIndexer().startAndWait();
-			QueryBuilder qb = fullTextEntityManager.getSearchFactory().buildQueryBuilder().forEntity(Employee.class).get();
-			org.apache.lucene.search.Query query = qb.keyword().onFields("empId", "empName", "empDepartment", "empSubjects").matching(content).createQuery();
-			javax.persistence.Query jpaQuery = fullTextEntityManager.createFullTextQuery(query, Employee.class);
-			jpaQuery.setFirstResult(start);
-			jpaQuery.setMaxResults(size);
-			int count = jpaQuery.getResultList().size();
-			List < Employee > employeeResult = jpaQuery.getResultList();
+			QueryBuilder qb = fullTextEntityManager.getSearchFactory().buildQueryBuilder().forEntity(Employee.class)
+					.get();
+			org.apache.lucene.search.Query query = qb.keyword()
+					.onFields("empId", "empName", "empDepartment", "empSubjects").matching(content).createQuery();
+			javax.persistence.Query fullTextQuery = fullTextEntityManager.createFullTextQuery(query, Employee.class);
+			fullTextQuery.setFirstResult(start);
+			fullTextQuery.setMaxResults(size);
+			int count = fullTextQuery.getResultList().size();
+			List<Employee> employeeResult = fullTextQuery.getResultList();
 			if (employeeResult != null) {
 				PageResult pageResults = new PageResult();
 				pageResults.setData(employeeResult);
 				pageResults.setTotalResult(count);
 				return pageResults;
+			}else {
+				throw new EntityNotFoundException("no record found");
 			}
 
-		} catch(Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
 			if (fullTextEntityManager != null) {
@@ -91,11 +102,10 @@ public class EmployeeServicesImplementation implements EmployeeServices {
 			}
 			fullTextEntityManager = null;
 		}
-		entityManager.getTransaction().commit();
 		return null;
 	}
 
-	public Employee addEmployee(Employee employee) {
+	public Employee add(Employee employee) {
 
 		Session session = HibernateUtils.getSession();
 		org.hibernate.Transaction tx = session.beginTransaction();
@@ -104,19 +114,53 @@ public class EmployeeServicesImplementation implements EmployeeServices {
 			// addEmployeeProject(employee);
 			tx.commit();
 			return employee;
-		} catch(Exception e) {
-			return null;
+		} catch (Exception e) {
+			throw new java.nio.channels.OverlappingFileLockException();
 		} finally {
 			session.close();
 		}
 	}
 
+
+	public String delete(long empId) {
+		Session session = HibernateUtils.getSession();
+		try {
+			String deleteQuery = "DELETE FROM Employee WHERE emp_id = :emp_id";
+			Query query = session.createQuery(deleteQuery);
+			query.setParameter("emp_id", empId);
+			int affectedRow = query.executeUpdate();
+			if (affectedRow == 0) {
+				throw new ObjectNotFoundException("no record found", deleteQuery);
+			}
+		} catch (Exception e) {
+			throw new ObjectNotFoundException(e, "database error");
+		} finally {
+			session.close();
+		}
+		return "record deleted";
+	}
+
+	public Employee update(Employee employee, long empId) {
+		Session session = HibernateUtils.getSession();
+		org.hibernate.Transaction tx = session.beginTransaction();
+		try {
+			session.saveOrUpdate(employee);
+			tx.commit();
+			return employee;
+		} catch (Exception e) {
+			 throw new HibernateException("record already with same employee name");
+		} finally {
+			session.close();
+		}
+	}
+	
+	
 	private void addEmployeeProject(Employee employee) {
 		Session session = HibernateUtils.getSession();
 		Session sessionPE = HibernateUtils.getSession();
 		org.hibernate.Transaction tx = sessionPE.beginTransaction();
-		List < Integer > projectIds = employee.getProjectIds();
-		for (Integer projectId: projectIds) {
+		List<Integer> projectIds = employee.getProjectIds();
+		for (Integer projectId : projectIds) {
 			try {
 				Project project = (Project) session.get(Project.class, (long) projectId);
 				ProjectEmployee pe = new ProjectEmployee();
@@ -125,49 +169,11 @@ public class EmployeeServicesImplementation implements EmployeeServices {
 				sessionPE.save(pe);
 				sessionPE.flush();
 				tx.commit();
-			} catch(Exception exception) {
+			} catch (Exception exception) {
 				exception.printStackTrace();
 			} finally {
 				sessionPE.close();
 			}
-		}
-	}
-
-	public String deleteEmployee(long empId) {
-
-		Session session = HibernateUtils.getSession();
-		org.hibernate.Transaction tx = session.beginTransaction();
-
-		try {
-			String deleteQuery = "DELETE FROM Employee WHERE emp_id = :emp_id";
-			Query query = session.createQuery(deleteQuery);
-			query.setParameter("emp_id", empId);
-			query.executeUpdate();
-			tx.commit();
-		} catch(Exception e) {
-			return null;
-		} finally {
-			session.close();
-		}
-		return "record deleted";
-	}
-
-	public Employee updateEmployee(Employee employee, long empId) {
-		Session session = HibernateUtils.getSession();
-		org.hibernate.Transaction tx = session.beginTransaction();
-
-		try {
-			String deleteQuery = "DELETE FROM Employee WHERE emp_id = :emp_id";
-			Query query = session.createQuery(deleteQuery);
-			query.setParameter("emp_id", empId);
-			query.executeUpdate();
-			session.save(employee);
-			tx.commit();
-			return employee;
-		} catch(Exception e) {
-			return null;
-		} finally {
-			session.close();
 		}
 	}
 }

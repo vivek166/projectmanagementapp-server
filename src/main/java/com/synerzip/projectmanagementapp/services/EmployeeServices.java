@@ -7,15 +7,15 @@ import com.synerzip.projectmanagementapp.model.PageResult;
 
 public interface EmployeeServices {
 
-	Employee getEmployee(long empId);
+	Employee get(long empId);
 
-	PageResult getEmployees(int start, int size, String content);
+	PageResult gets(int start, int size, String content);
 
-	Employee addEmployee(Employee employee);
+	Employee add(Employee employee);
 
-	String deleteEmployee(long empId);
+	String delete(long empId);
 
-	Employee updateEmployee(Employee employee, long empId);
+	Employee update(Employee employee, long empId);
 
-	PageResult searchEmployee(int start, int size, String content);
+	PageResult search(int start, int size, String content);
 }

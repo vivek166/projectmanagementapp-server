@@ -12,6 +12,7 @@ import javax.ws.rs.core.Response;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.hibernate.HibernateException;
 import org.hibernate.search.jpa.FullTextEntityManager;
 import org.hibernate.search.jpa.Search;
 import org.hibernate.search.query.dsl.QueryBuilder;
@@ -45,69 +46,59 @@ public class ProjectController {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/{projectId}")
-	public Response getProject(@PathParam("projectId") long projectId) {
-		Project project = service.getProject(projectId);
-		if (project == null) {
-			throw new EntityNotFoundException("record not found with id " + projectId);
-		} else {
-			return Response.ok().entity(project).build();
-		}
+	public Response get(@PathParam("projectId") long projectId) {
+		return Response.ok().entity(service.get(projectId)).build();
 	}
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getProjects(@DefaultValue("0") @QueryParam("start") int start,
+	public String gets(@DefaultValue("0") @QueryParam("start") int start,
 			@DefaultValue("5") @QueryParam("size") int size, @DefaultValue("") @QueryParam("query") String query)
-			throws JsonGenerationException, JsonMappingException, IOException {
-		PageResult projectList = service.getProjects(start, size, query);
-		if (projectList.getData().size() == 0) {
-			throw new NotFoundException("record is empty");
-		} else {
-			return new ObjectMapper().writeValueAsString(service.getProjects(start, size, query));
-		}
+			throws JsonGenerationException, JsonMappingException, IOException, EntityNotFoundException {
+		return new ObjectMapper().writeValueAsString(service.gets(start, size, query));
 	}
 
 	@GET
 	@Path("/search")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String searchProject(@DefaultValue("0") @QueryParam("start") int start,
+	public String search(@DefaultValue("0") @QueryParam("start") int start,
 			@DefaultValue("5") @QueryParam("size") int size, @QueryParam("query") String query)
 			throws JsonGenerationException, JsonMappingException, IOException {
-		PageResult projectList = service.getProjects(start, size, query);
+		PageResult projectList = service.gets(start, size, query);
 		if (projectList.getData().size() == 0) {
 			throw new NotFoundException("No record matching with " + query);
 		} else {
-			return new ObjectMapper().writeValueAsString(service.getProjects(start, size, query));
+			return new ObjectMapper().writeValueAsString(service.gets(start, size, query));
 		}
 	}
 
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Project addProject(Project project) {
-		return service.addProject(project);
+	public Response add(Project project) {
+		return Response.ok().entity(service.add(project)).build();
 	}
 
 	@DELETE
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("{projectId}")
-	public String deleteProject(@PathParam("projectId") long projectId) {
-		return service.deleteProject(projectId);
+	public Response delete(@PathParam("projectId") long projectId) {
+		return Response.ok().entity(service.delete(projectId)).build();
 	}
 
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("{projectId}")
-	public Project updateProject(Project project, @PathParam("projectId") long projectId) {
-		return service.updateProject(project, projectId);
+	public Response update(Project project, @PathParam("projectId") long projectId) {
+		return Response.ok().entity(service.update(project, projectId)).build();
 	}
 
 	@PATCH
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("{projectId}")
-	public Project updateProjectPartially(Project project, @PathParam("projectId") long projectId) {
-		return service.updateProjectPartially(project, projectId);
+	public Project patch(Project project, @PathParam("projectId") long projectId) {
+		return service.patch(project, projectId);
 	}
 }
