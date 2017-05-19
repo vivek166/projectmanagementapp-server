@@ -6,6 +6,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.Persistence;
 
+import org.apache.log4j.Logger;
 import org.hibernate.HibernateException;
 import org.hibernate.ObjectNotFoundException;
 import org.hibernate.Query;
@@ -23,16 +24,19 @@ import com.synerzip.projectmanagementapp.model.ProjectEmployee;
 import com.synerzip.projectmanagementapp.services.ProjectServices;
 
 public class ProjectServiceImplementation implements ProjectServices {
+	static final Logger logger=Logger.getLogger(ProjectServiceImplementation.class);
 	public Project get(long projectId) {
 		Session session = HibernateUtils.getSession();
 		Project project;
 		try {
+			logger.error("error while getting project by Id"+projectId);
 			project = (Project) session.get(Project.class, projectId);
 			// project.setProjectEmployees(null);
 			if (project == null) {
 				throw new EntityNotFoundException("record not found with id " + projectId);
 			}
 		} catch (HibernateException e) {
+			
 			throw new HibernateException("database error");
 		} finally {
 			session.close();
