@@ -10,6 +10,7 @@ import org.hibernate.HibernateException;
 import org.hibernate.ObjectNotFoundException;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.exception.ConstraintViolationException;
 import org.hibernate.search.jpa.FullTextEntityManager;
 import org.hibernate.search.jpa.Search;
 import org.hibernate.search.query.dsl.QueryBuilder;
@@ -47,7 +48,7 @@ public class EmployeeServicesImplementation implements EmployeeServices {
 				int count = ((Long) session
 						.createQuery("select count(*) from com.synerzip.projectmanagementapp.model.Employee")
 						.uniqueResult()).intValue();
-				if(count>0){
+				if (count > 0) {
 					Query query = session.createQuery("from com.synerzip.projectmanagementapp.model.Employee");
 					query.setFirstResult(start);
 					query.setMaxResults(size);
@@ -57,7 +58,7 @@ public class EmployeeServicesImplementation implements EmployeeServices {
 					pageResults.setData(employees);
 					pageResults.setTotalResult(count);
 					return pageResults;
-				}else {
+				} else {
 					throw new EntityNotFoundException("no record found ");
 				}
 			} catch (Exception e) {
@@ -85,24 +86,23 @@ public class EmployeeServicesImplementation implements EmployeeServices {
 			fullTextQuery.setMaxResults(size);
 			int count = fullTextQuery.getResultList().size();
 			List<Employee> employeeResult = fullTextQuery.getResultList();
-			if (employeeResult != null) {
+			if (employeeResult.size() != 0) {
 				PageResult pageResults = new PageResult();
 				pageResults.setData(employeeResult);
 				pageResults.setTotalResult(count);
 				return pageResults;
-			}else {
-				throw new EntityNotFoundException("no record found");
+			} else {
+				throw new EntityNotFoundException("No record matching with " + content);
 			}
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new EntityNotFoundException("No record matching with " + content);
 		} finally {
 			if (fullTextEntityManager != null) {
 				fullTextEntityManager.close();
 			}
 			fullTextEntityManager = null;
 		}
-		return null;
 	}
 
 	public Employee add(Employee employee) {
@@ -115,22 +115,23 @@ public class EmployeeServicesImplementation implements EmployeeServices {
 			tx.commit();
 			return employee;
 		} catch (Exception e) {
-			throw new java.nio.channels.OverlappingFileLockException();
+			throw new ConstraintViolationException("record already present with name-- "+employee.getEmpName(), null, null);
 		} finally {
 			session.close();
 		}
 	}
 
-
 	public String delete(long empId) {
 		Session session = HibernateUtils.getSession();
+		org.hibernate.Transaction tx = session.beginTransaction();
 		try {
 			String deleteQuery = "DELETE FROM Employee WHERE emp_id = :emp_id";
 			Query query = session.createQuery(deleteQuery);
 			query.setParameter("emp_id", empId);
 			int affectedRow = query.executeUpdate();
+			tx.commit();
 			if (affectedRow == 0) {
-				throw new ObjectNotFoundException("no record found", deleteQuery);
+				throw new ObjectNotFoundException("record already deleted", deleteQuery);
 			}
 		} catch (Exception e) {
 			throw new ObjectNotFoundException(e, "database error");
@@ -148,13 +149,13 @@ public class EmployeeServicesImplementation implements EmployeeServices {
 			tx.commit();
 			return employee;
 		} catch (Exception e) {
-			 throw new HibernateException("record already with same employee name");
+			tx.rollback();
+			throw new HibernateException("record already with same employee name");
 		} finally {
 			session.close();
 		}
 	}
-	
-	
+
 	private void addEmployeeProject(Employee employee) {
 		Session session = HibernateUtils.getSession();
 		Session sessionPE = HibernateUtils.getSession();

@@ -5,12 +5,14 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.Persistence;
+import javax.ws.rs.NotFoundException;
 
 import org.apache.log4j.Logger;
 import org.hibernate.HibernateException;
 import org.hibernate.ObjectNotFoundException;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.exception.ConstraintViolationException;
 import org.hibernate.search.jpa.FullTextEntityManager;
 import org.hibernate.search.jpa.Search;
 import org.hibernate.search.query.dsl.QueryBuilder;
@@ -24,20 +26,20 @@ import com.synerzip.projectmanagementapp.model.ProjectEmployee;
 import com.synerzip.projectmanagementapp.services.ProjectServices;
 
 public class ProjectServiceImplementation implements ProjectServices {
-	static final Logger logger=Logger.getLogger(ProjectServiceImplementation.class);
+	static final Logger logger = Logger.getLogger(ProjectServiceImplementation.class);
+
 	public Project get(long projectId) {
 		Session session = HibernateUtils.getSession();
 		Project project;
 		try {
-			logger.error("error while getting project by Id"+projectId);
 			project = (Project) session.get(Project.class, projectId);
 			// project.setProjectEmployees(null);
 			if (project == null) {
+				logger.error("error while getting project by Id" + projectId);
 				throw new EntityNotFoundException("record not found with id " + projectId);
 			}
 		} catch (HibernateException e) {
-			
-			throw new HibernateException("database error");
+			throw new HibernateException("record not found with id " + projectId);
 		} finally {
 			session.close();
 		}
@@ -65,7 +67,7 @@ public class ProjectServiceImplementation implements ProjectServices {
 					throw new EntityNotFoundException("no record found ");
 				}
 			} catch (Exception e) {
-				throw new EntityNotFoundException("database error");
+				throw new EntityNotFoundException("no record found ");
 			} finally {
 				session.close();
 			}
@@ -91,23 +93,22 @@ public class ProjectServiceImplementation implements ProjectServices {
 			fullTextQuery.setFirstResult(start);
 			fullTextQuery.setMaxResults(size);
 			List<Project> projectResult = fullTextQuery.getResultList();
-			if (projectResult != null) {
+			if (projectResult.size() != 0) {
 				PageResult pageResults = new PageResult();
 				pageResults.setData(projectResult);
 				pageResults.setTotalResult(count);
 				return pageResults;
 			} else {
-				throw new EntityNotFoundException("no record found");
+				throw new NotFoundException("No record matching with " + content);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new NotFoundException("No record matching with " + content);
 		} finally {
 			if (fullTextEntityManager != null) {
 				fullTextEntityManager.close();
 			}
 			fullTextEntityManager = null;
 		}
-		return null;
 	}
 
 	public Project add(Project project) {
@@ -119,7 +120,7 @@ public class ProjectServiceImplementation implements ProjectServices {
 			tx.commit();
 			return project;
 		} catch (Exception e) {
-			throw new java.nio.channels.OverlappingFileLockException();
+			throw new ConstraintViolationException("record already present with title-- "+project.getProjectTitle(), null, null);
 		} finally {
 			session.close();
 		}
@@ -127,11 +128,13 @@ public class ProjectServiceImplementation implements ProjectServices {
 
 	public String delete(long projectId) {
 		Session session = HibernateUtils.getSession();
+		org.hibernate.Transaction tx = session.beginTransaction();
 		try {
 			String deleteQuery = "DELETE FROM Project WHERE project_id = :project_id";
 			Query query = session.createQuery(deleteQuery);
 			query.setParameter("project_id", projectId);
 			int affectedRow = query.executeUpdate();
+			tx.commit();
 			if (affectedRow == 0) {
 				throw new ObjectNotFoundException("no record found", deleteQuery);
 			}
@@ -151,7 +154,7 @@ public class ProjectServiceImplementation implements ProjectServices {
 			tx.commit();
 			return project;
 		} catch (Exception e) {
-			 throw new HibernateException("record already with same project title");
+			throw new HibernateException("record already with same project title "+project.getProjectTitle());
 		} finally {
 			session.close();
 		}
@@ -184,7 +187,7 @@ public class ProjectServiceImplementation implements ProjectServices {
 			session.close();
 		}
 	}
-	
+
 	public List<Employee> getProjectEmployees(long projectId) {
 		Session session = HibernateUtils.getSession();
 		org.hibernate.Transaction tx = session.beginTransaction();
@@ -201,7 +204,7 @@ public class ProjectServiceImplementation implements ProjectServices {
 			session.close();
 		}
 	}
-	
+
 	public void addProjectEmployee(Project project) {
 		Session session = HibernateUtils.getSession();
 		Session sessionPE = HibernateUtils.getSession();

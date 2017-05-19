@@ -35,8 +35,8 @@ public class EmployeeController {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/{empId}")
 	public Response get(@PathParam("empId") long empId) {
-		Employee employee= service.get(empId);
-		if(employee==null){
+		Employee employee = service.get(empId);
+		if (employee == null) {
 			throw new EntityNotFoundException("no such record found");
 		}
 		return Response.ok().entity(employee).build();

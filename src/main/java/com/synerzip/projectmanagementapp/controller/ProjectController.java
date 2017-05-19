@@ -64,12 +64,7 @@ public class ProjectController {
 	public String search(@DefaultValue("0") @QueryParam("start") int start,
 			@DefaultValue("5") @QueryParam("size") int size, @QueryParam("query") String query)
 			throws JsonGenerationException, JsonMappingException, IOException {
-		PageResult projectList = service.gets(start, size, query);
-		if (projectList.getData().size() == 0) {
-			throw new NotFoundException("No record matching with " + query);
-		} else {
-			return new ObjectMapper().writeValueAsString(service.gets(start, size, query));
-		}
+		return new ObjectMapper().writeValueAsString(service.gets(start, size, query));
 	}
 
 	@POST

@@ -45,7 +45,8 @@ public class CustomExceptionMapper implements ExceptionMapper<Exception> {
 		}
 		
 		else {
-			return null;
+			ErrorMessage errorMessage = new ErrorMessage("internal server error", 505, "https:github.com/vivek166");
+			return Response.status(Status.NOT_FOUND).entity(errorMessage).type("text/json").build();
 		}
 	}
 
