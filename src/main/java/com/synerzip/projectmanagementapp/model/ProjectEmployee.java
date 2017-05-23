@@ -17,7 +17,7 @@ public class ProjectEmployee {
 
 	@ManyToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "project_id")
-	private Project project;
+	private Project  project;
 
 	@ManyToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "emp_id")
@@ -48,6 +48,12 @@ public class ProjectEmployee {
 
 	public void setEmployee(Employee employee) {
 		this.employee = employee;
+	}
+
+	@Override
+	public String toString() {
+		return "ProjectEmployee [projectEmpId=" + projectEmpId + ", project=" + project + ", employee=" + employee
+				+ "]";
 	}
 
 }

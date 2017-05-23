@@ -1,4 +1,4 @@
-package com.synerzip.projectmanagementapp.exception;
+/*package com.synerzip.projectmanagementapp.exception;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -16,4 +16,4 @@ public class GenericExceptionMapper implements ExceptionMapper<Throwable> {
 		return Response.status(Status.INTERNAL_SERVER_ERROR).entity(errorMessage).type("text/json").build();
 	}
 
-}
+}*/

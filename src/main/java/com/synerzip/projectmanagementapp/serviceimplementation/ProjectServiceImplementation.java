@@ -1,5 +1,6 @@
 package com.synerzip.projectmanagementapp.serviceimplementation;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -8,10 +9,12 @@ import javax.persistence.Persistence;
 import javax.ws.rs.NotFoundException;
 
 import org.apache.log4j.Logger;
+import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.ObjectNotFoundException;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.criterion.Restrictions;
 import org.hibernate.exception.ConstraintViolationException;
 import org.hibernate.search.jpa.FullTextEntityManager;
 import org.hibernate.search.jpa.Search;
@@ -28,14 +31,14 @@ import com.synerzip.projectmanagementapp.services.ProjectServices;
 public class ProjectServiceImplementation implements ProjectServices {
 	static final Logger logger = Logger.getLogger(ProjectServiceImplementation.class);
 
+	@SuppressWarnings("unused")
 	public Project get(long projectId) {
 		Session session = HibernateUtils.getSession();
 		Project project;
 		try {
 			project = (Project) session.get(Project.class, projectId);
-			// project.setProjectEmployees(null);
+			project.setEmployees(null);
 			if (project == null) {
-				logger.error("error while getting project by Id" + projectId);
 				throw new EntityNotFoundException("record not found with id " + projectId);
 			}
 		} catch (HibernateException e) {
@@ -120,7 +123,8 @@ public class ProjectServiceImplementation implements ProjectServices {
 			tx.commit();
 			return project;
 		} catch (Exception e) {
-			throw new ConstraintViolationException("record already present with title-- "+project.getProjectTitle(), null, null);
+			throw new ConstraintViolationException("record already present with title-- " + project.getProjectTitle(),
+					null, null);
 		} finally {
 			session.close();
 		}
@@ -154,7 +158,7 @@ public class ProjectServiceImplementation implements ProjectServices {
 			tx.commit();
 			return project;
 		} catch (Exception e) {
-			throw new HibernateException("record already with same project title "+project.getProjectTitle());
+			throw new HibernateException("record already with same project title " + project.getProjectTitle());
 		} finally {
 			session.close();
 		}
@@ -182,49 +186,53 @@ public class ProjectServiceImplementation implements ProjectServices {
 			tx.commit();
 			return dbProject;
 		} catch (Exception e) {
-			return null;
+			throw new HibernateException("record not updated, something went wrong");
 		} finally {
 			session.close();
 		}
 	}
-
-	public List<Employee> getProjectEmployees(long projectId) {
+	
+	public List<Employee> assigned(long projectId) {
 		Session session = HibernateUtils.getSession();
 		org.hibernate.Transaction tx = session.beginTransaction();
+		List<Employee> empResult=null;
 		try {
-			Query query = session.createQuery(
-					"from com.synerzip.projectmanagementapp.model.Employee e join project_employee pe on e.emp_id=pe.employees_emp_id "
-							+ "WHERE pe.project_project_id = :project_id");
+			Query query = session.createQuery("select employee from ProjectEmployee where project_id = :project_id");
 			query.setParameter("project_id", projectId);
-			List<Employee> listResult = query.list();
-			return listResult;
+			empResult=query.list();
 		} catch (Exception e) {
-			return null;
+			e.printStackTrace();
 		} finally {
 			session.close();
 		}
+		return empResult;
 	}
 
-	public void addProjectEmployee(Project project) {
+	public ProjectEmployee assign(Project project) {
 		Session session = HibernateUtils.getSession();
-		Session sessionPE = HibernateUtils.getSession();
-		org.hibernate.Transaction tx = sessionPE.beginTransaction();
+		org.hibernate.Transaction tx = session.beginTransaction();
+		project.setEmployees(null);
+		session.save(project);
 		List<Integer> empIds = project.getEmpIds();
+		ProjectEmployee projectEmployee =new ProjectEmployee();
 		for (Integer empId : empIds) {
 			try {
 				Employee employee = (Employee) session.get(Employee.class, (long) empId);
-				ProjectEmployee pe = new ProjectEmployee();
-				pe.setEmployee(employee);
-				pe.setProject(project);
-				sessionPE.save(pe);
-				sessionPE.flush();
+				if(employee!=null){
+				projectEmployee.setEmployee(employee);
+				projectEmployee.setProject(project);
+				session.save(projectEmployee);
 				tx.commit();
+				}else{
+					throw new HibernateException("can't assign emp not exist");
+				}
 			} catch (Exception exception) {
-				exception.printStackTrace();
+				throw new HibernateException("can't assign emp not exist");
 			} finally {
-				sessionPE.close();
+				session.close();
 			}
 		}
+		return projectEmployee;
 	}
 
 }

@@ -1,14 +1,10 @@
 package com.synerzip.projectmanagementapp.services;
 
 import java.util.List;
-
-import javax.persistence.EntityNotFoundException;
-
-import org.hibernate.HibernateException;
-
 import com.synerzip.projectmanagementapp.model.Employee;
 import com.synerzip.projectmanagementapp.model.PageResult;
 import com.synerzip.projectmanagementapp.model.Project;
+import com.synerzip.projectmanagementapp.model.ProjectEmployee;
 
 public interface ProjectServices {
 
@@ -22,7 +18,9 @@ public interface ProjectServices {
 
 	Project update(Project project, long projectId);
 
-	List<Employee> getProjectEmployees(long projectId);
+	List<Employee> assigned(long projectId);
+	
+	ProjectEmployee assign(Project project);
 
 	Project patch(Project project, long projectId);
 

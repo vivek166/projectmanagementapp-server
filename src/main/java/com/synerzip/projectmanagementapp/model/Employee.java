@@ -28,7 +28,7 @@ public class Employee {
 	private long empId;
 
 	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
-	@Column(name = "emp_name", unique=true)
+	@Column(name = "emp_name", unique = true)
 	private String empName;
 
 	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
@@ -40,12 +40,11 @@ public class Employee {
 	private String empSubjects;
 
 	@Transient
+	@Column(name = "project_ids")
 	private List<Integer> projectIds;
 
-	/*
-	 * @OneToMany(mappedBy="employee") private List<ProjectEmployee>
-	 * projectEmployees;
-	 */
+	@OneToMany
+	private List<ProjectEmployee> projects;
 
 	public Employee() {
 
@@ -91,18 +90,18 @@ public class Employee {
 		this.projectIds = projectIds;
 	}
 
+	public List<ProjectEmployee> getProjects() {
+		return projects;
+	}
+
+	public void setProjects(List<ProjectEmployee> projects) {
+		this.projects = projects;
+	}
+
 	@Override
 	public String toString() {
 		return "Employee [empId=" + empId + ", empName=" + empName + ", empDepartment=" + empDepartment
-				+ ", empSubjects=" + empSubjects + ", projectIds=" + projectIds + "]";
+				+ ", empSubjects=" + empSubjects + ", projectIds=" + projectIds + ", projects=" + projects + "]";
 	}
-
-	/*
-	 * public List<ProjectEmployee> getProjectEmployees() { return
-	 * projectEmployees; }
-	 * 
-	 * public void setProjectEmployees(List<ProjectEmployee> projectEmployees) {
-	 * this.projectEmployees = projectEmployees; }
-	 */
 
 }
