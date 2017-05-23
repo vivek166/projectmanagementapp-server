@@ -1,25 +1,20 @@
 package com.synerzip.projectmanagementapp.serviceimplementation;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.Persistence;
 import javax.ws.rs.NotFoundException;
-
 import org.apache.log4j.Logger;
-import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.ObjectNotFoundException;
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.hibernate.criterion.Restrictions;
 import org.hibernate.exception.ConstraintViolationException;
 import org.hibernate.search.jpa.FullTextEntityManager;
 import org.hibernate.search.jpa.Search;
 import org.hibernate.search.query.dsl.QueryBuilder;
-
 import com.mysql.jdbc.StringUtils;
 import com.synerzip.projectmanagementapp.dbconnection.HibernateUtils;
 import com.synerzip.projectmanagementapp.model.Employee;
@@ -119,7 +114,6 @@ public class ProjectServiceImplementation implements ProjectServices {
 		org.hibernate.Transaction tx = session.beginTransaction();
 		try {
 			session.save(project);
-			// addProjectEmployee(project);
 			tx.commit();
 			return project;
 		} catch (Exception e) {

@@ -29,7 +29,7 @@ public class EmployeeServicesImplementation implements EmployeeServices {
 		Employee employee;
 		try {
 			employee = (Employee) session.get(Employee.class, empId);
-			// employee.setProjectEmployees(null);
+			employee.setProjects(null);
 			if (employee == null) {
 				throw new EntityNotFoundException("record not found with id " + empId);
 			}
@@ -156,25 +156,46 @@ public class EmployeeServicesImplementation implements EmployeeServices {
 		}
 	}
 
-	private void addEmployeeProject(Employee employee) {
+	public List<Project> assigned(long empId) {
 		Session session = HibernateUtils.getSession();
-		Session sessionPE = HibernateUtils.getSession();
-		org.hibernate.Transaction tx = sessionPE.beginTransaction();
+		org.hibernate.Transaction tx = session.beginTransaction();
+		List<Project> projectResult=null;
+		try {
+			Query query = session.createQuery("select project from ProjectEmployee where emp_id = :emp_id");
+			query.setParameter("emp_id", empId);
+			projectResult=query.list();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			session.close();
+		}
+		return projectResult;
+	}
+
+	public ProjectEmployee assign(Employee employee) {
+		Session session = HibernateUtils.getSession();
+		org.hibernate.Transaction tx = session.beginTransaction();
+		employee.setProjects(null);
+		session.save(employee);
 		List<Integer> projectIds = employee.getProjectIds();
-		for (Integer projectId : projectIds) {
+		ProjectEmployee projectEmployee =new ProjectEmployee();
+		for (Integer empId : projectIds) {
 			try {
-				Project project = (Project) session.get(Project.class, (long) projectId);
-				ProjectEmployee pe = new ProjectEmployee();
-				pe.setEmployee(employee);
-				pe.setProject(project);
-				sessionPE.save(pe);
-				sessionPE.flush();
+				Project project = (Project) session.get(Project.class, (long) empId);
+				if(project!=null){
+				projectEmployee.setEmployee(employee);
+				projectEmployee.setProject(project);
+				session.save(projectEmployee);
 				tx.commit();
+				}else{
+					throw new HibernateException("can't assign emp not exist");
+				}
 			} catch (Exception exception) {
-				exception.printStackTrace();
+				throw new HibernateException("can't assign emp not exist");
 			} finally {
-				sessionPE.close();
+				session.close();
 			}
 		}
+		return projectEmployee;
 	}
 }
