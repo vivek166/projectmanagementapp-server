@@ -5,7 +5,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
@@ -46,9 +45,6 @@ public class Project {
 	@Column(name = "emp_ids")
 	private List<Integer> empIds;
 
-	@OneToMany
-	private List<ProjectEmployee> employees;
-
 	public Project() {
 
 	}
@@ -57,77 +53,55 @@ public class Project {
 		return projectId;
 	}
 
-
 	public void setProjectId(long projectId) {
 		this.projectId = projectId;
 	}
-
 
 	public String getProjectTitle() {
 		return projectTitle;
 	}
 
-
 	public void setProjectTitle(String projectTitle) {
 		this.projectTitle = projectTitle;
 	}
-
 
 	public String getTechnologyUsed() {
 		return technologyUsed;
 	}
 
-
 	public void setTechnologyUsed(String technologyUsed) {
 		this.technologyUsed = technologyUsed;
 	}
-
 
 	public String getProjectDescription() {
 		return projectDescription;
 	}
 
-
 	public void setProjectDescription(String projectDescription) {
 		this.projectDescription = projectDescription;
 	}
-
 
 	public String getProjectFeature() {
 		return projectFeature;
 	}
 
-
 	public void setProjectFeature(String projectFeature) {
 		this.projectFeature = projectFeature;
 	}
-
 
 	public List<Integer> getEmpIds() {
 		return empIds;
 	}
 
-
 	public void setEmpIds(List<Integer> empIds) {
 		this.empIds = empIds;
 	}
-
-
-	public List<ProjectEmployee> getEmployees() {
-		return employees;
-	}
-
-
-	public void setEmployees(List<ProjectEmployee> employees) {
-		this.employees = employees;
-	}
-
 
 	@Override
 	public String toString() {
 		return "Project [projectId=" + projectId + ", projectTitle=" + projectTitle + ", technologyUsed="
 				+ technologyUsed + ", projectDescription=" + projectDescription + ", projectFeature=" + projectFeature
-				+ ", empIds=" + empIds + ", employees=" + employees + "]";
+				+ "]";
 	}
 
 }

@@ -23,5 +23,6 @@ public class PageResult {
 		this.data = data;
 	}
 
-	public PageResult() {}
+	public PageResult() {
+	}
 }

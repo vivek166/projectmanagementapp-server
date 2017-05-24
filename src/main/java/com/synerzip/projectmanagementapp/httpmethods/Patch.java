@@ -7,10 +7,9 @@ import java.lang.annotation.Target;
 
 import javax.ws.rs.HttpMethod;
 
-
 public class Patch {
 
-	@Target({ElementType.METHOD})
+	@Target({ ElementType.METHOD })
 	@Retention(RetentionPolicy.RUNTIME)
 	@HttpMethod("PATCH")
 	public @interface PATCH {

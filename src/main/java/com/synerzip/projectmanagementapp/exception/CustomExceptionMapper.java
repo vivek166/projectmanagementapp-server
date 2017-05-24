@@ -20,31 +20,27 @@ public class CustomExceptionMapper implements ExceptionMapper<Exception> {
 	@Override
 	public Response toResponse(Exception exception) {
 		if (exception instanceof EntityNotFoundException) {
-			ErrorMessage errorMessage = new ErrorMessage(exception.getMessage(), 400, "https:github.com/vivek166");
+			ErrorMessage errorMessage = new ErrorMessage(exception.getMessage(), 422, "https:github.com/vivek166");
 			return Response.status(Status.NOT_FOUND).entity(errorMessage).type("text/json").build();
-		} 
-		
-		else if (exception instanceof NotFoundException) {
+		} else if (exception instanceof NotFoundException) {
 			ErrorMessage errorMessage = new ErrorMessage(exception.getMessage(), 404, "https:github.com/vivek166");
 			return Response.status(Status.NOT_FOUND).entity(errorMessage).type("text/json").build();
-		}
-		
-		else if (exception instanceof OverlappingFileLockException) {
+		} else if (exception instanceof OverlappingFileLockException) {
 			ErrorMessage errorMessage = new ErrorMessage("record already present", 409, "https:github.com/vivek166");
 			return Response.status(Status.NOT_FOUND).entity(errorMessage).type("text/json").build();
-		}
-		
-		else if (exception instanceof ObjectNotFoundException) {
-			ErrorMessage errorMessage = new ErrorMessage("no record found", 404, "https:github.com/vivek166");
+		} else if (exception instanceof ObjectNotFoundException) {
+			ErrorMessage errorMessage = new ErrorMessage("no record found", 400, "https:github.com/vivek166");
 			return Response.status(Status.NOT_FOUND).entity(errorMessage).type("text/json").build();
-		}
-		
-		else if (exception instanceof HibernateException) {
-			ErrorMessage errorMessage = new ErrorMessage(exception.getMessage(), 404, "https:github.com/vivek166");
+		} else if (exception instanceof HibernateException) {
+			ErrorMessage errorMessage = new ErrorMessage(exception.getMessage(), 501, "https:github.com/vivek166");
 			return Response.status(Status.NOT_FOUND).entity(errorMessage).type("text/json").build();
-		}
-		
-		else {
+		} else if (exception instanceof CanNotEmptyField) {
+			ErrorMessage errorMessage = new ErrorMessage(exception.getMessage(), 304, "https:github.com/vivek166");
+			return Response.status(Status.NOT_FOUND).entity(errorMessage).type("text/json").build();
+		} else if (exception instanceof MediaTypeException) {
+			ErrorMessage errorMessage = new ErrorMessage(exception.getMessage(), 415, "https:github.com/vivek166");
+			return Response.status(Status.UNSUPPORTED_MEDIA_TYPE).entity(errorMessage).type("text/json").build();
+		} else {
 			ErrorMessage errorMessage = new ErrorMessage("internal server error", 505, "https:github.com/vivek166");
 			return Response.status(Status.NOT_FOUND).entity(errorMessage).type("text/json").build();
 		}

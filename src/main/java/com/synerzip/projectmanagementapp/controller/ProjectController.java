@@ -5,7 +5,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -30,8 +29,9 @@ public class ProjectController {
 	@GET
 	@Path("/{projectId}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response get(@PathParam("projectId") long projectId) {
-		return Response.ok().entity(service.assigned(projectId)).build();
+	public String get(@PathParam("projectId") long projectId)
+			throws JsonGenerationException, JsonMappingException, IOException {
+		return new ObjectMapper().writeValueAsString(service.assigned(projectId));
 	}
 
 	@GET
@@ -78,9 +78,6 @@ public class ProjectController {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("{projectId}")
 	public Response patch(Project project, @PathParam("projectId") long projectId) {
-		return Response
-				.status(Status.FOUND)
-				.entity(service.patch(project, projectId))
-				.build();
+		return Response.ok().entity(service.patch(project, projectId)).build();
 	}
 }

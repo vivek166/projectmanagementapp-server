@@ -1,7 +1,7 @@
 package com.synerzip.projectmanagementapp.serviceimplementation;
 
+import java.nio.channels.OverlappingFileLockException;
 import java.util.List;
-
 import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.Persistence;
@@ -17,6 +17,8 @@ import org.hibernate.search.jpa.Search;
 import org.hibernate.search.query.dsl.QueryBuilder;
 import com.mysql.jdbc.StringUtils;
 import com.synerzip.projectmanagementapp.dbconnection.HibernateUtils;
+import com.synerzip.projectmanagementapp.exception.CanNotEmptyField;
+import com.synerzip.projectmanagementapp.exception.MediaTypeException;
 import com.synerzip.projectmanagementapp.model.Employee;
 import com.synerzip.projectmanagementapp.model.PageResult;
 import com.synerzip.projectmanagementapp.model.Project;
@@ -24,28 +26,32 @@ import com.synerzip.projectmanagementapp.model.ProjectEmployee;
 import com.synerzip.projectmanagementapp.services.ProjectServices;
 
 public class ProjectServiceImplementation implements ProjectServices {
+
 	static final Logger logger = Logger.getLogger(ProjectServiceImplementation.class);
 
-	@SuppressWarnings("unused")
 	public Project get(long projectId) {
 		Session session = HibernateUtils.getSession();
+		logger.info("session open successfully");
 		Project project;
 		try {
 			project = (Project) session.get(Project.class, projectId);
-			project.setEmployees(null);
 			if (project == null) {
+				logger.error("project not found  with projectId :-" + projectId);
 				throw new EntityNotFoundException("record not found with id " + projectId);
 			}
-		} catch (HibernateException e) {
-			throw new HibernateException("record not found with id " + projectId);
+		} catch (HibernateException exception) {
+			logger.error("abnormal ternination, get() of project for projectId :-" + projectId);
+			throw new HibernateException("unable to process your request");
 		} finally {
 			session.close();
+			logger.info("session closed successfully");
 		}
 		return project;
 	}
 
 	public PageResult gets(int start, int size, String content) {
 		Session session = HibernateUtils.getSession();
+		logger.info("session open successfully");
 		if (org.apache.commons.lang.StringUtils.isEmpty(content)) {
 			try {
 				int count = ((Long) session
@@ -62,12 +68,15 @@ public class ProjectServiceImplementation implements ProjectServices {
 					pageResults.setTotalResult(count);
 					return pageResults;
 				} else {
+					logger.error("project not found ");
 					throw new EntityNotFoundException("no record found ");
 				}
-			} catch (Exception e) {
-				throw new EntityNotFoundException("no record found ");
+			} catch (HibernateException exception) {
+				logger.error("abnormal ternination, gets() of project");
+				throw new HibernateException("unable to process your request");
 			} finally {
 				session.close();
+				logger.info("session closed successfully");
 			}
 		} else {
 			return search(start, size, content);
@@ -77,6 +86,7 @@ public class ProjectServiceImplementation implements ProjectServices {
 	public PageResult search(int start, int size, String content) {
 		EntityManager entityManager = Persistence.createEntityManagerFactory("HibernatePersistence")
 				.createEntityManager();
+		logger.info("session open successfully");
 		entityManager.getTransaction().begin();
 		FullTextEntityManager fullTextEntityManager = Search.getFullTextEntityManager(entityManager);
 		try {
@@ -97,13 +107,16 @@ public class ProjectServiceImplementation implements ProjectServices {
 				pageResults.setTotalResult(count);
 				return pageResults;
 			} else {
+				logger.error("does not found any matched record with content:-" + content);
 				throw new NotFoundException("No record matching with " + content);
 			}
-		} catch (Exception e) {
-			throw new NotFoundException("No record matching with " + content);
+		} catch (HibernateException exception) {
+			logger.error("abnormal ternination, search() of project");
+			throw new HibernateException("unable to process your request");
 		} finally {
 			if (fullTextEntityManager != null) {
 				fullTextEntityManager.close();
+				logger.info("session closed successfully");
 			}
 			fullTextEntityManager = null;
 		}
@@ -111,122 +124,191 @@ public class ProjectServiceImplementation implements ProjectServices {
 
 	public Project add(Project project) {
 		Session session = HibernateUtils.getSession();
+		logger.info("session open successfully");
 		org.hibernate.Transaction tx = session.beginTransaction();
 		try {
-			session.save(project);
-			tx.commit();
+			if (StringUtils.isEmptyOrWhitespaceOnly(project.getProjectTitle())) {
+				logger.error("project Title is empty");
+				throw new CanNotEmptyField("project Title must be filled");
+			} else if (StringUtils.isEmptyOrWhitespaceOnly(project.getProjectFeature())) {
+				logger.error("project Feature is empty");
+				throw new CanNotEmptyField("project Feature must be filled");
+			} else if (StringUtils.isEmptyOrWhitespaceOnly(project.getProjectDescription())) {
+				logger.error("project Description is empty");
+				throw new CanNotEmptyField("project Description must be filled");
+			} else if (StringUtils.isEmptyOrWhitespaceOnly(project.getTechnologyUsed())) {
+				logger.error("project TechnologyUsed is empty");
+				throw new CanNotEmptyField("project TechnologyUsed  must be filled");
+			} else {
+				session.save(project);
+				tx.commit();
+			}
 			return project;
-		} catch (Exception e) {
+		} catch (HibernateException exception) {
+			logger.error("abnormal ternination, add() of project");
 			throw new ConstraintViolationException("record already present with title-- " + project.getProjectTitle(),
 					null, null);
 		} finally {
 			session.close();
+			logger.info("session closed successfully");
 		}
 	}
 
 	public String delete(long projectId) {
 		Session session = HibernateUtils.getSession();
+		logger.info("session open successfully");
 		org.hibernate.Transaction tx = session.beginTransaction();
 		try {
 			String deleteQuery = "DELETE FROM Project WHERE project_id = :project_id";
 			Query query = session.createQuery(deleteQuery);
 			query.setParameter("project_id", projectId);
 			int affectedRow = query.executeUpdate();
-			tx.commit();
 			if (affectedRow == 0) {
-				throw new ObjectNotFoundException("no record found", deleteQuery);
+				logger.error("record already deleted or not exist");
+				throw new EntityNotFoundException("no record found with id:-" + projectId);
 			}
-		} catch (Exception e) {
-			throw new ObjectNotFoundException(e, "database error");
+			tx.commit();
+		} catch (HibernateException exception) {
+			logger.error("abnormal ternination, delete() of project");
+			throw new HibernateException("unable to process your request");
 		} finally {
 			session.close();
+			logger.info("session closed successfully");
 		}
 		return "record deleted";
 	}
 
 	public Project update(Project project, long projectId) {
 		Session session = HibernateUtils.getSession();
+		logger.info("session open successfully");
 		org.hibernate.Transaction tx = session.beginTransaction();
 		try {
-			session.saveOrUpdate(project);
-			tx.commit();
+			if (StringUtils.isEmptyOrWhitespaceOnly(project.getProjectTitle())) {
+				logger.error("project Title is empty");
+				throw new CanNotEmptyField("project Title must be filled");
+			} else if (StringUtils.isEmptyOrWhitespaceOnly(project.getProjectFeature())) {
+				logger.error("project Feature is empty");
+				throw new CanNotEmptyField("project Feature must be filled");
+			} else if (StringUtils.isEmptyOrWhitespaceOnly(project.getProjectDescription())) {
+				logger.error("project Description is empty");
+				throw new CanNotEmptyField("project Description must be filled");
+			} else if (StringUtils.isEmptyOrWhitespaceOnly(project.getTechnologyUsed())) {
+				logger.error("project TechnologyUsed is empty");
+				throw new CanNotEmptyField("project TechnologyUsed  must be filled");
+			} else {
+				session.saveOrUpdate(project);
+				tx.commit();
+			}
 			return project;
-		} catch (Exception e) {
-			throw new HibernateException("record already with same project title " + project.getProjectTitle());
+		} catch (HibernateException exception) {
+			logger.error("abnormal ternination, update() of project");
+			throw new HibernateException("unable to process your request");
 		} finally {
 			session.close();
+			logger.info("session closed successfully");
 		}
 	}
 
 	public Project patch(Project project, long projectId) {
 		Session session = HibernateUtils.getSession();
+		logger.info("session open successfully");
 		org.hibernate.Transaction tx = session.beginTransaction();
 		try {
 			Project dbProject = (Project) session.get(Project.class, projectId);
-			if (!StringUtils.isEmptyOrWhitespaceOnly(project.getProjectTitle())) {
-				dbProject.setProjectTitle(project.getProjectTitle());
+			if (dbProject != null) {
+				if (!StringUtils.isEmptyOrWhitespaceOnly(project.getProjectTitle())) {
+					dbProject.setProjectTitle(project.getProjectTitle());
+				}
+				if (!StringUtils.isEmptyOrWhitespaceOnly(project.getProjectFeature())) {
+					dbProject.setProjectFeature(project.getProjectFeature());
+				}
+				if (!StringUtils.isEmptyOrWhitespaceOnly(project.getProjectDescription())) {
+					dbProject.setProjectDescription(project.getProjectDescription());
+				}
+				if (!StringUtils.isEmptyOrWhitespaceOnly(project.getTechnologyUsed())) {
+					dbProject.setTechnologyUsed(project.getTechnologyUsed());
+				}
+				session.save(dbProject);
+				session.flush();
+				tx.commit();
+			} else {
+				logger.error("Can't update, project not found with projectId :-" + projectId);
+				throw new EntityNotFoundException("Can't update, project not found with projectId :-" + projectId);
 			}
-			if (!StringUtils.isEmptyOrWhitespaceOnly(project.getProjectFeature())) {
-				dbProject.setProjectFeature(project.getProjectFeature());
-			}
-			if (!StringUtils.isEmptyOrWhitespaceOnly(project.getProjectDescription())) {
-				dbProject.setProjectDescription(project.getProjectDescription());
-			}
-			if (!StringUtils.isEmptyOrWhitespaceOnly(project.getTechnologyUsed())) {
-				dbProject.setTechnologyUsed(project.getTechnologyUsed());
-			}
-			session.save(dbProject);
-			session.flush();
-			tx.commit();
 			return dbProject;
-		} catch (Exception e) {
+		} catch (HibernateException exception) {
+			logger.error("abnormal ternination, patch() of project");
 			throw new HibernateException("record not updated, something went wrong");
 		} finally {
 			session.close();
+			logger.info("session closed successfully");
 		}
 	}
-	
+
 	public List<Employee> assigned(long projectId) {
 		Session session = HibernateUtils.getSession();
-		org.hibernate.Transaction tx = session.beginTransaction();
-		List<Employee> empResult=null;
+		logger.info("session open successfully");
+		List<Employee> empResult = null;
 		try {
 			Query query = session.createQuery("select employee from ProjectEmployee where project_id = :project_id");
 			query.setParameter("project_id", projectId);
-			empResult=query.list();
-		} catch (Exception e) {
-			e.printStackTrace();
+			empResult = query.list();
+			if (empResult.size() == 0) {
+				logger.error("No Employee assign to this project " + projectId);
+				throw new EntityNotFoundException("No Employee assign to this project " + projectId);
+			}
+		} catch (HibernateException exception) {
+			logger.error("abnormal ternination, assigned() of project");
+			throw new HibernateException("unable to process your request");
 		} finally {
 			session.close();
+			logger.info("session closed successfully");
 		}
 		return empResult;
 	}
 
 	public ProjectEmployee assign(Project project) {
 		Session session = HibernateUtils.getSession();
-		org.hibernate.Transaction tx = session.beginTransaction();
-		project.setEmployees(null);
-		session.save(project);
-		List<Integer> empIds = project.getEmpIds();
-		ProjectEmployee projectEmployee =new ProjectEmployee();
-		for (Integer empId : empIds) {
-			try {
-				Employee employee = (Employee) session.get(Employee.class, (long) empId);
-				if(employee!=null){
-				projectEmployee.setEmployee(employee);
-				projectEmployee.setProject(project);
-				session.save(projectEmployee);
-				tx.commit();
-				}else{
-					throw new HibernateException("can't assign emp not exist");
+		logger.info("session open successfully");
+		org.hibernate.Transaction txProject = session.beginTransaction();
+		try {
+			session.save(project);
+			txProject.commit();
+			List<Integer> empIds = project.getEmpIds();
+			if (empIds.size() != 0) {
+				ProjectEmployee projectEmployee = new ProjectEmployee();
+				for (Integer empId : empIds) {
+					Employee employee = (Employee) session.get(Employee.class, (long) empId);
+					if (employee != null) {
+						String empType = employee.getEmployeeType();
+						if (empType.equals("employee")) {
+							org.hibernate.Transaction txEmployee = session.beginTransaction();
+							projectEmployee.setEmployee(employee);
+							projectEmployee.setProject(project);
+							session.save(projectEmployee);
+							txEmployee.commit();
+						} else {
+							logger.error("empId must be of employee Type but it is :-" + employee.getEmployeeType());
+							throw new MediaTypeException("empId must be of employee Type");
+						}
+
+					} else {
+						logger.error("employee not exist with empId :-" + empId);
+						throw new EntityNotFoundException("can't assign, emp not exist");
+					}
 				}
-			} catch (Exception exception) {
-				throw new HibernateException("can't assign emp not exist");
-			} finally {
-				session.close();
+				return projectEmployee;
+			} else {
+				logger.error("can't assign, empIds are empty");
+				throw new HibernateException("can't assign, provide empIds");
 			}
+		} catch (Exception exception) {
+			logger.error("trying to insert duplicate value");
+			throw new OverlappingFileLockException();
+		} finally {
+			session.close();
+			logger.info("session closed successfully");
 		}
-		return projectEmployee;
 	}
 
 }

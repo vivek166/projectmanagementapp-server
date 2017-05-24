@@ -19,7 +19,7 @@ public interface ProjectServices {
 	Project update(Project project, long projectId);
 
 	List<Employee> assigned(long projectId);
-	
+
 	ProjectEmployee assign(Project project);
 
 	Project patch(Project project, long projectId);

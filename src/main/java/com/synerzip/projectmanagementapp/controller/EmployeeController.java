@@ -1,9 +1,6 @@
 package com.synerzip.projectmanagementapp.controller;
 
 import java.io.IOException;
-import java.util.List;
-
-import javax.persistence.EntityNotFoundException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
@@ -16,14 +13,11 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
-
-import com.synerzip.projectmanagementapp.exception.DataNotFoundException;
+import com.synerzip.projectmanagementapp.httpmethods.Patch.PATCH;
 import com.synerzip.projectmanagementapp.model.Employee;
-import com.synerzip.projectmanagementapp.model.PageResult;
 import com.synerzip.projectmanagementapp.serviceimplementation.EmployeeServicesImplementation;
 
 @Path("/employee")
@@ -34,12 +28,9 @@ public class EmployeeController {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/{empId}")
-	public Response get(@PathParam("empId") long empId) {
-		Employee employee = service.get(empId);
-		if (employee == null) {
-			throw new EntityNotFoundException("no such record found");
-		}
-		return Response.ok().entity(employee).build();
+	public String get(@PathParam("empId") long empId)
+			throws JsonGenerationException, JsonMappingException, IOException {
+		return new ObjectMapper().writeValueAsString(service.assigned(empId));
 	}
 
 	@GET
@@ -62,22 +53,30 @@ public class EmployeeController {
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Employee add(Employee employee) {
-		return service.add(employee);
+	public Response add(Employee employee) {
+		return Response.ok().entity(service.assign(employee)).build();
 	}
 
 	@DELETE
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("{empId}")
-	public String delete(@PathParam("empId") long empId) {
-		return service.delete(empId);
+	public Response delete(@PathParam("empId") long empId) {
+		return Response.ok().entity(service.delete(empId)).build();
 	}
 
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("{empId}")
-	public Employee update(Employee employee, @PathParam("empId") long empId) {
-		return service.update(employee, empId);
+	public Response update(Employee employee, @PathParam("empId") long empId) {
+		return Response.ok().entity(service.update(employee, empId)).build();
+	}
+
+	@PATCH
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("{empId}")
+	public Response patch(Employee employee, @PathParam("empId") long empId) {
+		return Response.ok().entity(service.patch(employee, empId)).build();
 	}
 }

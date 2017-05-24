@@ -18,10 +18,12 @@ public interface EmployeeServices {
 	String delete(long empId);
 
 	Employee update(Employee employee, long empId);
-	
+
 	List<Project> assigned(long empId);
-	
+
 	ProjectEmployee assign(Employee employee);
 
 	PageResult search(int start, int size, String content);
+
+	Employee patch(Employee employee, long empId);
 }
