@@ -1,10 +1,14 @@
 package com.synerzip.projectmanagementapp.model;
 
 import java.util.List;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
@@ -26,24 +30,28 @@ public class Project {
 	private long projectId;
 
 	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
-	@Column(name = "project_title", unique = true)
+	@Column(name = "project_title", unique = true, nullable = false)
 	private String projectTitle;
 
 	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
-	@Column(name = "technology_used")
+	@Column(name = "technology_used", nullable = false)
 	private String technologyUsed;
 
 	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
-	@Column(name = "project_description")
+	@Column(name = "project_description", nullable = false)
 	private String projectDescription;
 
 	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
-	@Column(name = "project_feature")
+	@Column(name = "project_feature", nullable = false)
 	private String projectFeature;
 
 	@Transient
 	@Column(name = "emp_ids")
 	private List<Integer> empIds;
+
+	@ManyToOne(cascade = CascadeType.ALL)
+	@JoinColumn(name = "company_id", nullable = false)
+	private Company company;
 
 	public Project() {
 
@@ -97,11 +105,19 @@ public class Project {
 		this.empIds = empIds;
 	}
 
+	public Company getCompany() {
+		return company;
+	}
+
+	public void setCompany(Company company) {
+		this.company = company;
+	}
+
 	@Override
 	public String toString() {
 		return "Project [projectId=" + projectId + ", projectTitle=" + projectTitle + ", technologyUsed="
 				+ technologyUsed + ", projectDescription=" + projectDescription + ", projectFeature=" + projectFeature
-				+ "]";
+				+ ", empIds=" + empIds + ", company=" + company + "]";
 	}
 
 }

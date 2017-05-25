@@ -1,21 +1,17 @@
 package com.synerzip.projectmanagementapp.serviceimplementation;
 
-import java.nio.channels.OverlappingFileLockException;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.Persistence;
-
 import org.apache.log4j.Logger;
 import org.hibernate.HibernateException;
-import org.hibernate.ObjectNotFoundException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.exception.ConstraintViolationException;
 import org.hibernate.search.jpa.FullTextEntityManager;
 import org.hibernate.search.jpa.Search;
 import org.hibernate.search.query.dsl.QueryBuilder;
-
 import com.mysql.jdbc.StringUtils;
 import com.synerzip.projectmanagementapp.dbconnection.HibernateUtils;
 import com.synerzip.projectmanagementapp.exception.CanNotEmptyField;
@@ -40,7 +36,7 @@ public class EmployeeServicesImplementation implements EmployeeServices {
 				logger.error("employee not found  with empid :-" + empId);
 				throw new EntityNotFoundException("record not found with id " + empId);
 			}
-		} catch (Exception exception) {
+		} catch (HibernateException exception) {
 			logger.error("abnormal ternination, get() of employee for empId :-" + empId);
 			throw new HibernateException("unable to process your request");
 		} finally {
@@ -89,7 +85,11 @@ public class EmployeeServicesImplementation implements EmployeeServices {
 				.createEntityManager();
 		FullTextEntityManager fullTextEntityManager = Search.getFullTextEntityManager(entityManager);
 		try {
-			// fullTextEntityManager.createIndexer().startAndWait();
+			/*try {
+				fullTextEntityManager.createIndexer().startAndWait();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}*/
 			QueryBuilder qb = fullTextEntityManager.getSearchFactory().buildQueryBuilder().forEntity(Employee.class)
 					.get();
 			org.apache.lucene.search.Query query = qb.keyword()
@@ -196,7 +196,8 @@ public class EmployeeServicesImplementation implements EmployeeServices {
 		} catch (HibernateException exception) {
 			logger.error("abnormal ternination, update() of employee");
 			tx.rollback();
-			throw new HibernateException("unable to process your request");
+			throw new ConstraintViolationException("record already present with name - " + employee.getEmpName(), null,
+					null);
 		} finally {
 			session.close();
 			logger.info("session closed successfully");
@@ -229,7 +230,7 @@ public class EmployeeServicesImplementation implements EmployeeServices {
 			return dbProject;
 		} catch (HibernateException exception) {
 			logger.error("abnormal ternination, patch() of employee");
-			throw new HibernateException("unable to process your request, something went wrong");
+			throw new ConstraintViolationException("unable to update, record already present with empName :-"+employee.getEmpName(), null, null);
 		} finally {
 			session.close();
 			logger.info("session closed successfully");
@@ -287,9 +288,9 @@ public class EmployeeServicesImplementation implements EmployeeServices {
 				logger.error("employee must be of employee type but It is :-" + employee.getEmployeeType() + "type");
 				throw new MediaTypeException("can't assign project, employee must be of employee type");
 			}
-		} catch (Exception exception) {
-			logger.error("/home/synerzip/workspace");
-			throw new OverlappingFileLockException();
+		} catch (HibernateException exception) {
+			logger.error("trying to insert duplicate value");
+			throw new ConstraintViolationException("unable to assign, emp already present with empName :-"+employee.getEmpName(), null, null);
 		} finally {
 			session.close();
 			logger.info("session closed successfully");

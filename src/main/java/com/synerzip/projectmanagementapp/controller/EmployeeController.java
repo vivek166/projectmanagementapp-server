@@ -30,7 +30,7 @@ public class EmployeeController {
 	@Path("/{empId}")
 	public String get(@PathParam("empId") long empId)
 			throws JsonGenerationException, JsonMappingException, IOException {
-		return new ObjectMapper().writeValueAsString(service.assigned(empId));
+		return new ObjectMapper().writeValueAsString(service.get(empId));
 	}
 
 	@GET
@@ -54,7 +54,7 @@ public class EmployeeController {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response add(Employee employee) {
-		return Response.ok().entity(service.assign(employee)).build();
+		return Response.ok().entity(service.add(employee)).build();
 	}
 
 	@DELETE

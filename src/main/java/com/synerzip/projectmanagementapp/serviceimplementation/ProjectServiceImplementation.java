@@ -1,6 +1,5 @@
 package com.synerzip.projectmanagementapp.serviceimplementation;
 
-import java.nio.channels.OverlappingFileLockException;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
@@ -8,7 +7,6 @@ import javax.persistence.Persistence;
 import javax.ws.rs.NotFoundException;
 import org.apache.log4j.Logger;
 import org.hibernate.HibernateException;
-import org.hibernate.ObjectNotFoundException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.exception.ConstraintViolationException;
@@ -68,7 +66,7 @@ public class ProjectServiceImplementation implements ProjectServices {
 					pageResults.setTotalResult(count);
 					return pageResults;
 				} else {
-					logger.error("project not found ");
+					logger.error("project not found, table is empty ");
 					throw new EntityNotFoundException("no record found ");
 				}
 			} catch (HibernateException exception) {
@@ -90,7 +88,10 @@ public class ProjectServiceImplementation implements ProjectServices {
 		entityManager.getTransaction().begin();
 		FullTextEntityManager fullTextEntityManager = Search.getFullTextEntityManager(entityManager);
 		try {
-			// fullTextEntityManager.createIndexer().startAndWait();
+			/*
+			 * try { fullTextEntityManager.createIndexer().startAndWait(); }
+			 * catch (InterruptedException e) { e.printStackTrace(); }
+			 */
 			QueryBuilder queryBuilder = fullTextEntityManager.getSearchFactory().buildQueryBuilder()
 					.forEntity(Project.class).get();
 			org.apache.lucene.search.Query query = queryBuilder.keyword()
@@ -202,7 +203,8 @@ public class ProjectServiceImplementation implements ProjectServices {
 			return project;
 		} catch (HibernateException exception) {
 			logger.error("abnormal ternination, update() of project");
-			throw new HibernateException("unable to process your request");
+			throw new ConstraintViolationException("record already present with title-- " + project.getProjectTitle(),
+					null, null);
 		} finally {
 			session.close();
 			logger.info("session closed successfully");
@@ -238,7 +240,8 @@ public class ProjectServiceImplementation implements ProjectServices {
 			return dbProject;
 		} catch (HibernateException exception) {
 			logger.error("abnormal ternination, patch() of project");
-			throw new HibernateException("record not updated, something went wrong");
+			throw new ConstraintViolationException("record already present with title-- " + project.getProjectTitle(),
+					null, null);
 		} finally {
 			session.close();
 			logger.info("session closed successfully");
@@ -289,7 +292,7 @@ public class ProjectServiceImplementation implements ProjectServices {
 							txEmployee.commit();
 						} else {
 							logger.error("empId must be of employee Type but it is :-" + employee.getEmployeeType());
-							throw new MediaTypeException("empId must be of employee Type");
+							throw new MediaTypeException("Employee must be of employee Type");
 						}
 
 					} else {
@@ -302,9 +305,10 @@ public class ProjectServiceImplementation implements ProjectServices {
 				logger.error("can't assign, empIds are empty");
 				throw new HibernateException("can't assign, provide empIds");
 			}
-		} catch (Exception exception) {
+		} catch (HibernateException exception) {
 			logger.error("trying to insert duplicate value");
-			throw new OverlappingFileLockException();
+			throw new ConstraintViolationException(
+					"unable to assign, project already present with title :-" + project.getProjectTitle(), null, null);
 		} finally {
 			session.close();
 			logger.info("session closed successfully");

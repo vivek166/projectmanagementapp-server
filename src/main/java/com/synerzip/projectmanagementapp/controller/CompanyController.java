@@ -18,20 +18,22 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import com.synerzip.projectmanagementapp.httpmethods.Patch.PATCH;
+import com.synerzip.projectmanagementapp.model.Company;
 import com.synerzip.projectmanagementapp.model.Project;
+import com.synerzip.projectmanagementapp.serviceimplementation.CompanyServiceImplementation;
 import com.synerzip.projectmanagementapp.serviceimplementation.ProjectServiceImplementation;
 
-@Path("/project")
-public class ProjectController {
+@Path("/company")
+public class CompanyController {
 
-	ProjectServiceImplementation service = new ProjectServiceImplementation();
+	CompanyServiceImplementation service = new CompanyServiceImplementation();
 
 	@GET
-	@Path("/{projectId}")
+	@Path("/{companyId}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String get(@PathParam("projectId") long projectId)
+	public String get(@PathParam("companyId") long companyId)
 			throws JsonGenerationException, JsonMappingException, IOException {
-		return new ObjectMapper().writeValueAsString(service.get(projectId));
+		return new ObjectMapper().writeValueAsString(service.get(companyId));
 	}
 
 	@GET
@@ -54,30 +56,30 @@ public class ProjectController {
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response add(Project project) {
-		return Response.ok().entity(service.add(project)).build();
+	public Response add(Company company) {
+		return Response.ok().entity(service.add(company)).build();
 	}
 
 	@DELETE
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path("{projectId}")
-	public Response delete(@PathParam("projectId") long projectId) {
-		return Response.ok().entity(service.delete(projectId)).build();
+	@Path("{companyId}")
+	public Response delete(@PathParam("companyId") long companyId) {
+		return Response.ok().entity(service.delete(companyId)).build();
 	}
 
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path("{projectId}")
-	public Response update(Project project, @PathParam("projectId") long projectId) {
-		return Response.ok().entity(service.update(project, projectId)).build();
+	@Path("{companyId}")
+	public Response update(Company company, @PathParam("companyId") long companyId) {
+		return Response.ok().entity(service.update(company, companyId)).build();
 	}
 
 	@PATCH
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("{projectId}")
-	public Response patch(Project project, @PathParam("projectId") long projectId) {
-		return Response.ok().entity(service.patch(project, projectId)).build();
+	public Response patch(Company company, @PathParam("projectId") long companyId) {
+		return Response.ok().entity(service.patch(company, companyId)).build();
 	}
 }
