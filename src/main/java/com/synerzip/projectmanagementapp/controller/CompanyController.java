@@ -19,9 +19,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import com.synerzip.projectmanagementapp.httpmethods.Patch.PATCH;
 import com.synerzip.projectmanagementapp.model.Company;
-import com.synerzip.projectmanagementapp.model.Project;
 import com.synerzip.projectmanagementapp.serviceimplementation.CompanyServiceImplementation;
-import com.synerzip.projectmanagementapp.serviceimplementation.ProjectServiceImplementation;
 
 @Path("/company")
 public class CompanyController {

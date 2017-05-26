@@ -164,9 +164,6 @@ public class ProjectServiceImplementation implements ProjectServices {
 				throw new CanNotEmptyField(
 						"project TechnologyUsed  must be filled");
 			} else {
-				Company company = (Company) session.get(Company.class,
-						project.getCompanyId());
-				project.setCompany(company);
 				session.save(project);
 				tx.commit();
 			}
@@ -319,8 +316,6 @@ public class ProjectServiceImplementation implements ProjectServices {
 		logger.info("session open successfully");
 		org.hibernate.Transaction txProject = session.beginTransaction();
 		try {
-			Company company=(Company)session.get(Company.class, project.getCompanyId());
-			project.setCompany(company);
 			session.save(project);
 			txProject.commit();
 			List<Integer> empIds = project.getEmpIds();

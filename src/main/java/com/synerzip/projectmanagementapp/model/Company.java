@@ -24,15 +24,15 @@ public class Company {
 	private long companyId;
 
 	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
-	@Column(name = "company_name", nullable = false, unique = true)
+	@Column(name = "company_name", unique = true)
 	private String companyName;
 
 	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
-	@Column(name = "comapny_address", nullable = false)
+	@Column(name = "comapny_address")
 	private String companyAddress;
 
 	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
-	@Column(name = "company_cont_num", nullable = false)
+	@Column(name = "company_cont_num")
 	private String companyContactNumber;
 
 	public Company() {

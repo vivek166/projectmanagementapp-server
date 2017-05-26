@@ -16,11 +16,11 @@ public class ProjectEmployee {
 	private long projectEmpId;
 
 	@ManyToOne(cascade = CascadeType.ALL)
-	@JoinColumn(name = "project_id", nullable = false)
+	@JoinColumn(name = "project_id")
 	private Project project;
 
 	@ManyToOne(cascade = CascadeType.ALL)
-	@JoinColumn(name = "emp_id", nullable = false)
+	@JoinColumn(name = "emp_id")
 	private Employee employee;
 
 	public ProjectEmployee() {

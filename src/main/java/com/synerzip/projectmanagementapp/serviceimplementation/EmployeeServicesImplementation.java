@@ -157,9 +157,6 @@ public class EmployeeServicesImplementation implements EmployeeServices {
 				logger.error("employee type is empty");
 				throw new CanNotEmptyField("employee type must be filled");
 			} else {
-				Company company = (Company) session.get(Company.class,
-						employee.getCompanyId());
-				employee.setCompany(company);
 				session.save(employee);
 				tx.commit();
 			}

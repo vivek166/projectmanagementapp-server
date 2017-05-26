@@ -30,31 +30,27 @@ public class Employee {
 	private long empId;
 
 	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
-	@Column(name = "emp_name", unique = true, nullable = false)
+	@Column(name = "emp_name", unique = true)
 	private String empName;
 
 	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
-	@Column(name = "emp_department", nullable = false)
+	@Column(name = "emp_department")
 	private String empDepartment;
 
 	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
-	@Column(name = "emp_subjects", nullable = false)
+	@Column(name = "emp_subjects")
 	private String empSubjects;
 
 	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
-	@Column(name = "emp_type", nullable = false)
+	@Column(name = "emp_type")
 	private String employeeType;
 
 	@Transient
 	@Column(name = "project_ids")
 	private List<Integer> projectIds;
 
-	@Transient
-	@Column(name = "company_id")
-	private long companyId;
-
 	@ManyToOne(cascade = CascadeType.ALL)
-	@JoinColumn(name = "company_id", nullable = false)
+	@JoinColumn(name = "company_id")
 	private Company company;
 
 	public Employee() {
@@ -109,14 +105,6 @@ public class Employee {
 		this.projectIds = projectIds;
 	}
 
-	public long getCompanyId() {
-		return companyId;
-	}
-
-	public void setCompanyId(long companyId) {
-		this.companyId = companyId;
-	}
-
 	public Company getCompany() {
 		return company;
 	}
@@ -127,10 +115,8 @@ public class Employee {
 
 	@Override
 	public String toString() {
-		return "Employee [empId=" + empId + ", empName=" + empName
-				+ ", empDepartment=" + empDepartment + ", empSubjects="
-				+ empSubjects + ", employeeType=" + employeeType
-				+ ", projectIds=" + projectIds + ", companyId=" + companyId
+		return "Employee [empId=" + empId + ", empName=" + empName + ", empDepartment=" + empDepartment
+				+ ", empSubjects=" + empSubjects + ", employeeType=" + employeeType + ", projectIds=" + projectIds
 				+ ", company=" + company + "]";
 	}
 

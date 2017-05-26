@@ -30,31 +30,27 @@ public class Project {
 	private long projectId;
 
 	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
-	@Column(name = "project_title", unique = true, nullable = false)
+	@Column(name = "project_title", unique = true)
 	private String projectTitle;
 
 	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
-	@Column(name = "technology_used", nullable = false)
+	@Column(name = "technology_used")
 	private String technologyUsed;
 
 	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
-	@Column(name = "project_description", nullable = false)
+	@Column(name = "project_description")
 	private String projectDescription;
 
 	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
-	@Column(name = "project_feature", nullable = false)
+	@Column(name = "project_feature")
 	private String projectFeature;
 
 	@Transient
 	@Column(name = "emp_ids")
 	private List<Integer> empIds;
 
-	@Transient
-	@Column(name = "company_id")
-	private long companyId;
-
 	@ManyToOne(cascade = CascadeType.ALL)
-	@JoinColumn(name = "company_id", nullable = false)
+	@JoinColumn(name = "company_id")
 	private Company company;
 
 	public Project() {
@@ -109,14 +105,6 @@ public class Project {
 		this.empIds = empIds;
 	}
 
-	public long getCompanyId() {
-		return companyId;
-	}
-
-	public void setCompanyId(long companyId) {
-		this.companyId = companyId;
-	}
-
 	public Company getCompany() {
 		return company;
 	}
@@ -127,11 +115,9 @@ public class Project {
 
 	@Override
 	public String toString() {
-		return "Project [projectId=" + projectId + ", projectTitle="
-				+ projectTitle + ", technologyUsed=" + technologyUsed
-				+ ", projectDescription=" + projectDescription
-				+ ", projectFeature=" + projectFeature + ", empIds=" + empIds
-				+ ", companyId=" + companyId + ", company=" + company + "]";
+		return "Project [projectId=" + projectId + ", projectTitle=" + projectTitle + ", technologyUsed="
+				+ technologyUsed + ", projectDescription=" + projectDescription + ", projectFeature=" + projectFeature
+				+ ", empIds=" + empIds + ", company=" + company + "]";
 	}
 
 }
