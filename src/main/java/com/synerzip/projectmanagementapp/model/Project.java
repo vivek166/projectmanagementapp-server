@@ -49,6 +49,10 @@ public class Project {
 	@Column(name = "emp_ids")
 	private List<Integer> empIds;
 
+	@Transient
+	@Column(name = "company_id")
+	private long companyId;
+
 	@ManyToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "company_id", nullable = false)
 	private Company company;
@@ -105,6 +109,14 @@ public class Project {
 		this.empIds = empIds;
 	}
 
+	public long getCompanyId() {
+		return companyId;
+	}
+
+	public void setCompanyId(long companyId) {
+		this.companyId = companyId;
+	}
+
 	public Company getCompany() {
 		return company;
 	}
@@ -115,9 +127,11 @@ public class Project {
 
 	@Override
 	public String toString() {
-		return "Project [projectId=" + projectId + ", projectTitle=" + projectTitle + ", technologyUsed="
-				+ technologyUsed + ", projectDescription=" + projectDescription + ", projectFeature=" + projectFeature
-				+ ", empIds=" + empIds + ", company=" + company + "]";
+		return "Project [projectId=" + projectId + ", projectTitle="
+				+ projectTitle + ", technologyUsed=" + technologyUsed
+				+ ", projectDescription=" + projectDescription
+				+ ", projectFeature=" + projectFeature + ", empIds=" + empIds
+				+ ", companyId=" + companyId + ", company=" + company + "]";
 	}
 
 }

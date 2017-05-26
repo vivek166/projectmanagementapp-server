@@ -20,19 +20,19 @@ public class Company {
 	@Id
 	@GeneratedValue
 	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
-	@Column(name="company_id")
+	@Column(name = "company_id")
 	private long companyId;
-	
+
 	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
-	@Column(name="company_name", nullable = false, unique = true)
+	@Column(name = "company_name", nullable = false, unique = true)
 	private String companyName;
-	
+
 	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
-	@Column(name="comapny_address", nullable = false)
+	@Column(name = "comapny_address", nullable = false)
 	private String companyAddress;
-	
+
 	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
-	@Column(name="company_cont_num", nullable = false)
+	@Column(name = "company_cont_num", nullable = false)
 	private String companyContactNumber;
 
 	public Company() {
@@ -72,7 +72,8 @@ public class Company {
 
 	@Override
 	public String toString() {
-		return "Company [companyId=" + companyId + ", companyName=" + companyName + ", companyAddress=" + companyAddress
+		return "Company [companyId=" + companyId + ", companyName="
+				+ companyName + ", companyAddress=" + companyAddress
 				+ ", companyContactNumber=" + companyContactNumber + "]";
 	}
 

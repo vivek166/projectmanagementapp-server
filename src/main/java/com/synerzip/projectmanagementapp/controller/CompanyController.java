@@ -39,18 +39,23 @@ public class CompanyController {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public String gets(@DefaultValue("0") @QueryParam("start") int start,
-			@DefaultValue("5") @QueryParam("size") int size, @DefaultValue("") @QueryParam("query") String query)
-			throws JsonGenerationException, JsonMappingException, IOException, EntityNotFoundException {
-		return new ObjectMapper().writeValueAsString(service.gets(start, size, query));
+			@DefaultValue("5") @QueryParam("size") int size,
+			@DefaultValue("") @QueryParam("query") String query)
+			throws JsonGenerationException, JsonMappingException, IOException,
+			EntityNotFoundException {
+		return new ObjectMapper().writeValueAsString(service.gets(start, size,
+				query));
 	}
 
 	@GET
 	@Path("/search")
 	@Produces(MediaType.APPLICATION_JSON)
 	public String search(@DefaultValue("0") @QueryParam("start") int start,
-			@DefaultValue("5") @QueryParam("size") int size, @QueryParam("query") String query)
-			throws JsonGenerationException, JsonMappingException, IOException {
-		return new ObjectMapper().writeValueAsString(service.search(start, size, query));
+			@DefaultValue("5") @QueryParam("size") int size,
+			@QueryParam("query") String query) throws JsonGenerationException,
+			JsonMappingException, IOException {
+		return new ObjectMapper().writeValueAsString(service.search(start,
+				size, query));
 	}
 
 	@POST
@@ -71,7 +76,8 @@ public class CompanyController {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("{companyId}")
-	public Response update(Company company, @PathParam("companyId") long companyId) {
+	public Response update(Company company,
+			@PathParam("companyId") long companyId) {
 		return Response.ok().entity(service.update(company, companyId)).build();
 	}
 
@@ -79,7 +85,8 @@ public class CompanyController {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("{projectId}")
-	public Response patch(Company company, @PathParam("projectId") long companyId) {
+	public Response patch(Company company,
+			@PathParam("projectId") long companyId) {
 		return Response.ok().entity(service.patch(company, companyId)).build();
 	}
 }

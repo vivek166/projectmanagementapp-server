@@ -37,25 +37,30 @@ public class ProjectController {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public String gets(@DefaultValue("0") @QueryParam("start") int start,
-			@DefaultValue("5") @QueryParam("size") int size, @DefaultValue("") @QueryParam("query") String query)
-			throws JsonGenerationException, JsonMappingException, IOException, EntityNotFoundException {
-		return new ObjectMapper().writeValueAsString(service.gets(start, size, query));
+			@DefaultValue("5") @QueryParam("size") int size,
+			@DefaultValue("") @QueryParam("query") String query)
+			throws JsonGenerationException, JsonMappingException, IOException,
+			EntityNotFoundException {
+		return new ObjectMapper().writeValueAsString(service.gets(start, size,
+				query));
 	}
 
 	@GET
 	@Path("/search")
 	@Produces(MediaType.APPLICATION_JSON)
 	public String search(@DefaultValue("0") @QueryParam("start") int start,
-			@DefaultValue("5") @QueryParam("size") int size, @QueryParam("query") String query)
-			throws JsonGenerationException, JsonMappingException, IOException {
-		return new ObjectMapper().writeValueAsString(service.search(start, size, query));
+			@DefaultValue("5") @QueryParam("size") int size,
+			@QueryParam("query") String query) throws JsonGenerationException,
+			JsonMappingException, IOException {
+		return new ObjectMapper().writeValueAsString(service.search(start,
+				size, query));
 	}
 
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response add(Project project) {
-		return Response.ok().entity(service.add(project)).build();
+		return Response.ok().entity(service.assign(project)).build();
 	}
 
 	@DELETE
@@ -69,7 +74,8 @@ public class ProjectController {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("{projectId}")
-	public Response update(Project project, @PathParam("projectId") long projectId) {
+	public Response update(Project project,
+			@PathParam("projectId") long projectId) {
 		return Response.ok().entity(service.update(project, projectId)).build();
 	}
 
@@ -77,7 +83,8 @@ public class ProjectController {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("{projectId}")
-	public Response patch(Project project, @PathParam("projectId") long projectId) {
+	public Response patch(Project project,
+			@PathParam("projectId") long projectId) {
 		return Response.ok().entity(service.patch(project, projectId)).build();
 	}
 }
