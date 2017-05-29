@@ -60,7 +60,7 @@ public class ProjectController {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response add(Project project) {
-		return Response.ok().entity(service.assign(project)).build();
+		return Response.ok().entity(service.add(project)).build();
 	}
 
 	@DELETE

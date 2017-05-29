@@ -85,10 +85,17 @@ public class UserController {
 	}
 	
 	
-	@POST
+	/*@POST
 	@Path("/userAuth")
 	@Produces(MediaType.APPLICATION_JSON)
 	public UserCredentials userAuthentication(UserCredentials userCredentials){
 		return service.userAuthentication(userCredentials);
+	}*/
+	
+	@POST
+	@Path("/userAuth")
+	@Produces(MediaType.TEXT_PLAIN)
+	public String  userAuthentication(){
+		return "This is secured method";
 	}
 }
