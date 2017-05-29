@@ -17,11 +17,10 @@ import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
+import com.synerzip.projectmanagementapp.authentication.Secured;
 import com.synerzip.projectmanagementapp.httpmethods.Patch.PATCH;
-import com.synerzip.projectmanagementapp.model.Project;
 import com.synerzip.projectmanagementapp.model.User;
 import com.synerzip.projectmanagementapp.model.UserCredentials;
-import com.synerzip.projectmanagementapp.serviceimplementation.ProjectServiceImplementation;
 import com.synerzip.projectmanagementapp.serviceimplementation.UserServiceImplementation;
 
 @Path("/user")
@@ -30,6 +29,7 @@ public class UserController {
 	UserServiceImplementation service = new UserServiceImplementation();
 
 	@GET
+	@Secured
 	@Path("/{userId}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public String get(@PathParam("userId") String userId)
@@ -54,12 +54,12 @@ public class UserController {
 		return new ObjectMapper().writeValueAsString(service.search(start, size, query));
 	}
 
-	@POST
+	/*@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response add(User user) {
 		return Response.ok().entity(service.add(user)).build();
-	}
+	}*/
 
 	@DELETE
 	@Produces(MediaType.APPLICATION_JSON)
@@ -85,17 +85,20 @@ public class UserController {
 	}
 	
 	
-	/*@POST
-	@Path("/userAuth")
-	@Produces(MediaType.APPLICATION_JSON)
-	public UserCredentials userAuthentication(UserCredentials userCredentials){
-		return service.userAuthentication(userCredentials);
-	}*/
-	
 	@POST
+	@Path("/userAuth")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response userAuthentication(UserCredentials userCredentials){
+		return Response.ok().entity(service.userAuthentication(userCredentials)).build();
+	}
+	
+	/*Basic authentication method
+	 * 
+	 * @POST
 	@Path("/userAuth")
 	@Produces(MediaType.TEXT_PLAIN)
 	public String  userAuthentication(){
-		return "This is secured method";
-	}
+		return "This is secured methods";
+	}*/
 }

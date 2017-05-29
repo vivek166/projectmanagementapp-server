@@ -1,8 +1,13 @@
 package com.synerzip.projectmanagementapp.serviceimplementation;
+import java.math.BigInteger;
+import java.security.SecureRandom;
 import java.util.List;
+import java.util.Random;
+
 import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.Persistence;
+import javax.transaction.Transaction;
 import javax.ws.rs.NotFoundException;
 import org.apache.log4j.Logger;
 import org.hibernate.HibernateException;
@@ -259,19 +264,19 @@ public class UserServiceImplementation implements UserServices {
 	}
 
 	
-	public UserCredentials userAuthentication(UserCredentials userCredentials) {
+	public String userAuthentication(UserCredentials userCredentials) {
 		String userId=userCredentials.getUserId();
 		String userPassword=userCredentials.getUserPassword();
 		Session session = HibernateUtils.getSession();
-		UserCredentials token=new UserCredentials();
-		User dbUser;
+		User dbUser;                                     
+		String token="";
 		try{
 			dbUser=(User)session.get(User.class, userId);
 			if(dbUser!=null){
 				if(userId.equals(dbUser.getUserId()) && userPassword.equals(dbUser.getUserPassword())){
-					token.setUserId(dbUser.getUserId());
-					token.setUserPassword(dbUser.getUserPassword());
-					return token;
+					
+					Random random = new SecureRandom();
+					token = new BigInteger(130, random).toString(32);
 				}
 			}
 		}catch(HibernateException exception){
@@ -279,6 +284,6 @@ public class UserServiceImplementation implements UserServices {
 		}finally {
 			session.close();
 		}
-		return token;
+		return "Bearer"+token;
 	}
 }

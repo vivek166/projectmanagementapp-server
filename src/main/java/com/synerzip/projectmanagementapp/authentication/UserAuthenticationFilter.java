@@ -1,5 +1,64 @@
-package com.synerzip.projectmanagementapp.authentication;
+/*package com.synerzip.projectmanagementapp.authentication;
 
+import java.io.IOException;
+import javax.ws.rs.NotAuthorizedException;
+import javax.ws.rs.container.ContainerRequestContext;
+import javax.ws.rs.container.ContainerRequestFilter;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.ext.Provider;
+
+@Provider
+@Secured
+public class UserAuthenticationFilter implements ContainerRequestFilter {
+
+    @Override
+    public void filter(ContainerRequestContext requestContext) throws IOException {
+
+        String authorizationHeader = 
+            requestContext.getHeaderString(HttpHeaders.AUTHORIZATION);
+
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+            throw new NotAuthorizedException("Authorization header must be provided");
+        }
+        
+        String token = authorizationHeader.substring("Bearer".length()).trim();
+
+        try {
+        	
+            validateToken(token);
+
+        } catch (Exception e) {
+            requestContext.abortWith(
+                Response.status(Response.Status.UNAUTHORIZED).build());
+        }
+    }
+
+    private void validateToken(String token) throws Exception {
+       
+    	 throw new NotAuthorizedException("validation failed : invalid token");
+    }
+}
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*package com.synerzip.projectmanagementapp.authentication;
 import java.io.IOException;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -33,7 +92,7 @@ public class UserAuthentication implements ContainerRequestFilter {
 				String userPassword = tokenizer.nextToken();
 				if ("user".equals(userName) && "password".equals(userPassword)) {
 					return;
-				}
+				}	
 			}
 			Response unauthorizationstatus = Response
 					.status(Response.Status.UNAUTHORIZED)
@@ -41,4 +100,6 @@ public class UserAuthentication implements ContainerRequestFilter {
 			requestContext.abortWith(unauthorizationstatus);
 		}
 	}
-}
+}*/
+
+
