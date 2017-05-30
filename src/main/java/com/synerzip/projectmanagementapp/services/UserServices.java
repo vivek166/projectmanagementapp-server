@@ -5,19 +5,19 @@ import com.synerzip.projectmanagementapp.model.User;
 import com.synerzip.projectmanagementapp.model.UserCredentials;
 
 public interface UserServices {
-	User get(String userId);
+	User get(String userName);
 
 	PageResult gets(int start, int size, String content);
 
 	User add(User user);
 
-	String delete(String userId);
+	String delete(String userName);
 
-	User update(User user, String userId);
+	User update(User user, String userName);
 
-	User patch(User user, String userId);
+	User patch(User user, String userName);
 
 	PageResult search(int start, int size, String content);
-	
+
 	String userAuthentication(UserCredentials userCredentials);
 }

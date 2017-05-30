@@ -325,7 +325,7 @@ public class ProjectServiceImplementation implements ProjectServices {
 					Employee employee = (Employee) session.get(Employee.class,
 							(long) empId);
 					if (employee != null) {
-						String empType = employee.getEmployeeType();
+						String empType = employee.getType();
 						if (empType.equals("employee")) {
 							org.hibernate.Transaction txEmployee = session
 									.beginTransaction();
@@ -335,7 +335,7 @@ public class ProjectServiceImplementation implements ProjectServices {
 							txEmployee.commit();
 						} else {
 							logger.error("empId must be of employee Type but it is :-"
-									+ employee.getEmployeeType());
+									+ employee.getType());
 							throw new MediaTypeException(
 									"Employee must be of employee Type");
 						}

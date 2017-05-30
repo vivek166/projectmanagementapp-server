@@ -9,6 +9,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
@@ -18,6 +20,15 @@ import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
 
+/*@NamedQueries(
+		{ 
+			@NamedQuery(
+					name = "getById", 
+					query = "from Employee where id =: id"
+					) 
+		}
+	)*/
+
 @Entity
 @Table(name = "employee")
 @Indexed
@@ -25,29 +36,43 @@ public class Employee {
 
 	@Id
 	@GeneratedValue
-	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
-	@Column(name = "emp_id")
-	private long empId;
+	@Column(name = "id")
+	private long id;
 
 	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
-	@Column(name = "emp_name", unique = true)
-	private String empName;
+	@Column(name = "first_name")
+	private String firstName;
 
 	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
-	@Column(name = "emp_department")
-	private String empDepartment;
+	@Column(name = "last_name")
+	private String lastName;
 
 	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
-	@Column(name = "emp_subjects")
-	private String empSubjects;
+	@Column(name = "department")
+	private String department;
 
 	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
-	@Column(name = "emp_type")
-	private String employeeType;
+	@Column(name = "subjects")
+	private String subjects;
+
+	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
+	@Column(name = "type")
+	private String type;
+
+	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
+	@Column(name = "email", unique = true)
+	private String email;
+
+	@Column(name = "password")
+	private String password;
 
 	@Transient
 	@Column(name = "project_ids")
 	private List<Integer> projectIds;
+	
+	@Transient
+	@Column(name = "company_name")
+	private String companyName;
 
 	@ManyToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "company_id")
@@ -57,44 +82,68 @@ public class Employee {
 
 	}
 
-	public long getEmpId() {
-		return empId;
+	public long getId() {
+		return id;
 	}
 
-	public void setEmpId(long empId) {
-		this.empId = empId;
+	public void setId(long id) {
+		this.id = id;
 	}
 
-	public String getEmpName() {
-		return empName;
+	public String getFirstName() {
+		return firstName;
 	}
 
-	public void setEmpName(String empName) {
-		this.empName = empName;
+	public void setFirstName(String firstName) {
+		this.firstName = firstName;
 	}
 
-	public String getEmpDepartment() {
-		return empDepartment;
+	public String getLastName() {
+		return lastName;
 	}
 
-	public void setEmpDepartment(String empDepartment) {
-		this.empDepartment = empDepartment;
+	public void setLastName(String lastName) {
+		this.lastName = lastName;
 	}
 
-	public String getEmpSubjects() {
-		return empSubjects;
+	public String getDepartment() {
+		return department;
 	}
 
-	public void setEmpSubjects(String empSubjects) {
-		this.empSubjects = empSubjects;
+	public void setDepartment(String department) {
+		this.department = department;
 	}
 
-	public String getEmployeeType() {
-		return employeeType;
+	public String getSubjects() {
+		return subjects;
 	}
 
-	public void setEmployeeType(String employeeType) {
-		this.employeeType = employeeType;
+	public void setSubjects(String subjects) {
+		this.subjects = subjects;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
 	}
 
 	public List<Integer> getProjectIds() {
@@ -113,11 +162,20 @@ public class Employee {
 		this.company = company;
 	}
 
+	public String getCompanyName() {
+		return companyName;
+	}
+
+	public void setCompanyName(String companyName) {
+		this.companyName = companyName;
+	}
+
 	@Override
 	public String toString() {
-		return "Employee [empId=" + empId + ", empName=" + empName + ", empDepartment=" + empDepartment
-				+ ", empSubjects=" + empSubjects + ", employeeType=" + employeeType + ", projectIds=" + projectIds
-				+ ", company=" + company + "]";
+		return "Employee [id=" + id + ", firstName=" + firstName + ", lastName=" + lastName + ", department="
+				+ department + ", subjects=" + subjects + ", type=" + type + ", email=" + email + ", password="
+				+ password + ", projectIds=" + projectIds + ", companyName=" + companyName + ", company=" + company
+				+ "]";
 	}
 
 }

@@ -17,6 +17,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
+import com.synerzip.projectmanagementapp.authentication.Secured.SECURED;
 import com.synerzip.projectmanagementapp.httpmethods.Patch.PATCH;
 import com.synerzip.projectmanagementapp.model.User;
 import com.synerzip.projectmanagementapp.model.UserCredentials;
@@ -28,11 +29,12 @@ public class UserController {
 	UserServiceImplementation service = new UserServiceImplementation();
 
 	@GET
-	@Path("/{userId}")
+	@Path("/{userName}")
+	@SECURED
 	@Produces(MediaType.APPLICATION_JSON)
-	public String get(@PathParam("userId") String userId)
+	public String get(@PathParam("userName") String userName)
 			throws JsonGenerationException, JsonMappingException, IOException {
-		return new ObjectMapper().writeValueAsString(service.get(userId));
+		return new ObjectMapper().writeValueAsString(service.get(userName));
 	}
 
 	@GET
@@ -52,34 +54,34 @@ public class UserController {
 		return new ObjectMapper().writeValueAsString(service.search(start, size, query));
 	}
 
-	/*@POST
+	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response add(User user) {
 		return Response.ok().entity(service.add(user)).build();
-	}*/
-
+	}
+	
 	@DELETE
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path("{userId}")
-	public Response delete(@PathParam("userId") String userId) {
-		return Response.ok().entity(service.delete(userId)).build();
+	@Path("{userName}")
+	public Response delete(@PathParam("userName") String userName) {
+		return Response.ok().entity(service.delete(userName)).build();
 	}
 
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path("{userId}")
-	public Response update(User user, @PathParam("userId") String userId) {
-		return Response.ok().entity(service.update(user, userId)).build();
+	@Path("{userName}")
+	public Response update(User user, @PathParam("userName") String userName) {
+		return Response.ok().entity(service.update(user, userName)).build();
 	}
 
 	@PATCH
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path("{userId}")
-	public Response patch(User user, @PathParam("userId") String userId) {
-		return Response.ok().entity(service.patch(user, userId)).build();
+	@Path("{userName}")
+	public Response patch(User user, @PathParam("userName") String userName) {
+		return Response.ok().entity(service.patch(user, userName)).build();
 	}
 	
 	
@@ -92,8 +94,7 @@ public class UserController {
 	}
 	
 	/*Basic authentication method
-	 * 
-	 * @POST
+    @POST
 	@Path("/userAuth")
 	@Produces(MediaType.TEXT_PLAIN)
 	public String  userAuthentication(){

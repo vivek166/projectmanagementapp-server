@@ -8,21 +8,21 @@ import com.synerzip.projectmanagementapp.model.ProjectEmployee;
 
 public interface EmployeeServices {
 
-	Employee get(long empId);
+	Employee get(long id);
 
 	PageResult gets(int start, int size, String content);
 
 	Employee add(Employee employee);
 
-	String delete(long empId);
+	String delete(long id);
 
-	Employee update(Employee employee, long empId);
+	Employee update(Employee employee, long id);
 
-	List<Project> assigned(long empId);
+	List<Project> assigned(long id);
 
 	ProjectEmployee assign(Employee employee);
 
 	PageResult search(int start, int size, String content);
 
-	Employee patch(Employee employee, long empId);
+	Employee patch(Employee employee, long id);
 }

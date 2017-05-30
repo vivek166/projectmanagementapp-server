@@ -1,6 +1,8 @@
 package com.synerzip.projectmanagementapp.serviceimplementation;
 import java.math.BigInteger;
 import java.security.SecureRandom;
+import java.sql.Date;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Random;
 import javax.persistence.EntityManager;
@@ -30,20 +32,20 @@ public class UserServiceImplementation implements UserServices {
 	static final Logger logger = Logger
 			.getLogger(UserServiceImplementation.class);
 
-	public User get(String userId) {
+	public User get(String userName) {
 		Session session = HibernateUtils.getSession();
 		logger.info("session open successfully");
 		User user;
 		try {
-			user = (User) session.get(User.class, userId);
+			user = (User) session.get(User.class, userName);
 			if (user == null) {
-				logger.error("user not found  with userId :-" + userId);
+				logger.error("user not found  with userId :-" + userName);
 				throw new EntityNotFoundException("record not found with id "
-						+ userId);
+						+ userName);
 			}
 		} catch (HibernateException exception) {
-			logger.error("abnormal ternination, get() of user for userId :-"
-					+ userId);
+			logger.error("abnormal ternination, get() of user for userName :-"
+					+ userName);
 			throw new HibernateException("unable to process your request");
 		} finally {
 			session.close();
@@ -108,7 +110,7 @@ public class UserServiceImplementation implements UserServices {
 					.forEntity(User.class).get();
 			org.apache.lucene.search.Query query = queryBuilder
 					.keyword()
-					.onFields("userId", "userName", "companyName").matching(content)
+					.onFields("userId", "firstName", "lastName", "userName", "companyName").matching(content)
 					.createQuery();
 			javax.persistence.Query fullTextQuery = fullTextEntityManager
 					.createFullTextQuery(query, User.class);
@@ -144,15 +146,18 @@ public class UserServiceImplementation implements UserServices {
 		logger.info("session open successfully");
 		org.hibernate.Transaction tx = session.beginTransaction();
 		try {
-			if (StringUtils.isEmptyOrWhitespaceOnly(user.getUserId())) {
-				logger.error("user Id is empty");
-				throw new CanNotEmptyField("user Id must be filled");
+			if (StringUtils.isEmptyOrWhitespaceOnly(user.getUserName())) {
+				logger.error("user name is empty");
+				throw new CanNotEmptyField("user name must be filled");
 			} else if (StringUtils.isEmptyOrWhitespaceOnly(user.getCompanyName())) {
 				logger.error("company name is empty");
 				throw new CanNotEmptyField("company  name  must be filled");
-			} else if (StringUtils.isEmptyOrWhitespaceOnly(user.getUserName())) {
-				logger.error("user name is empty");
-				throw new CanNotEmptyField("user name must be filled");
+			} else if (StringUtils.isEmptyOrWhitespaceOnly(user.getFirstName())) {
+				logger.error("first name is empty");
+				throw new CanNotEmptyField("first  name  must be filled");
+			} else if (StringUtils.isEmptyOrWhitespaceOnly(user.getLastName())) {
+				logger.error("last name is empty");
+				throw new CanNotEmptyField("last name must be filled");
 			}  else {
 				session.save(user);
 				tx.commit();
@@ -162,26 +167,26 @@ public class UserServiceImplementation implements UserServices {
 			logger.error("abnormal ternination, add() of user");
 			throw new ConstraintViolationException(
 					"record already present with title-- "
-							+ user.getUserId(), null, null);
+							+ user.getUserName(), null, null);
 		} finally {
 			session.close();
 			logger.info("session closed successfully");
 		}
 	}
 
-	public String delete(String userId) {
+	public String delete(String userName) {
 		Session session = HibernateUtils.getSession();
 		logger.info("session open successfully");
 		org.hibernate.Transaction tx = session.beginTransaction();
 		try {
-			String deleteQuery = "DELETE FROM User WHERE user_id = :user_id";
+			String deleteQuery = "DELETE FROM User WHERE user_name = :user_name";
 			Query query = session.createQuery(deleteQuery);
-			query.setParameter("user_id", userId);
+			query.setParameter("user_name", userName);
 			int affectedRow = query.executeUpdate();
 			if (affectedRow == 0) {
 				logger.error("record already deleted or not exist");
 				throw new EntityNotFoundException("no record found with id:-"
-						+ userId);
+						+ userName);
 			}
 			tx.commit();
 		} catch (HibernateException exception) {
@@ -194,21 +199,24 @@ public class UserServiceImplementation implements UserServices {
 		return "record deleted";
 	}
 
-	public User update(User user, String userId) {
+	public User update(User user, String userName) {
 		Session session = HibernateUtils.getSession();
 		logger.info("session open successfully");
 		org.hibernate.Transaction tx = session.beginTransaction();
 		try {
-			if (StringUtils.isEmptyOrWhitespaceOnly(user.getUserId())) {
-				logger.error("user Id is empty");
-				throw new CanNotEmptyField("user Id must be filled");
+			if (StringUtils.isEmptyOrWhitespaceOnly(user.getUserName())) {
+				logger.error("user name is empty");
+				throw new CanNotEmptyField("user name must be filled");
 			} else if (StringUtils.isEmptyOrWhitespaceOnly(user.getCompanyName())) {
 				logger.error("company name is empty");
 				throw new CanNotEmptyField("company  name  must be filled");
-			} else if (StringUtils.isEmptyOrWhitespaceOnly(user.getUserName())) {
-				logger.error("user name is empty");
-				throw new CanNotEmptyField("user name must be filled");
-			} else {
+			} else if (StringUtils.isEmptyOrWhitespaceOnly(user.getFirstName())) {
+				logger.error("first name is empty");
+				throw new CanNotEmptyField("first  name  must be filled");
+			} else if (StringUtils.isEmptyOrWhitespaceOnly(user.getLastName())) {
+				logger.error("last name is empty");
+				throw new CanNotEmptyField("last name must be filled");
+			}  else {
 				session.saveOrUpdate(user);
 				tx.commit();
 			}
@@ -217,39 +225,42 @@ public class UserServiceImplementation implements UserServices {
 			logger.error("abnormal ternination, update() of user");
 			throw new ConstraintViolationException(
 					"record already present with title-- "
-							+ user.getUserId(), null, null);
+							+ user.getUserName(), null, null);
 		} finally {
 			session.close();
 			logger.info("session closed successfully");
 		}
 	}
 
-	public User patch(User user, String userId) {
+	public User patch(User user, String userName) {
 		Session session = HibernateUtils.getSession();
 		logger.info("session open successfully");
 		org.hibernate.Transaction tx = session.beginTransaction();
 		try {
-			User dbUser = (User) session.get(User.class, userId);
+			User dbUser = (User) session.get(User.class, userName);
 			if (dbUser != null) {
-				if (!StringUtils.isEmptyOrWhitespaceOnly(user.getUserId())) {
-					logger.error("user Id is empty");
-					throw new CanNotEmptyField("user Id must be filled");
+				if (!StringUtils.isEmptyOrWhitespaceOnly(user.getUserName())) {
+					logger.error("user name is empty");
+					throw new CanNotEmptyField("user name must be filled");
 				}  if (!StringUtils.isEmptyOrWhitespaceOnly(user.getCompanyName())) {
 					logger.error("company name is empty");
 					throw new CanNotEmptyField("company  name  must be filled");
-				}  if (!StringUtils.isEmptyOrWhitespaceOnly(user.getUserName())) {
-					logger.error("user name is empty");
-					throw new CanNotEmptyField("user name must be filled");
+				}  if (!StringUtils.isEmptyOrWhitespaceOnly(user.getFirstName())) {
+					logger.error("first name is empty");
+					throw new CanNotEmptyField("first name must be filled");
+				} if (!StringUtils.isEmptyOrWhitespaceOnly(user.getLastName())) {
+					logger.error("last name is empty");
+					throw new CanNotEmptyField("last name must be filled");
 				} 
 				session.save(dbUser);
 				session.flush();
 				tx.commit();
 			} else {
-				logger.error("Can't update, user not found with userId :-"
-						+ userId);
+				logger.error("Can't update, user not found with userName :-"
+						+ userName);
 				throw new EntityNotFoundException(
-						"Can't update, user not found with userId :-"
-								+ userId);
+						"Can't update, user not found with userName :-"
+								+ userName);
 			}
 			return dbUser;
 		} catch (HibernateException exception) {
@@ -265,21 +276,24 @@ public class UserServiceImplementation implements UserServices {
 
 	
 	public String userAuthentication(UserCredentials userCredentials) {
-		String userId=userCredentials.getUserId();
+		String userName=userCredentials.getUserName();
 		String userPassword=userCredentials.getUserPassword();
-		Session session = HibernateUtils.getSession();
-		User dbUser;                                     
+		Session session = HibernateUtils.getSession();                             
 		String tokenString="";
 		try{
-			dbUser=(User)session.get(User.class, userId);
+			Query query=session.createQuery("from User where user_name =: user_name");
+			query.setParameter("user_naem", userName);
+			List<User> dbUser=query.list();
 			if(dbUser!=null){
-				if(userId.equals(dbUser.getUserId()) && userPassword.equals(dbUser.getUserPassword())){
+				if(userName.equals(((Token) dbUser).getUserName()) && userPassword.equals(((User) dbUser).getUserPassword())){
 					Random random = new SecureRandom();
 					tokenString = new BigInteger(130, random).toString(32);
 					Token token=new Token();
 					token.setToken(tokenString);
-					token.setUserId(dbUser.getUserId());
+					token.setUserName(((Token) dbUser).getUserName());
+					token.setExpiryTime(Calendar.getInstance().getTime());
 					session.save(token);
+					session.beginTransaction().commit();
 				}
 			}
 		}catch(HibernateException exception){

@@ -28,23 +28,22 @@ import com.synerzip.projectmanagementapp.services.EmployeeServices;
 
 public class EmployeeServicesImplementation implements EmployeeServices {
 
-	static final Logger logger = Logger
-			.getLogger(EmployeeServicesImplementation.class);
+	static final Logger logger = Logger.getLogger(EmployeeServicesImplementation.class);
 
-	public Employee get(long empId) {
+	public Employee get(long id) {
 		Session session = HibernateUtils.getSession();
 		logger.info("session open successfully");
 		Employee employee;
 		try {
-			employee = (Employee) session.get(Employee.class, empId);
+			employee = (Employee) session.get(Employee.class, id);
 			if (employee == null) {
-				logger.error("employee not found  with empid :-" + empId);
+				logger.error("employee not found  with empid :-" + id);
 				throw new EntityNotFoundException("record not found with id "
-						+ empId);
+						+ id);
 			}
 		} catch (HibernateException exception) {
-			logger.error("abnormal ternination, get() of employee for empId :-"
-					+ empId);
+			logger.error("abnormal ternination, get() of employee for id :-"
+					+ id);
 			throw new HibernateException("unable to process your request");
 		} finally {
 			session.close();
@@ -52,7 +51,31 @@ public class EmployeeServicesImplementation implements EmployeeServices {
 		}
 		return employee;
 	}
-
+	/*
+	public Employee get(long id) {
+		Session session = HibernateUtils.getSession();
+		logger.info("session open successfully");
+		Employee employee;
+		try {
+			Query query = session.getNamedQuery("getById");  
+		    query.setLong("id", id);  
+		    employee=(Employee) query.list();  
+			if (employee == null) {
+				logger.error("employee not found  with empid :-" + id);
+				throw new EntityNotFoundException("record not found with id "
+						+ id);
+			}
+		} catch (HibernateException exception) {
+			logger.error("abnormal ternination, get() of employee for id :-"
+					+ id);
+			throw new HibernateException("unable to process your request");
+		} finally {
+			session.close();
+			logger.info("session closed successfully");
+		}
+		return employee;
+	}
+*/
 	public PageResult gets(int start, int size, String content) {
 		Session session = HibernateUtils.getSession();
 		logger.info("session open successfully");
@@ -104,8 +127,8 @@ public class EmployeeServicesImplementation implements EmployeeServices {
 					.buildQueryBuilder().forEntity(Employee.class).get();
 			org.apache.lucene.search.Query query = qb
 					.keyword()
-					.onFields("empId", "empName", "empDepartment",
-							"empSubjects").matching(content).createQuery();
+					.onFields("firstName", "lastName", "department",
+							"subjects").matching(content).createQuery();
 			javax.persistence.Query fullTextQuery = fullTextEntityManager
 					.createFullTextQuery(query, Employee.class);
 			fullTextQuery.setFirstResult(start);
@@ -140,23 +163,32 @@ public class EmployeeServicesImplementation implements EmployeeServices {
 		Session session = HibernateUtils.getSession();
 		logger.info("session open successfully");
 		org.hibernate.Transaction tx = session.beginTransaction();
+		String companyName = employee.getCompanyName();
+		Company company=new Company();
+		company.setCompanyName(companyName);
+		CompanyServiceImplementation companyService=new CompanyServiceImplementation();
+		company=companyService.add(company);
 		try {
-			if (StringUtils.isEmptyOrWhitespaceOnly(employee.getEmpName())) {
-				logger.error("employee name is empty");
-				throw new CanNotEmptyField("employee name must be filled");
+			if (StringUtils.isEmptyOrWhitespaceOnly(employee.getFirstName())) {
+				logger.error("first name is empty");
+				throw new CanNotEmptyField("first name must be filled");
+			} else if (StringUtils.isEmptyOrWhitespaceOnly(employee.getLastName())) {
+				logger.error("last name is empty");
+				throw new CanNotEmptyField("last name must be filled");
+			}else if (StringUtils.isEmptyOrWhitespaceOnly(employee
+					.getDepartment())) {
+				logger.error("department is empty");
+				throw new CanNotEmptyField("department must be filled");
 			} else if (StringUtils.isEmptyOrWhitespaceOnly(employee
-					.getEmpDepartment())) {
-				logger.error("employee department is empty");
-				throw new CanNotEmptyField("employee department must be filled");
+					.getSubjects())) {
+				logger.error("subject is empty");
+				throw new CanNotEmptyField("subjects must be filled");
 			} else if (StringUtils.isEmptyOrWhitespaceOnly(employee
-					.getEmpSubjects())) {
-				logger.error("employee subject is empty");
-				throw new CanNotEmptyField("employee subjects must be filled");
-			} else if (StringUtils.isEmptyOrWhitespaceOnly(employee
-					.getEmployeeType())) {
-				logger.error("employee type is empty");
-				throw new CanNotEmptyField("employee type must be filled");
+					.getType())) {
+				logger.error("user type is empty");
+				throw new CanNotEmptyField("user type must be filled");
 			} else {
+				employee.setCompany(company);
 				session.save(employee);
 				tx.commit();
 			}
@@ -164,22 +196,22 @@ public class EmployeeServicesImplementation implements EmployeeServices {
 		} catch (HibernateException exception) {
 			logger.error("abnormal ternination, add() of employee");
 			throw new ConstraintViolationException(
-					"record already present with name - "
-							+ employee.getEmpName(), null, null);
+					"record already present with email - "
+							+ employee.getEmail(), null, null);
 		} finally {
 			session.close();
 			logger.info("session closed successfully");
 		}
 	}
 
-	public String delete(long empId) {
+	public String delete(long id) {
 		Session session = HibernateUtils.getSession();
 		logger.info("session open successfully");
 		org.hibernate.Transaction tx = session.beginTransaction();
 		try {
-			String deleteQuery = "DELETE FROM Employee WHERE emp_id = :emp_id";
+			String deleteQuery = "DELETE FROM Employee WHERE id = :id";
 			Query query = session.createQuery(deleteQuery);
-			query.setParameter("emp_id", empId);
+			query.setParameter("id", id);
 			int affectedRow = query.executeUpdate();
 			if (affectedRow == 0) {
 				logger.error("record already deleted or not exist");
@@ -187,8 +219,8 @@ public class EmployeeServicesImplementation implements EmployeeServices {
 			}
 			tx.commit();
 		} catch (HibernateException exception) {
-			logger.error("abnormal ternination, delete() of employee for empId :-"
-					+ empId);
+			logger.error("abnormal ternination, delete() of employee for Id :-"
+					+ id);
 			throw new HibernateException("unable to process your request");
 		} finally {
 			session.close();
@@ -197,22 +229,22 @@ public class EmployeeServicesImplementation implements EmployeeServices {
 		return "record deleted";
 	}
 
-	public Employee update(Employee employee, long empId) {
+	public Employee update(Employee employee, long id) {
 		Session session = HibernateUtils.getSession();
 		logger.info("session open successfully");
 		org.hibernate.Transaction tx = session.beginTransaction();
 		try {
-			if (StringUtils.isEmptyOrWhitespaceOnly(employee.getEmpName())) {
-				logger.error("employee name is empty");
-				throw new CanNotEmptyField("employee name must be field");
+			if (StringUtils.isEmptyOrWhitespaceOnly(employee.getFirstName())) {
+				logger.error("first name is empty");
+				throw new CanNotEmptyField("first  name must be field");
 			} else if (StringUtils.isEmptyOrWhitespaceOnly(employee
-					.getEmpDepartment())) {
-				logger.error("employee department is empty");
-				throw new CanNotEmptyField("employee department must be field");
+					.getDepartment())) {
+				logger.error("department is empty");
+				throw new CanNotEmptyField("department must be field");
 			} else if (StringUtils.isEmptyOrWhitespaceOnly(employee
-					.getEmpSubjects())) {
-				logger.error("employee subject is empty");
-				throw new CanNotEmptyField("employee subjects must be field");
+					.getSubjects())) {
+				logger.error("subject is empty");
+				throw new CanNotEmptyField("subjects must be field");
 			} else {
 				session.saveOrUpdate(employee);
 				tx.commit();
@@ -222,8 +254,8 @@ public class EmployeeServicesImplementation implements EmployeeServices {
 			logger.error("abnormal ternination, update() of employee");
 			tx.rollback();
 			throw new ConstraintViolationException(
-					"record already present with name - "
-							+ employee.getEmpName(), null, null);
+					"record already present with email - "
+							+ employee.getEmail(), null, null);
 		} finally {
 			session.close();
 			logger.info("session closed successfully");
@@ -237,52 +269,52 @@ public class EmployeeServicesImplementation implements EmployeeServices {
 		try {
 			Employee dbProject = (Employee) session.get(Employee.class, empId);
 			if (dbProject != null) {
-				if (!StringUtils.isEmptyOrWhitespaceOnly(employee.getEmpName())) {
-					dbProject.setEmpName(employee.getEmpName());
+				if (!StringUtils.isEmptyOrWhitespaceOnly(employee.getFirstName())) {
+					dbProject.setFirstName(employee.getFirstName());
 				}
 				if (!StringUtils.isEmptyOrWhitespaceOnly(employee
-						.getEmpDepartment())) {
-					dbProject.setEmpDepartment(employee.getEmpDepartment());
+						.getDepartment())) {
+					dbProject.setDepartment(employee.getDepartment());
 				}
 				if (!StringUtils.isEmptyOrWhitespaceOnly(employee
-						.getEmpSubjects())) {
-					dbProject.setEmpSubjects(employee.getEmpSubjects());
+						.getSubjects())) {
+					dbProject.setSubjects(employee.getSubjects());
 				}
 				session.save(dbProject);
 				session.flush();
 				tx.commit();
 			} else {
-				logger.error("Can't update, employee not found with empId :-"
+				logger.error("Can't update, employee not found with Id :-"
 						+ empId);
 				throw new EntityNotFoundException(
-						"Can't update, employee not found with empId :-"
+						"Can't update, employee not found with Id :-"
 								+ empId);
 			}
 			return dbProject;
 		} catch (HibernateException exception) {
 			logger.error("abnormal ternination, patch() of employee");
 			throw new ConstraintViolationException(
-					"unable to update, record already present with empName :-"
-							+ employee.getEmpName(), null, null);
+					"unable to update, record already present with email :-"
+							+ employee.getEmail(), null, null);
 		} finally {
 			session.close();
 			logger.info("session closed successfully");
 		}
 	}
 
-	public List<Project> assigned(long empId) {
+	public List<Project> assigned(long id) {
 		Session session = HibernateUtils.getSession();
 		logger.info("session open successfully");
 		List<Project> projectResult = null;
 		try {
 			Query query = session
-					.createQuery("select project from ProjectEmployee where emp_id = :emp_id");
-			query.setParameter("emp_id", empId);
+					.createQuery("select project from ProjectEmployee where id = :id");
+			query.setParameter("id", id);
 			projectResult = query.list();
 			if (projectResult.size() == 0) {
-				logger.error("No Project assign to this employee " + empId);
+				logger.error("No Project assign to this employee " + id);
 				throw new EntityNotFoundException(
-						"No Project assign to this employee " + empId);
+						"No Project assign to this employee " + id);
 			}
 		} catch (HibernateException exception) {
 			logger.error("abnormal ternination, assigned() of employee");
@@ -301,7 +333,7 @@ public class EmployeeServicesImplementation implements EmployeeServices {
 		try {
 			session.save(employee);
 			txEmployee.commit();
-			if (employee.getEmployeeType().equals("employee")) {
+			if (employee.getType().equals("employee")) {
 				List<Integer> projectIds = employee.getProjectIds();
 				ProjectEmployee projectEmployee = new ProjectEmployee();
 				for (Integer projectId : projectIds) {
@@ -325,15 +357,15 @@ public class EmployeeServicesImplementation implements EmployeeServices {
 				return projectEmployee;
 			} else {
 				logger.error("employee must be of employee type but It is :-"
-						+ employee.getEmployeeType() + "type");
+						+ employee.getType() + "type");
 				throw new MediaTypeException(
 						"can't assign project, employee must be of employee type");
 			}
 		} catch (HibernateException exception) {
 			logger.error("trying to insert duplicate value");
 			throw new ConstraintViolationException(
-					"unable to assign, emp already present with empName :-"
-							+ employee.getEmpName(), null, null);
+					"unable to assign, emp already present with email :-"
+							+ employee.getEmail(), null, null);
 		} finally {
 			session.close();
 			logger.info("session closed successfully");

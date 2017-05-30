@@ -144,7 +144,7 @@ public class CompanyServiceImplementation {
 		logger.info("session open successfully");
 		org.hibernate.Transaction tx = session.beginTransaction();
 		try {
-			if (StringUtils.isEmptyOrWhitespaceOnly(company.getCompanyName())) {
+			/*if (StringUtils.isEmptyOrWhitespaceOnly(company.getCompanyName())) {
 				logger.error("company name is empty");
 				throw new CanNotEmptyField("company name must be filled");
 			} else if (StringUtils.isEmptyOrWhitespaceOnly(company
@@ -159,7 +159,9 @@ public class CompanyServiceImplementation {
 			} else {
 				session.save(company);
 				tx.commit();
-			}
+			}*/
+			session.save(company);
+			tx.commit();
 			return company;
 		} catch (HibernateException exception) {
 			logger.error("abnormal ternination, add() of company");
