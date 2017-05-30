@@ -17,7 +17,6 @@ import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
-import com.synerzip.projectmanagementapp.authentication.Secured;
 import com.synerzip.projectmanagementapp.httpmethods.Patch.PATCH;
 import com.synerzip.projectmanagementapp.model.User;
 import com.synerzip.projectmanagementapp.model.UserCredentials;
@@ -29,7 +28,6 @@ public class UserController {
 	UserServiceImplementation service = new UserServiceImplementation();
 
 	@GET
-	@Secured
 	@Path("/{userId}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public String get(@PathParam("userId") String userId)

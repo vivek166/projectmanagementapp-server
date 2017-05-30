@@ -2,7 +2,6 @@ package com.synerzip.projectmanagementapp.model;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
@@ -11,19 +10,21 @@ import javax.persistence.Table;
 public class Token {
 
 	@Id
-	@GeneratedValue
-	@Column(name = "token_id")
-	private long tokenId;
+	@Column(name = "user_id")
+	private String userId;
 
 	@Column(name = "token")
 	private String token;
-
-	public long getTokenId() {
-		return tokenId;
+	
+	public Token() {
 	}
 
-	public void setTokenId(long tokenId) {
-		this.tokenId = tokenId;
+	public String getUserId() {
+		return userId;
+	}
+
+	public void setUserId(String userId) {
+		this.userId = userId;
 	}
 
 	public String getToken() {
@@ -36,6 +37,6 @@ public class Token {
 
 	@Override
 	public String toString() {
-		return "Token [tokenId=" + tokenId + ", token=" + token + "]";
+		return "Token [userId=" + userId + ", token=" + token + "]";
 	}
 }

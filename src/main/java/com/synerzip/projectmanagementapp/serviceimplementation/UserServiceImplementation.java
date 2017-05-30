@@ -3,7 +3,6 @@ import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.List;
 import java.util.Random;
-
 import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.Persistence;
@@ -21,6 +20,7 @@ import com.mysql.jdbc.StringUtils;
 import com.synerzip.projectmanagementapp.dbconnection.HibernateUtils;
 import com.synerzip.projectmanagementapp.exception.CanNotEmptyField;
 import com.synerzip.projectmanagementapp.model.PageResult;
+import com.synerzip.projectmanagementapp.model.Token;
 import com.synerzip.projectmanagementapp.model.User;
 import com.synerzip.projectmanagementapp.model.UserCredentials;
 import com.synerzip.projectmanagementapp.services.UserServices;
@@ -269,14 +269,17 @@ public class UserServiceImplementation implements UserServices {
 		String userPassword=userCredentials.getUserPassword();
 		Session session = HibernateUtils.getSession();
 		User dbUser;                                     
-		String token="";
+		String tokenString="";
 		try{
 			dbUser=(User)session.get(User.class, userId);
 			if(dbUser!=null){
 				if(userId.equals(dbUser.getUserId()) && userPassword.equals(dbUser.getUserPassword())){
-					
 					Random random = new SecureRandom();
-					token = new BigInteger(130, random).toString(32);
+					tokenString = new BigInteger(130, random).toString(32);
+					Token token=new Token();
+					token.setToken(tokenString);
+					token.setUserId(dbUser.getUserId());
+					session.save(token);
 				}
 			}
 		}catch(HibernateException exception){
@@ -284,6 +287,6 @@ public class UserServiceImplementation implements UserServices {
 		}finally {
 			session.close();
 		}
-		return "Bearer"+token;
+		return "Bearer "+tokenString;
 	}
 }

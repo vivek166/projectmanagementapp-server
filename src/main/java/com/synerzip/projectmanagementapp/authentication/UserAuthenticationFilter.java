@@ -1,12 +1,20 @@
-/*package com.synerzip.projectmanagementapp.authentication;
+package com.synerzip.projectmanagementapp.authentication;
 
 import java.io.IOException;
+import java.util.List;
+
 import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.Provider;
+
+import org.hibernate.Query;
+import org.hibernate.Session;
+
+import com.synerzip.projectmanagementapp.dbconnection.HibernateUtils;
+import com.synerzip.projectmanagementapp.model.Token;
 
 @Provider
 @Secured
@@ -23,7 +31,7 @@ public class UserAuthenticationFilter implements ContainerRequestFilter {
         }
         
         String token = authorizationHeader.substring("Bearer".length()).trim();
-
+        
         try {
         	
             validateToken(token);
@@ -35,12 +43,16 @@ public class UserAuthenticationFilter implements ContainerRequestFilter {
     }
 
     private void validateToken(String token) throws Exception {
-       
+    	Session session = HibernateUtils.getSession();
+    	Query query=session.createQuery("from Token where token =:token");
+    	query.setParameter("token", token);
+    	List<Token> result=query.list();
+    	if(token.equals(result)){
+    		return;
+    	}
     	 throw new NotAuthorizedException("validation failed : invalid token");
     }
 }
-*/
-
 
 
 
