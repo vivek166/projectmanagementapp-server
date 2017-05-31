@@ -16,8 +16,11 @@ import javax.ws.rs.core.Response;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
+
+import com.synerzip.projectmanagementapp.authentication.Secured.SECURED;
 import com.synerzip.projectmanagementapp.httpmethods.Patch.PATCH;
 import com.synerzip.projectmanagementapp.model.Employee;
+import com.synerzip.projectmanagementapp.model.UserCredentials;
 import com.synerzip.projectmanagementapp.serviceimplementation.EmployeeServicesImplementation;
 
 @Path("/employee")
@@ -27,10 +30,10 @@ public class EmployeeController {
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path("/{empId}")
-	public String get(@PathParam("empId") long empId)
+	@Path("/{id}")
+	public String get(@PathParam("id") long id)
 			throws JsonGenerationException, JsonMappingException, IOException {
-		return new ObjectMapper().writeValueAsString(service.get(empId));
+		return new ObjectMapper().writeValueAsString(service.get(id));
 	}
 
 	@GET
@@ -51,6 +54,7 @@ public class EmployeeController {
 	}
 
 	@POST
+	@SECURED
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response add(Employee employee) {
@@ -58,25 +62,36 @@ public class EmployeeController {
 	}
 
 	@DELETE
+	@SECURED
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path("{empId}")
-	public Response delete(@PathParam("empId") long empId) {
-		return Response.ok().entity(service.delete(empId)).build();
+	@Path("{id}")
+	public Response delete(@PathParam("empId") long id) {
+		return Response.ok().entity(service.delete(id)).build();
 	}
 
 	@PUT
+	@SECURED
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path("{empId}")
-	public Response update(Employee employee, @PathParam("empId") long empId) {
-		return Response.ok().entity(service.update(employee, empId)).build();
+	@Path("{id}")
+	public Response update(Employee employee, @PathParam("id") long id) {
+		return Response.ok().entity(service.update(employee, id)).build();
 	}
 
 	@PATCH
+	@SECURED
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	@Path("{empId}")
-	public Response patch(Employee employee, @PathParam("empId") long empId) {
-		return Response.ok().entity(service.patch(employee, empId)).build();
+	@Path("{id}")
+	public Response patch(Employee employee, @PathParam("id") long id) {
+		return Response.ok().entity(service.patch(employee, id)).build();
+	}
+	
+	@POST
+	@Path("/authentication")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response userAuthentication(UserCredentials userCredentials){
+		return Response.ok().entity(service.userAuthentication(userCredentials)).build();
 	}
 }

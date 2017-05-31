@@ -4,20 +4,30 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import org.hibernate.search.annotations.Analyze;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Index;
+import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.Store;
+
 @Entity
+@Indexed
 @Table(name = "token")
 public class Token {
 
 	@Id
+	@GeneratedValue
 	@Column(name = "token_id")
-	private String tokenId;
+	private long tokenId;
 
 	@Column(name = "user_name")
 	private String userName;
 
+	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
 	@Column(name = "token")
 	private String token;
 
@@ -27,11 +37,11 @@ public class Token {
 	public Token() {
 	}
 
-	public String getTokenId() {
+	public long getTokenId() {
 		return tokenId;
 	}
 
-	public void setTokenId(String tokenId) {
+	public void setTokenId(long tokenId) {
 		this.tokenId = tokenId;
 	}
 
@@ -65,4 +75,5 @@ public class Token {
 				+ expiryTime + "]";
 	}
 
+	
 }

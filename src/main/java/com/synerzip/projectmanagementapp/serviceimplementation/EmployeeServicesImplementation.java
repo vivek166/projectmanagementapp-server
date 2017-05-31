@@ -1,10 +1,15 @@
 package com.synerzip.projectmanagementapp.serviceimplementation;
 
+import java.math.BigInteger;
+import java.security.SecureRandom;
+import java.util.Calendar;
 import java.util.List;
+import java.util.Random;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.Persistence;
+import javax.ws.rs.NotAuthorizedException;
 
 import org.apache.log4j.Logger;
 import org.hibernate.HibernateException;
@@ -24,6 +29,9 @@ import com.synerzip.projectmanagementapp.model.Employee;
 import com.synerzip.projectmanagementapp.model.PageResult;
 import com.synerzip.projectmanagementapp.model.Project;
 import com.synerzip.projectmanagementapp.model.ProjectEmployee;
+import com.synerzip.projectmanagementapp.model.Token;
+import com.synerzip.projectmanagementapp.model.User;
+import com.synerzip.projectmanagementapp.model.UserCredentials;
 import com.synerzip.projectmanagementapp.services.EmployeeServices;
 
 public class EmployeeServicesImplementation implements EmployeeServices {
@@ -35,31 +43,9 @@ public class EmployeeServicesImplementation implements EmployeeServices {
 		logger.info("session open successfully");
 		Employee employee;
 		try {
-			employee = (Employee) session.get(Employee.class, id);
-			if (employee == null) {
-				logger.error("employee not found  with empid :-" + id);
-				throw new EntityNotFoundException("record not found with id "
-						+ id);
-			}
-		} catch (HibernateException exception) {
-			logger.error("abnormal ternination, get() of employee for id :-"
-					+ id);
-			throw new HibernateException("unable to process your request");
-		} finally {
-			session.close();
-			logger.info("session closed successfully");
-		}
-		return employee;
-	}
-	/*
-	public Employee get(long id) {
-		Session session = HibernateUtils.getSession();
-		logger.info("session open successfully");
-		Employee employee;
-		try {
 			Query query = session.getNamedQuery("getById");  
 		    query.setLong("id", id);  
-		    employee=(Employee) query.list();  
+		    employee= (Employee) query.uniqueResult();  
 			if (employee == null) {
 				logger.error("employee not found  with empid :-" + id);
 				throw new EntityNotFoundException("record not found with id "
@@ -75,7 +61,7 @@ public class EmployeeServicesImplementation implements EmployeeServices {
 		}
 		return employee;
 	}
-*/
+
 	public PageResult gets(int start, int size, String content) {
 		Session session = HibernateUtils.getSession();
 		logger.info("session open successfully");
@@ -180,9 +166,9 @@ public class EmployeeServicesImplementation implements EmployeeServices {
 				logger.error("department is empty");
 				throw new CanNotEmptyField("department must be filled");
 			} else if (StringUtils.isEmptyOrWhitespaceOnly(employee
-					.getSubjects())) {
-				logger.error("subject is empty");
-				throw new CanNotEmptyField("subjects must be filled");
+					.getSkills())) {
+				logger.error("skills is empty");
+				throw new CanNotEmptyField("skills must be filled");
 			} else if (StringUtils.isEmptyOrWhitespaceOnly(employee
 					.getType())) {
 				logger.error("user type is empty");
@@ -242,9 +228,9 @@ public class EmployeeServicesImplementation implements EmployeeServices {
 				logger.error("department is empty");
 				throw new CanNotEmptyField("department must be field");
 			} else if (StringUtils.isEmptyOrWhitespaceOnly(employee
-					.getSubjects())) {
-				logger.error("subject is empty");
-				throw new CanNotEmptyField("subjects must be field");
+					.getSkills())) {
+				logger.error("skills is empty");
+				throw new CanNotEmptyField("skills must be field");
 			} else {
 				session.saveOrUpdate(employee);
 				tx.commit();
@@ -277,8 +263,8 @@ public class EmployeeServicesImplementation implements EmployeeServices {
 					dbProject.setDepartment(employee.getDepartment());
 				}
 				if (!StringUtils.isEmptyOrWhitespaceOnly(employee
-						.getSubjects())) {
-					dbProject.setSubjects(employee.getSubjects());
+						.getSkills())) {
+					dbProject.setSkills(employee.getSkills());
 				}
 				session.save(dbProject);
 				session.flush();
@@ -370,6 +356,37 @@ public class EmployeeServicesImplementation implements EmployeeServices {
 			session.close();
 			logger.info("session closed successfully");
 		}
+	}
+	
+	public String userAuthentication(UserCredentials userCredentials) {
+		String userName=userCredentials.getUserName();
+		Session session = HibernateUtils.getSession();                             
+		String tokenString="";
+		try{
+			Query query=session.createQuery("from Employee  where email = :email");
+			query.setParameter("email", userName);
+			List<Employee> dbUser=query.list();
+			if(!dbUser.isEmpty()){
+				
+					Random random = new SecureRandom();
+					tokenString = new BigInteger(130, random).toString(32);
+					
+					Token token=new Token();
+					token.setToken(tokenString);
+					token.setUserName(userName);
+					token.setExpiryTime(Calendar.getInstance().getTime());
+					session.save(token);
+					session.beginTransaction().commit();
+					return "Bearer "+tokenString;
+			}else{
+				throw new EntityNotFoundException("userName or password invalid");
+			}
+		}catch(HibernateException exception){
+			throw new EntityNotFoundException("unable to generate token");
+		}finally {
+			session.close();
+		}
+		
 	}
 
 }

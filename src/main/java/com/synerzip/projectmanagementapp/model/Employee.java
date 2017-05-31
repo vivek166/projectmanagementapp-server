@@ -20,22 +20,21 @@ import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
 
-/*@NamedQueries(
-		{ 
-			@NamedQuery(
-					name = "getById", 
-					query = "from Employee where id =: id"
-					) 
-		}
-	)*/
+
 
 @Entity
 @Table(name = "employee")
 @Indexed
+@NamedQueries(
+		{ 
+			@NamedQuery(name = "getById", query = "from Employee where id = :id") 
+		}
+	)
 public class Employee {
 
 	@Id
 	@GeneratedValue
+	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
 	@Column(name = "id")
 	private long id;
 
@@ -52,8 +51,8 @@ public class Employee {
 	private String department;
 
 	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
-	@Column(name = "subjects")
-	private String subjects;
+	@Column(name = "skills")
+	private String skills;
 
 	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
 	@Column(name = "type")
@@ -69,7 +68,7 @@ public class Employee {
 	@Transient
 	@Column(name = "project_ids")
 	private List<Integer> projectIds;
-	
+
 	@Transient
 	@Column(name = "company_name")
 	private String companyName;
@@ -84,10 +83,6 @@ public class Employee {
 
 	public long getId() {
 		return id;
-	}
-
-	public void setId(long id) {
-		this.id = id;
 	}
 
 	public String getFirstName() {
@@ -114,12 +109,12 @@ public class Employee {
 		this.department = department;
 	}
 
-	public String getSubjects() {
-		return subjects;
+	public String getSkills() {
+		return skills;
 	}
 
-	public void setSubjects(String subjects) {
-		this.subjects = subjects;
+	public void setSkills(String skills) {
+		this.skills = skills;
 	}
 
 	public String getType() {
@@ -154,14 +149,6 @@ public class Employee {
 		this.projectIds = projectIds;
 	}
 
-	public Company getCompany() {
-		return company;
-	}
-
-	public void setCompany(Company company) {
-		this.company = company;
-	}
-
 	public String getCompanyName() {
 		return companyName;
 	}
@@ -170,12 +157,23 @@ public class Employee {
 		this.companyName = companyName;
 	}
 
+	public Company getCompany() {
+		return company;
+	}
+
+	public void setCompany(Company company) {
+		this.company = company;
+	}
+
+	public void setId(long id) {
+		this.id = id;
+	}
+
 	@Override
 	public String toString() {
 		return "Employee [id=" + id + ", firstName=" + firstName + ", lastName=" + lastName + ", department="
-				+ department + ", subjects=" + subjects + ", type=" + type + ", email=" + email + ", password="
-				+ password + ", projectIds=" + projectIds + ", companyName=" + companyName + ", company=" + company
-				+ "]";
+				+ department + ", skills=" + skills + ", type=" + type + ", email=" + email + ", password=" + password
+				+ ", projectIds=" + projectIds + ", companyName=" + companyName + ", company=" + company + "]";
 	}
 
 }
