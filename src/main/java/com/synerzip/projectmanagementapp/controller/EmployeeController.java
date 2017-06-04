@@ -54,7 +54,6 @@ public class EmployeeController {
 	}
 
 	@POST
-	@SECURED
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response add(Employee employee) {

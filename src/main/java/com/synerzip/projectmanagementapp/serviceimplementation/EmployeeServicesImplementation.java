@@ -5,6 +5,7 @@ import java.security.SecureRandom;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Random;
+import java.util.UUID;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
@@ -360,16 +361,17 @@ public class EmployeeServicesImplementation implements EmployeeServices {
 	
 	public String userAuthentication(UserCredentials userCredentials) {
 		String userName=userCredentials.getUserName();
+		String userPassword=userCredentials.getUserPassword();
 		Session session = HibernateUtils.getSession();                             
 		String tokenString="";
 		try{
-			Query query=session.createQuery("from Employee  where email = :email");
+			Query query=session.createQuery("from Employee  where email = :email and password = :password");
 			query.setParameter("email", userName);
+			query.setParameter("password", userPassword);
 			List<Employee> dbUser=query.list();
 			if(!dbUser.isEmpty()){
 				
-					Random random = new SecureRandom();
-					tokenString = new BigInteger(130, random).toString(32);
+					tokenString = UUID.randomUUID().toString();
 					
 					Token token=new Token();
 					token.setToken(tokenString);
