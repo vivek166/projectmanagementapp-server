@@ -15,7 +15,7 @@ import org.hibernate.search.jpa.Search;
 import org.hibernate.search.query.dsl.QueryBuilder;
 import com.mysql.jdbc.StringUtils;
 import com.synerzip.projectmanagementapp.dbconnection.HibernateUtils;
-import com.synerzip.projectmanagementapp.exception.CanNotEmptyField;
+import com.synerzip.projectmanagementapp.exception.CanNotEmptyFilled;
 import com.synerzip.projectmanagementapp.exception.MediaTypeException;
 import com.synerzip.projectmanagementapp.model.Company;
 import com.synerzip.projectmanagementapp.model.Employee;
@@ -96,11 +96,11 @@ public class CompanyServiceImplementation {
 				.getFullTextEntityManager(entityManager);
 		try {
 
-			try {
+			/*try {
 				fullTextEntityManager.createIndexer().startAndWait();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
-			}
+			}*/
 
 			QueryBuilder queryBuilder = fullTextEntityManager
 					.getSearchFactory().buildQueryBuilder()
@@ -179,7 +179,7 @@ public class CompanyServiceImplementation {
 		logger.info("session open successfully");
 		org.hibernate.Transaction tx = session.beginTransaction();
 		try {
-			String deleteQuery = "DELETE FROM Project WHERE company_id = :company_id";
+			String deleteQuery = "DELETE FROM Company WHERE company_id = :company_id";
 			Query query = session.createQuery(deleteQuery);
 			query.setParameter("company_id", companyId);
 			int affectedRow = query.executeUpdate();
@@ -206,15 +206,15 @@ public class CompanyServiceImplementation {
 		try {
 			if (StringUtils.isEmptyOrWhitespaceOnly(company.getCompanyName())) {
 				logger.error("company name is empty");
-				throw new CanNotEmptyField("company name must be filled");
+				throw new CanNotEmptyFilled("company name must be filled");
 			} else if (StringUtils.isEmptyOrWhitespaceOnly(company
 					.getCompanyAddress())) {
 				logger.error("company address is empty");
-				throw new CanNotEmptyField("company address must be filled");
+				throw new CanNotEmptyFilled("company address must be filled");
 			} else if (StringUtils.isEmptyOrWhitespaceOnly(company
 					.getCompanyContactNumber())) {
 				logger.error("company contact number is empty");
-				throw new CanNotEmptyField(
+				throw new CanNotEmptyFilled(
 						"company contact number must be filled");
 			} else {
 				session.saveOrUpdate(company);

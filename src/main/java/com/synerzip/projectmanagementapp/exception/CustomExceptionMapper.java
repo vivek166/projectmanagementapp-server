@@ -34,7 +34,7 @@ public class CustomExceptionMapper implements ExceptionMapper<Exception> {
 		} else if (exception instanceof HibernateException) {
 			ErrorMessage errorMessage = new ErrorMessage(exception.getMessage(), 501, "https:github.com/vivek166");
 			return Response.status(Status.NOT_FOUND).entity(errorMessage).type("text/json").build();
-		} else if (exception instanceof CanNotEmptyField) {
+		} else if (exception instanceof CanNotEmptyFilled) {
 			ErrorMessage errorMessage = new ErrorMessage(exception.getMessage(), 304, "https:github.com/vivek166");
 			return Response.status(Status.NOT_FOUND).entity(errorMessage).type("text/json").build();
 		} else if (exception instanceof MediaTypeException) {

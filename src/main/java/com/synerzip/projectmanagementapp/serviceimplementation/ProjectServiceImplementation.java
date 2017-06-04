@@ -18,7 +18,7 @@ import org.hibernate.search.query.dsl.QueryBuilder;
 
 import com.mysql.jdbc.StringUtils;
 import com.synerzip.projectmanagementapp.dbconnection.HibernateUtils;
-import com.synerzip.projectmanagementapp.exception.CanNotEmptyField;
+import com.synerzip.projectmanagementapp.exception.CanNotEmptyFilled;
 import com.synerzip.projectmanagementapp.exception.MediaTypeException;
 import com.synerzip.projectmanagementapp.model.Company;
 import com.synerzip.projectmanagementapp.model.Employee;
@@ -99,11 +99,11 @@ public class ProjectServiceImplementation implements ProjectServices {
 				.getFullTextEntityManager(entityManager);
 		try {
 
-			try {
+			/*try {
 				fullTextEntityManager.createIndexer().startAndWait();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
-			}
+			}*/
 
 			QueryBuilder queryBuilder = fullTextEntityManager
 					.getSearchFactory().buildQueryBuilder()
@@ -149,19 +149,19 @@ public class ProjectServiceImplementation implements ProjectServices {
 		try {
 			if (StringUtils.isEmptyOrWhitespaceOnly(project.getProjectTitle())) {
 				logger.error("project Title is empty");
-				throw new CanNotEmptyField("project Title must be filled");
+				throw new CanNotEmptyFilled("project Title must be filled");
 			} else if (StringUtils.isEmptyOrWhitespaceOnly(project
 					.getProjectFeature())) {
 				logger.error("project Feature is empty");
-				throw new CanNotEmptyField("project Feature must be filled");
+				throw new CanNotEmptyFilled("project Feature must be filled");
 			} else if (StringUtils.isEmptyOrWhitespaceOnly(project
 					.getProjectDescription())) {
 				logger.error("project Description is empty");
-				throw new CanNotEmptyField("project Description must be filled");
+				throw new CanNotEmptyFilled("project Description must be filled");
 			} else if (StringUtils.isEmptyOrWhitespaceOnly(project
 					.getTechnologyUsed())) {
 				logger.error("project TechnologyUsed is empty");
-				throw new CanNotEmptyField(
+				throw new CanNotEmptyFilled(
 						"project TechnologyUsed  must be filled");
 			} else {
 				session.save(project);
@@ -211,19 +211,19 @@ public class ProjectServiceImplementation implements ProjectServices {
 		try {
 			if (StringUtils.isEmptyOrWhitespaceOnly(project.getProjectTitle())) {
 				logger.error("project Title is empty");
-				throw new CanNotEmptyField("project Title must be filled");
+				throw new CanNotEmptyFilled("project Title must be filled");
 			} else if (StringUtils.isEmptyOrWhitespaceOnly(project
 					.getProjectFeature())) {
 				logger.error("project Feature is empty");
-				throw new CanNotEmptyField("project Feature must be filled");
+				throw new CanNotEmptyFilled("project Feature must be filled");
 			} else if (StringUtils.isEmptyOrWhitespaceOnly(project
 					.getProjectDescription())) {
 				logger.error("project Description is empty");
-				throw new CanNotEmptyField("project Description must be filled");
+				throw new CanNotEmptyFilled("project Description must be filled");
 			} else if (StringUtils.isEmptyOrWhitespaceOnly(project
 					.getTechnologyUsed())) {
 				logger.error("project TechnologyUsed is empty");
-				throw new CanNotEmptyField(
+				throw new CanNotEmptyFilled(
 						"project TechnologyUsed  must be filled");
 			} else {
 				session.saveOrUpdate(project);

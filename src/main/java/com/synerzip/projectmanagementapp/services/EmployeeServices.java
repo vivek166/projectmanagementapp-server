@@ -5,6 +5,7 @@ import com.synerzip.projectmanagementapp.model.Employee;
 import com.synerzip.projectmanagementapp.model.PageResult;
 import com.synerzip.projectmanagementapp.model.Project;
 import com.synerzip.projectmanagementapp.model.ProjectEmployee;
+import com.synerzip.projectmanagementapp.model.Token;
 import com.synerzip.projectmanagementapp.model.UserCredentials;
 
 public interface EmployeeServices {
@@ -27,5 +28,5 @@ public interface EmployeeServices {
 
 	Employee patch(Employee employee, long id);
 	
-    String userAuthentication(UserCredentials userCredentials);
+    Token userAuthentication(UserCredentials userCredentials);
 }

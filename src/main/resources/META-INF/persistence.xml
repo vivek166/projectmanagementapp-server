@@ -15,8 +15,13 @@
 			<property name="hibernate.show_sql" value="true" />
 			<property name="hibernate.hbm2ddl.auto" value="update" />
 			<property name="hibernate.connection.driver_class" value="com.mysql.jdbc.Driver" />
+<<<<<<< HEAD
 			<property name="hibernate.connection.password" value="root" />
 			<property name="hibernate.connection.url" value="jdbc:mysql://localhost:3306/project_management" />
+=======
+			<property name="hibernate.connection.password" value="synerzip" />
+			<property name="hibernate.connection.url" value="jdbc:mysql://localhost:3306/project_management?autoReconnect=true&amp;u‌​seSSL=false" />
+>>>>>>> 6ca684102c93a879cbab27e7bba963124af17a3d
 			<property name="hibernate.connection.username" value="root" />
 			<property name="hibernate.dialect" value="org.hibernate.dialect.MySQLDialect" />
 			<property name="hibernate.search.default.directory_provider" value="filesystem" />

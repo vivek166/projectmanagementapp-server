@@ -64,7 +64,7 @@ public class EmployeeController {
 	@SECURED
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("{id}")
-	public Response delete(@PathParam("empId") long id) {
+	public Response delete(@PathParam("id") long id) {
 		return Response.ok().entity(service.delete(id)).build();
 	}
 

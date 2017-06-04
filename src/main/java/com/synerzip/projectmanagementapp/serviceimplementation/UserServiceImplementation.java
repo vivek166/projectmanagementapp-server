@@ -20,7 +20,7 @@ import org.hibernate.search.jpa.Search;
 import org.hibernate.search.query.dsl.QueryBuilder;
 import com.mysql.jdbc.StringUtils;
 import com.synerzip.projectmanagementapp.dbconnection.HibernateUtils;
-import com.synerzip.projectmanagementapp.exception.CanNotEmptyField;
+import com.synerzip.projectmanagementapp.exception.CanNotEmptyFilled;
 import com.synerzip.projectmanagementapp.model.PageResult;
 import com.synerzip.projectmanagementapp.model.Token;
 import com.synerzip.projectmanagementapp.model.User;
@@ -99,11 +99,11 @@ public class UserServiceImplementation implements UserServices {
 				.getFullTextEntityManager(entityManager);
 		try {
 
-			try {
+			/*try {
 				fullTextEntityManager.createIndexer().startAndWait();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
-			}
+			}*/
 
 			QueryBuilder queryBuilder = fullTextEntityManager
 					.getSearchFactory().buildQueryBuilder()
@@ -148,16 +148,16 @@ public class UserServiceImplementation implements UserServices {
 		try {
 			if (StringUtils.isEmptyOrWhitespaceOnly(user.getUserName())) {
 				logger.error("user name is empty");
-				throw new CanNotEmptyField("user name must be filled");
+				throw new CanNotEmptyFilled("user name must be filled");
 			} else if (StringUtils.isEmptyOrWhitespaceOnly(user.getCompanyName())) {
 				logger.error("company name is empty");
-				throw new CanNotEmptyField("company  name  must be filled");
+				throw new CanNotEmptyFilled("company  name  must be filled");
 			} else if (StringUtils.isEmptyOrWhitespaceOnly(user.getFirstName())) {
 				logger.error("first name is empty");
-				throw new CanNotEmptyField("first  name  must be filled");
+				throw new CanNotEmptyFilled("first  name  must be filled");
 			} else if (StringUtils.isEmptyOrWhitespaceOnly(user.getLastName())) {
 				logger.error("last name is empty");
-				throw new CanNotEmptyField("last name must be filled");
+				throw new CanNotEmptyFilled("last name must be filled");
 			}  else {
 				session.save(user);
 				tx.commit();
@@ -206,16 +206,16 @@ public class UserServiceImplementation implements UserServices {
 		try {
 			if (StringUtils.isEmptyOrWhitespaceOnly(user.getUserName())) {
 				logger.error("user name is empty");
-				throw new CanNotEmptyField("user name must be filled");
+				throw new CanNotEmptyFilled("user name must be filled");
 			} else if (StringUtils.isEmptyOrWhitespaceOnly(user.getCompanyName())) {
 				logger.error("company name is empty");
-				throw new CanNotEmptyField("company  name  must be filled");
+				throw new CanNotEmptyFilled("company  name  must be filled");
 			} else if (StringUtils.isEmptyOrWhitespaceOnly(user.getFirstName())) {
 				logger.error("first name is empty");
-				throw new CanNotEmptyField("first  name  must be filled");
+				throw new CanNotEmptyFilled("first  name  must be filled");
 			} else if (StringUtils.isEmptyOrWhitespaceOnly(user.getLastName())) {
 				logger.error("last name is empty");
-				throw new CanNotEmptyField("last name must be filled");
+				throw new CanNotEmptyFilled("last name must be filled");
 			}  else {
 				session.saveOrUpdate(user);
 				tx.commit();
@@ -241,16 +241,16 @@ public class UserServiceImplementation implements UserServices {
 			if (dbUser != null) {
 				if (!StringUtils.isEmptyOrWhitespaceOnly(user.getUserName())) {
 					logger.error("user name is empty");
-					throw new CanNotEmptyField("user name must be filled");
+					throw new CanNotEmptyFilled("user name must be filled");
 				}  if (!StringUtils.isEmptyOrWhitespaceOnly(user.getCompanyName())) {
 					logger.error("company name is empty");
-					throw new CanNotEmptyField("company  name  must be filled");
+					throw new CanNotEmptyFilled("company  name  must be filled");
 				}  if (!StringUtils.isEmptyOrWhitespaceOnly(user.getFirstName())) {
 					logger.error("first name is empty");
-					throw new CanNotEmptyField("first name must be filled");
+					throw new CanNotEmptyFilled("first name must be filled");
 				} if (!StringUtils.isEmptyOrWhitespaceOnly(user.getLastName())) {
 					logger.error("last name is empty");
-					throw new CanNotEmptyField("last name must be filled");
+					throw new CanNotEmptyFilled("last name must be filled");
 				} 
 				session.save(dbUser);
 				session.flush();
