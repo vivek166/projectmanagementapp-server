@@ -1,5 +1,6 @@
 package com.synerzip.projectmanagementapp.model;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import javax.persistence.Column;
@@ -17,7 +18,9 @@ import org.hibernate.search.annotations.Store;
 @Entity
 @Indexed
 @Table(name = "token")
-public class Token {
+public class Token implements Serializable {
+	
+	private static final long serialVersionUID = 1L;
 
 	@Id
 	@GeneratedValue
@@ -71,9 +74,8 @@ public class Token {
 
 	@Override
 	public String toString() {
-		return "Token [tokenId=" + tokenId + ", userName=" + userName + ", token=" + token + ", expiryTime="
-				+ expiryTime + "]";
+		return "Token [tokenId=" + tokenId + ", userName=" + userName
+				+ ", token=" + token + ", expiryTime=" + expiryTime + "]";
 	}
 
-	
 }

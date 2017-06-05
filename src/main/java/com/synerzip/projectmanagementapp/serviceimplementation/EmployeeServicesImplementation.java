@@ -5,6 +5,11 @@ import java.security.SecureRandom;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Random;
+<<<<<<< HEAD
+import java.util.UUID;
+
+=======
+>>>>>>> 6ca684102c93a879cbab27e7bba963124af17a3d
 import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.Persistence;
@@ -366,6 +371,31 @@ public class EmployeeServicesImplementation implements EmployeeServices {
 			logger.info("session closed successfully");
 		}
 	}
+<<<<<<< HEAD
+	
+	public String userAuthentication(UserCredentials userCredentials) {
+		String userName=userCredentials.getUserName();
+		String userPassword=userCredentials.getUserPassword();
+		Session session = HibernateUtils.getSession();                             
+		String tokenString="";
+		try{
+			Query query=session.createQuery("from Employee  where email = :email and password = :password");
+			query.setParameter("email", userName);
+			query.setParameter("password", userPassword);
+			List<Employee> dbUser=query.list();
+			if(!dbUser.isEmpty()){
+				
+					tokenString = UUID.randomUUID().toString();
+					
+					Token token=new Token();
+					token.setToken(tokenString);
+					token.setUserName(userName);
+					token.setExpiryTime(Calendar.getInstance().getTime());
+					session.save(token);
+					session.beginTransaction().commit();
+					return "Bearer "+tokenString;
+			}else{
+=======
 
 	public Token userAuthentication(UserCredentials userCredentials) {
 		String userName = userCredentials.getUserName();
@@ -388,6 +418,7 @@ public class EmployeeServicesImplementation implements EmployeeServices {
 				session.beginTransaction().commit();
 				return token;
 			} else {
+>>>>>>> 6ca684102c93a879cbab27e7bba963124af17a3d
 				throw new EntityNotFoundException("userName or password invalid");
 			}
 		} catch (HibernateException exception) {
