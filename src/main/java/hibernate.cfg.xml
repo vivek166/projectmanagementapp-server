@@ -5,13 +5,10 @@
 <hibernate-configuration>
 	<session-factory>
 		<property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
-<<<<<<< HEAD
 		<property name="hibernate.connection.password">root</property>
 		<property name="hibernate.connection.url">jdbc:mysql://localhost:3306/project_management</property>
-=======
 		<property name="hibernate.connection.password">synerzip</property>
 		<property name="hibernate.connection.url">jdbc:mysql://localhost:3306/project_management?autoReconnect=true&amp;u‌​seSSL=false</property>
->>>>>>> 6ca684102c93a879cbab27e7bba963124af17a3d
 		<property name="hibernate.connection.username">root</property>
 		<property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property>
 		<property name="hbm2ddl.auto">update</property>
@@ -21,6 +18,8 @@
 		<mapping class="com.synerzip.projectmanagementapp.model.Company" />
 		<mapping class="com.synerzip.projectmanagementapp.model.User" />
 		<mapping class="com.synerzip.projectmanagementapp.model.Token" />
+		<mapping class="com.synerzip.projectmanagementapp.model.Admin" />
+		<mapping class="com.synerzip.projectmanagementapp.model.NonAdmin" />
 		<mapping class="com.synerzip.projectmanagementapp.model.ProjectEmployee" />
 	</session-factory>
 </hibernate-configuration>

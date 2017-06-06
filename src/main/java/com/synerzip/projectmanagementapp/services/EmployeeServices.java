@@ -1,6 +1,8 @@
 package com.synerzip.projectmanagementapp.services;
 
 import java.util.List;
+
+import javax.ws.rs.core.SecurityContext;
 import com.synerzip.projectmanagementapp.model.Employee;
 import com.synerzip.projectmanagementapp.model.PageResult;
 import com.synerzip.projectmanagementapp.model.Project;
@@ -10,7 +12,7 @@ import com.synerzip.projectmanagementapp.model.UserCredentials;
 
 public interface EmployeeServices {
 
-	Employee get(long id);
+	Employee get(long id, SecurityContext securityContext);
 
 	PageResult gets(int start, int size, String content);
 

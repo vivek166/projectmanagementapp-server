@@ -1,18 +1,13 @@
 package com.synerzip.projectmanagementapp.serviceimplementation;
 
-import java.math.BigInteger;
-import java.security.SecureRandom;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Random;
-<<<<<<< HEAD
 import java.util.UUID;
-
-=======
->>>>>>> 6ca684102c93a879cbab27e7bba963124af17a3d
 import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.Persistence;
+import javax.ws.rs.core.SecurityContext;
+
 import org.apache.log4j.Logger;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
@@ -37,8 +32,9 @@ import com.synerzip.projectmanagementapp.services.EmployeeServices;
 public class EmployeeServicesImplementation implements EmployeeServices {
 
 	static final Logger logger = Logger.getLogger(EmployeeServicesImplementation.class);
-
-	public Employee get(long id) {
+	
+	public Employee get(long id, SecurityContext securityContext) {
+		System.out.println(securityContext.getUserPrincipal().getName());
 		Session session = HibernateUtils.getSession();
 		logger.info("session open successfully");
 		Employee employee;
@@ -144,7 +140,8 @@ public class EmployeeServicesImplementation implements EmployeeServices {
 		try {
 			Company company = isRegisteredComapany(companyName);
 			if (company != null) {
-				employee.setCompany(company);
+				throw new ConstraintViolationException("company already present with company name - " + employee.getCompanyName(), null,
+						null);
 			} else {
 				company.setCompanyName(companyName);
 				CompanyServiceImplementation companyService = new CompanyServiceImplementation();
@@ -206,7 +203,6 @@ public class EmployeeServicesImplementation implements EmployeeServices {
 		return "record deleted";
 	}
 
-	@SuppressWarnings("null")
 	public Employee update(Employee employee, long id) {
 		Session session = HibernateUtils.getSession();
 		logger.info("session open successfully");
@@ -371,9 +367,9 @@ public class EmployeeServicesImplementation implements EmployeeServices {
 			logger.info("session closed successfully");
 		}
 	}
-<<<<<<< HEAD
+
 	
-	public String userAuthentication(UserCredentials userCredentials) {
+	public Token userAuthentication(UserCredentials userCredentials) {
 		String userName=userCredentials.getUserName();
 		String userPassword=userCredentials.getUserPassword();
 		Session session = HibernateUtils.getSession();                             
@@ -393,32 +389,8 @@ public class EmployeeServicesImplementation implements EmployeeServices {
 					token.setExpiryTime(Calendar.getInstance().getTime());
 					session.save(token);
 					session.beginTransaction().commit();
-					return "Bearer "+tokenString;
+					return token;
 			}else{
-=======
-
-	public Token userAuthentication(UserCredentials userCredentials) {
-		String userName = userCredentials.getUserName();
-		Session session = HibernateUtils.getSession();
-		String tokenString = "";
-		try {
-			Query query = session.createQuery("from Employee  where email = :email");
-			query.setParameter("email", userName);
-			List<Employee> dbUser = query.list();
-			if (!dbUser.isEmpty()) {
-
-				Random random = new SecureRandom();
-				tokenString = new BigInteger(130, random).toString(32);
-
-				Token token = new Token();
-				token.setToken(tokenString);
-				token.setUserName(userName);
-				token.setExpiryTime(Calendar.getInstance().getTime());
-				session.save(token);
-				session.beginTransaction().commit();
-				return token;
-			} else {
->>>>>>> 6ca684102c93a879cbab27e7bba963124af17a3d
 				throw new EntityNotFoundException("userName or password invalid");
 			}
 		} catch (HibernateException exception) {

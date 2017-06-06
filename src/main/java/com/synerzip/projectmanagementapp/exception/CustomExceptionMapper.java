@@ -42,7 +42,7 @@ public class CustomExceptionMapper implements ExceptionMapper<Exception> {
 			return Response.status(Status.UNSUPPORTED_MEDIA_TYPE).entity(errorMessage).type("text/json").build();
 		} else {
 			ErrorMessage errorMessage = new ErrorMessage("internal server error", 505, "https:github.com/vivek166");
-			return Response.status(Status.NOT_FOUND).entity(errorMessage).type("text/json").build();
+			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(errorMessage).type("text/json").build();
 		}
 	}
 

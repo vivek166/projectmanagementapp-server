@@ -2,21 +2,13 @@ package com.synerzip.projectmanagementapp.model;
 
 import java.io.Serializable;
 import java.util.Date;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import org.hibernate.search.annotations.Analyze;
-import org.hibernate.search.annotations.Field;
-import org.hibernate.search.annotations.Index;
-import org.hibernate.search.annotations.Indexed;
-import org.hibernate.search.annotations.Store;
-
 @Entity
-@Indexed
 @Table(name = "token")
 public class Token implements Serializable {
 	
@@ -30,8 +22,7 @@ public class Token implements Serializable {
 	@Column(name = "user_name")
 	private String userName;
 
-	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
-	@Column(name = "token")
+	@Column(name = "token", unique=true)
 	private String token;
 
 	@Column(name = "expiry_time")
