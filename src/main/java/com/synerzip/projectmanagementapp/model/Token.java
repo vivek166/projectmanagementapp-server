@@ -6,6 +6,8 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 @Entity
@@ -19,15 +21,16 @@ public class Token implements Serializable {
 	@Column(name = "token_id")
 	private long tokenId;
 
-	@Column(name = "user_name")
-	private String userName;
-
 	@Column(name = "token", unique=true)
 	private String token;
 
 	@Column(name = "expiry_time")
 	private Date expiryTime;
 
+	@OneToOne
+	@JoinColumn(name = "user_id")
+	private User user;
+	
 	public Token() {
 	}
 
@@ -37,14 +40,6 @@ public class Token implements Serializable {
 
 	public void setTokenId(long tokenId) {
 		this.tokenId = tokenId;
-	}
-
-	public String getUserName() {
-		return userName;
-	}
-
-	public void setUserName(String userName) {
-		this.userName = userName;
 	}
 
 	public String getToken() {
@@ -63,10 +58,18 @@ public class Token implements Serializable {
 		this.expiryTime = expiryTime;
 	}
 
-	@Override
-	public String toString() {
-		return "Token [tokenId=" + tokenId + ", userName=" + userName
-				+ ", token=" + token + ", expiryTime=" + expiryTime + "]";
+	public User getUser() {
+		return user;
 	}
 
+	public void setUser(User user) {
+		this.user = user;
+	}
+
+	@Override
+	public String toString() {
+		return "Token [tokenId=" + tokenId + ", token=" + token + ", expiryTime=" + expiryTime + ", user=" + user + "]";
+	}
+	
 }
+	

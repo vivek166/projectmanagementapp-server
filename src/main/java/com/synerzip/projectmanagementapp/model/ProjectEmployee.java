@@ -21,7 +21,7 @@ public class ProjectEmployee {
 
 	@ManyToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "emp_id")
-	private Employee employee;
+	private User user;
 
 	public ProjectEmployee() {
 	}
@@ -42,18 +42,17 @@ public class ProjectEmployee {
 		this.project = project;
 	}
 
-	public Employee getEmployee() {
-		return employee;
+	public User getUser() {
+		return user;
 	}
 
-	public void setEmployee(Employee employee) {
-		this.employee = employee;
+	public void setUser(User user) {
+		this.user = user;
 	}
 
 	@Override
 	public String toString() {
-		return "ProjectEmployee [projectEmpId=" + projectEmpId + ", project=" + project + ", employee=" + employee
-				+ "]";
+		return "ProjectEmployee [projectEmpId=" + projectEmpId + ", project=" + project + ", user=" + user + "]";
 	}
 
 }

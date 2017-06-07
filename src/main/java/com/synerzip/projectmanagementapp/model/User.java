@@ -1,26 +1,42 @@
 package com.synerzip.projectmanagementapp.model;
 
+import java.util.List;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.Table;
+import javax.persistence.Transient;
+
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
 
+
+
 @Entity
 @Table(name = "user")
 @Indexed
+@NamedQueries(
+		{ 
+			@NamedQuery(name = "getById", query = "from User where id = :id") 
+		}
+	)
 public class User {
 
 	@Id
 	@GeneratedValue
 	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
-	@Column(name = "user_id")
-	private long userId;
+	@Column(name = "id")
+	private long id;
 
 	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
 	@Column(name = "first_name")
@@ -31,26 +47,46 @@ public class User {
 	private String lastName;
 
 	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
+	@Column(name = "department")
+	private String department;
+
+	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
+	@Column(name = "skills")
+	private String skills;
+
+	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
+	@Column(name = "type")
+	private String type;
+
+	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
+	@Column(name = "email", unique = true)
+	private String email;
+
+	@Column(name = "password")
+	private String password;
+
+	@Transient
+	@Column(name = "project_ids")
+	private List<Integer> projectIds;
+
+	@Transient
 	@Column(name = "company_name")
 	private String companyName;
 
-	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
-	@Column(name = "user_name", unique = true)
-	private String userName;
-
-	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
-	@Column(name = "user_password")
-	private String userPassword;
+	@ManyToOne(cascade = CascadeType.ALL)
+	@JoinColumn(name = "company_id")
+	private Company company;
 
 	public User() {
+
 	}
 
-	public long getUserId() {
-		return userId;
+	public long getId() {
+		return id;
 	}
 
-	public void setUserId(long userId) {
-		this.userId = userId;
+	public void setId(long id) {
+		this.id = id;
 	}
 
 	public String getFirstName() {
@@ -69,6 +105,54 @@ public class User {
 		this.lastName = lastName;
 	}
 
+	public String getDepartment() {
+		return department;
+	}
+
+	public void setDepartment(String department) {
+		this.department = department;
+	}
+
+	public String getSkills() {
+		return skills;
+	}
+
+	public void setSkills(String skills) {
+		this.skills = skills;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public List<Integer> getProjectIds() {
+		return projectIds;
+	}
+
+	public void setProjectIds(List<Integer> projectIds) {
+		this.projectIds = projectIds;
+	}
+
 	public String getCompanyName() {
 		return companyName;
 	}
@@ -77,26 +161,19 @@ public class User {
 		this.companyName = companyName;
 	}
 
-	public String getUserName() {
-		return userName;
+	public Company getCompany() {
+		return company;
 	}
 
-	public void setUserName(String userName) {
-		this.userName = userName;
-	}
-
-	public String getUserPassword() {
-		return userPassword;
-	}
-
-	public void setUserPassword(String userPassword) {
-		this.userPassword = userPassword;
+	public void setCompany(Company company) {
+		this.company = company;
 	}
 
 	@Override
 	public String toString() {
-		return "User [userId=" + userId + ", firstName=" + firstName + ", lastName=" + lastName + ", companyName="
-				+ companyName + ", userName=" + userName + ", userPassword=" + userPassword + "]";
+		return "User [id=" + id + ", firstName=" + firstName + ", lastName=" + lastName + ", department=" + department
+				+ ", skills=" + skills + ", type=" + type + ", email=" + email + ", password=" + password
+				+ ", projectIds=" + projectIds + ", companyName=" + companyName + ", company=" + company + "]";
 	}
 
 }

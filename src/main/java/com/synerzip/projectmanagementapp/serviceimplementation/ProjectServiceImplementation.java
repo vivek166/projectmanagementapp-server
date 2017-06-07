@@ -1,12 +1,10 @@
 package com.synerzip.projectmanagementapp.serviceimplementation;
 
 import java.util.List;
-
 import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.Persistence;
 import javax.ws.rs.NotFoundException;
-
 import org.apache.log4j.Logger;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
@@ -15,16 +13,15 @@ import org.hibernate.exception.ConstraintViolationException;
 import org.hibernate.search.jpa.FullTextEntityManager;
 import org.hibernate.search.jpa.Search;
 import org.hibernate.search.query.dsl.QueryBuilder;
-
 import com.mysql.jdbc.StringUtils;
 import com.synerzip.projectmanagementapp.dbconnection.HibernateUtils;
-import com.synerzip.projectmanagementapp.exception.CanNotEmptyFilled;
+import com.synerzip.projectmanagementapp.exception.FieldCanNotEmpty;
 import com.synerzip.projectmanagementapp.exception.MediaTypeException;
 import com.synerzip.projectmanagementapp.model.Company;
-import com.synerzip.projectmanagementapp.model.Employee;
 import com.synerzip.projectmanagementapp.model.PageResult;
 import com.synerzip.projectmanagementapp.model.Project;
 import com.synerzip.projectmanagementapp.model.ProjectEmployee;
+import com.synerzip.projectmanagementapp.model.User;
 import com.synerzip.projectmanagementapp.services.ProjectServices;
 
 public class ProjectServiceImplementation implements ProjectServices {
@@ -149,19 +146,19 @@ public class ProjectServiceImplementation implements ProjectServices {
 		try {
 			if (StringUtils.isEmptyOrWhitespaceOnly(project.getProjectTitle())) {
 				logger.error("project Title is empty");
-				throw new CanNotEmptyFilled("project Title must be filled");
+				throw new FieldCanNotEmpty("project Title must be filled");
 			} else if (StringUtils.isEmptyOrWhitespaceOnly(project
 					.getProjectFeature())) {
 				logger.error("project Feature is empty");
-				throw new CanNotEmptyFilled("project Feature must be filled");
+				throw new FieldCanNotEmpty("project Feature must be filled");
 			} else if (StringUtils.isEmptyOrWhitespaceOnly(project
 					.getProjectDescription())) {
 				logger.error("project Description is empty");
-				throw new CanNotEmptyFilled("project Description must be filled");
+				throw new FieldCanNotEmpty("project Description must be filled");
 			} else if (StringUtils.isEmptyOrWhitespaceOnly(project
 					.getTechnologyUsed())) {
 				logger.error("project TechnologyUsed is empty");
-				throw new CanNotEmptyFilled(
+				throw new FieldCanNotEmpty(
 						"project TechnologyUsed  must be filled");
 			} else {
 				session.save(project);
@@ -211,19 +208,19 @@ public class ProjectServiceImplementation implements ProjectServices {
 		try {
 			if (StringUtils.isEmptyOrWhitespaceOnly(project.getProjectTitle())) {
 				logger.error("project Title is empty");
-				throw new CanNotEmptyFilled("project Title must be filled");
+				throw new FieldCanNotEmpty("project Title must be filled");
 			} else if (StringUtils.isEmptyOrWhitespaceOnly(project
 					.getProjectFeature())) {
 				logger.error("project Feature is empty");
-				throw new CanNotEmptyFilled("project Feature must be filled");
+				throw new FieldCanNotEmpty("project Feature must be filled");
 			} else if (StringUtils.isEmptyOrWhitespaceOnly(project
 					.getProjectDescription())) {
 				logger.error("project Description is empty");
-				throw new CanNotEmptyFilled("project Description must be filled");
+				throw new FieldCanNotEmpty("project Description must be filled");
 			} else if (StringUtils.isEmptyOrWhitespaceOnly(project
 					.getTechnologyUsed())) {
 				logger.error("project TechnologyUsed is empty");
-				throw new CanNotEmptyFilled(
+				throw new FieldCanNotEmpty(
 						"project TechnologyUsed  must be filled");
 			} else {
 				session.saveOrUpdate(project);
@@ -287,19 +284,19 @@ public class ProjectServiceImplementation implements ProjectServices {
 		}
 	}
 
-	public List<Employee> assigned(long projectId) {
+	public List<User> assigned(long projectId) {
 		Session session = HibernateUtils.getSession();
 		logger.info("session open successfully");
-		List<Employee> empResult = null;
+		List<User> empResult = null;
 		try {
 			Query query = session
-					.createQuery("select employee from ProjectEmployee where project_id = :project_id");
+					.createQuery("select user from ProjectEmployee where project_id = :project_id");
 			query.setParameter("project_id", projectId);
 			empResult = query.list();
 			if (empResult.size() == 0) {
-				logger.error("No Employee assign to this project " + projectId);
+				logger.error("No User assign to this project " + projectId);
 				throw new EntityNotFoundException(
-						"No Employee assign to this project " + projectId);
+						"No User assign to this project " + projectId);
 			}
 		} catch (HibernateException exception) {
 			logger.error("abnormal ternination, assigned() of project");
@@ -322,26 +319,26 @@ public class ProjectServiceImplementation implements ProjectServices {
 			if (empIds.size() != 0) {
 				ProjectEmployee projectEmployee = new ProjectEmployee();
 				for (Integer empId : empIds) {
-					Employee employee = (Employee) session.get(Employee.class,
+					User user = (User) session.get(User.class,
 							(long) empId);
-					if (employee != null) {
-						String empType = employee.getType();
+					if (user != null) {
+						String empType = user.getType();
 						if (empType.equals("employee")) {
 							org.hibernate.Transaction txEmployee = session
 									.beginTransaction();
-							projectEmployee.setEmployee(employee);
+							projectEmployee.setUser(user);
 							projectEmployee.setProject(project);
 							session.save(projectEmployee);
 							txEmployee.commit();
 						} else {
-							logger.error("empId must be of employee Type but it is :-"
-									+ employee.getType());
+							logger.error("empId must be of User Type but it is :-"
+									+ user.getType());
 							throw new MediaTypeException(
-									"Employee must be of employee Type");
+									"User must be of employee Type");
 						}
 
 					} else {
-						logger.error("employee not exist with empId :-" + empId);
+						logger.error("User not exist with empId :-" + empId);
 						throw new EntityNotFoundException(
 								"can't assign, emp not exist");
 					}

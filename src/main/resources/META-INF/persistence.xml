@@ -6,12 +6,9 @@
 	<persistence-unit name="HibernatePersistence"
 		transaction-type="RESOURCE_LOCAL">
 		<class>com.synerzip.projectmanagementapp.model.Project</class>
-		<class>com.synerzip.projectmanagementapp.model.Employee</class>
 		<class>com.synerzip.projectmanagementapp.model.Company</class>
 		<class>com.synerzip.projectmanagementapp.model.User</class>
 		<class>com.synerzip.projectmanagementapp.model.Token</class>
-		<class>com.synerzip.projectmanagementapp.model.Admin</class>
-		<class>com.synerzip.projectmanagementapp.model.NonAdmin</class>
 		<class>com.synerzip.projectmanagementapp.model.ProjectEmployee</class>
 		<properties>
 			<property name="hibernate.show_sql" value="true" />

@@ -1,4 +1,4 @@
-package com.synerzip.projectmanagementapp.authentication;
+/*package com.synerzip.projectmanagementapp.authentication;
 
 import java.io.IOException;
 import java.security.Principal;
@@ -17,6 +17,7 @@ import org.hibernate.Session;
 import com.synerzip.projectmanagementapp.authentication.Secured.SECURED;
 import com.synerzip.projectmanagementapp.dbconnection.HibernateUtils;
 import com.synerzip.projectmanagementapp.model.Token;
+import com.synerzip.projectmanagementapp.model.User;
 
 @Provider
 @SECURED
@@ -55,7 +56,7 @@ public class UserAuthenticationFilter implements ContainerRequestFilter {
 
 						@Override
 						public String getName() {
-							return tokenObj.getUserName();
+							return tokenObj.getUser().getEmail();
 						}
 					};
 				}
@@ -99,4 +100,4 @@ public class UserAuthenticationFilter implements ContainerRequestFilter {
 		}
 		return null;
 	}
-}
+}*/

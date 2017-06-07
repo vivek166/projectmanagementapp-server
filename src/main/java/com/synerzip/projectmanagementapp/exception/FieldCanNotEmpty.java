@@ -1,10 +1,10 @@
 package com.synerzip.projectmanagementapp.exception;
 
-public class CanNotEmptyFilled extends RuntimeException {
+public class FieldCanNotEmpty extends RuntimeException {
 
 	private static final long serialVersionUID = -3267287860818455504L;
 
-	public CanNotEmptyFilled(String message) {
+	public FieldCanNotEmpty(String message) {
 		super(message);
 	}
 

@@ -15,14 +15,9 @@ import org.hibernate.search.jpa.Search;
 import org.hibernate.search.query.dsl.QueryBuilder;
 import com.mysql.jdbc.StringUtils;
 import com.synerzip.projectmanagementapp.dbconnection.HibernateUtils;
-import com.synerzip.projectmanagementapp.exception.CanNotEmptyFilled;
-import com.synerzip.projectmanagementapp.exception.MediaTypeException;
+import com.synerzip.projectmanagementapp.exception.FieldCanNotEmpty;
 import com.synerzip.projectmanagementapp.model.Company;
-import com.synerzip.projectmanagementapp.model.Employee;
 import com.synerzip.projectmanagementapp.model.PageResult;
-import com.synerzip.projectmanagementapp.model.Company;
-import com.synerzip.projectmanagementapp.model.ProjectEmployee;
-import com.synerzip.projectmanagementapp.services.CompanyServices;
 
 public class CompanyServiceImplementation {
 
@@ -206,15 +201,15 @@ public class CompanyServiceImplementation {
 		try {
 			if (StringUtils.isEmptyOrWhitespaceOnly(company.getCompanyName())) {
 				logger.error("company name is empty");
-				throw new CanNotEmptyFilled("company name must be filled");
+				throw new FieldCanNotEmpty("company name must be filled");
 			} else if (StringUtils.isEmptyOrWhitespaceOnly(company
 					.getCompanyAddress())) {
 				logger.error("company address is empty");
-				throw new CanNotEmptyFilled("company address must be filled");
+				throw new FieldCanNotEmpty("company address must be filled");
 			} else if (StringUtils.isEmptyOrWhitespaceOnly(company
 					.getCompanyContactNumber())) {
 				logger.error("company contact number is empty");
-				throw new CanNotEmptyFilled(
+				throw new FieldCanNotEmpty(
 						"company contact number must be filled");
 			} else {
 				session.saveOrUpdate(company);

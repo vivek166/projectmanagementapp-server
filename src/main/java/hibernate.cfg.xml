@@ -13,13 +13,10 @@
 		<property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property>
 		<property name="hbm2ddl.auto">update</property>
 		<property name="show_sql">true</property>
-		<mapping class="com.synerzip.projectmanagementapp.model.Employee" />
 		<mapping class="com.synerzip.projectmanagementapp.model.Project" />
 		<mapping class="com.synerzip.projectmanagementapp.model.Company" />
 		<mapping class="com.synerzip.projectmanagementapp.model.User" />
 		<mapping class="com.synerzip.projectmanagementapp.model.Token" />
-		<mapping class="com.synerzip.projectmanagementapp.model.Admin" />
-		<mapping class="com.synerzip.projectmanagementapp.model.NonAdmin" />
 		<mapping class="com.synerzip.projectmanagementapp.model.ProjectEmployee" />
 	</session-factory>
 </hibernate-configuration>
