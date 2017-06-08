@@ -17,6 +17,8 @@ import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
+
+import com.synerzip.projectmanagementapp.authentication.Secure;
 import com.synerzip.projectmanagementapp.httpmethods.Patch.PATCH;
 import com.synerzip.projectmanagementapp.model.Company;
 import com.synerzip.projectmanagementapp.serviceimplementation.CompanyServiceImplementation;
@@ -27,6 +29,7 @@ public class CompanyController {
 	CompanyServiceImplementation service = new CompanyServiceImplementation();
 
 	@GET
+	@Secure
 	@Path("/{companyId}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public String get(@PathParam("companyId") long companyId)
@@ -35,6 +38,7 @@ public class CompanyController {
 	}
 
 	@GET
+	@Secure
 	@Produces(MediaType.APPLICATION_JSON)
 	public String gets(@DefaultValue("0") @QueryParam("start") int start,
 			@DefaultValue("5") @QueryParam("size") int size,
@@ -46,6 +50,7 @@ public class CompanyController {
 	}
 
 	@GET
+	@Secure
 	@Path("/search")
 	@Produces(MediaType.APPLICATION_JSON)
 	public String search(@DefaultValue("0") @QueryParam("start") int start,
@@ -57,6 +62,7 @@ public class CompanyController {
 	}
 
 	@POST
+	@Secure
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response add(Company company) {
@@ -64,6 +70,7 @@ public class CompanyController {
 	}
 
 	@DELETE
+	@Secure
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("{companyId}")
 	public Response delete(@PathParam("companyId") long companyId) {
@@ -71,6 +78,7 @@ public class CompanyController {
 	}
 
 	@PUT
+	@Secure
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("{companyId}")
@@ -80,6 +88,7 @@ public class CompanyController {
 	}
 
 	@PATCH
+	@Secure
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("{projectId}")

@@ -5,11 +5,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import javax.ws.rs.NameBinding;
 
-public class Secured{
-	@Target( {ElementType.TYPE, ElementType.METHOD})
+	@NameBinding
+	@Target( {ElementType.METHOD, ElementType.TYPE})
 	@Retention(RetentionPolicy.RUNTIME)
-	public @interface SECURED {
-
-	}
-}
+	public @interface Secure {}

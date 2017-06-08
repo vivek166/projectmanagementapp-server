@@ -5,6 +5,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
+import javax.ws.rs.OPTIONS;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -18,7 +19,8 @@ import javax.ws.rs.core.SecurityContext;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
-import com.synerzip.projectmanagementapp.authentication.Secured.SECURED;
+
+import com.synerzip.projectmanagementapp.authentication.Secure;
 import com.synerzip.projectmanagementapp.httpmethods.Patch.PATCH;
 import com.synerzip.projectmanagementapp.model.User;
 import com.synerzip.projectmanagementapp.model.UserCredentials;
@@ -30,16 +32,16 @@ public class UserController {
 	UserServicesImplementation service = new UserServicesImplementation();
 
 	@GET
-	@SECURED
+	@Secure
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/{id}")
-	public String get(@PathParam("id") long id, @Context SecurityContext securityContext)
+	public String get(@PathParam("id") long id/*, @Context SecurityContext securityContext*/)
 			throws JsonGenerationException, JsonMappingException, IOException {
 		return new ObjectMapper().writeValueAsString(service.get(id/*, securityContext*/));
 	}
 	
 	@GET
-	@SECURED
+	@Secure
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/{id}/assignedproject")
 	public String assigned(@PathParam("id") long id)
@@ -48,6 +50,7 @@ public class UserController {
 	}
 
 	@GET
+	@Secure
 	@Produces(MediaType.APPLICATION_JSON)
 	public String gets(@DefaultValue("0") @QueryParam("start") int start,
 			@DefaultValue("5") @QueryParam("size") int size, @DefaultValue("") @QueryParam("query") String query)
@@ -56,6 +59,7 @@ public class UserController {
 	}
 
 	@GET
+	@Secure
 	@Path("/search")
 	@Produces(MediaType.APPLICATION_JSON)
 	public String search(@DefaultValue("0") @QueryParam("start") int start,
@@ -65,7 +69,6 @@ public class UserController {
 	}
 	
 	@POST
-	@SECURED
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response add(User user) {
@@ -73,7 +76,7 @@ public class UserController {
 	}
 
 	@DELETE
-	@SECURED
+	@Secure
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("{id}")
 	public Response delete(@PathParam("id") long id) {
@@ -81,7 +84,7 @@ public class UserController {
 	}
 	
 	@DELETE
-	@SECURED
+	@Secure
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/{id}/deletetoken")
 	public Response token(@PathParam("id") long id) {
@@ -90,7 +93,7 @@ public class UserController {
 	
 
 	@PUT
-	@SECURED
+	@Secure
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("{id}")
@@ -99,7 +102,7 @@ public class UserController {
 	}
 
 	@PATCH
-	@SECURED
+	@Secure
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("{id}")
@@ -114,4 +117,5 @@ public class UserController {
 	public Response userAuthentication(UserCredentials userCredentials){
 		return Response.ok().entity(service.userAuthentication(userCredentials)).build();
 	}
+	
 }

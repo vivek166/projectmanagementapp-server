@@ -12,7 +12,7 @@ import com.synerzip.projectmanagementapp.model.UserCredentials;
 
 public interface UserServices {
 
-	List<User> get(long id/*, SecurityContext securityContext*/);
+	User get(long id/*, SecurityContext securityContext*/);
 
 	PageResult gets(int start, int size, String content);
 

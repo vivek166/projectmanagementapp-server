@@ -32,15 +32,15 @@ public class UserServicesImplementation implements UserServices {
 
 	static final Logger logger = Logger.getLogger(UserServicesImplementation.class);
 	
-	public List<User> get(long id/*, SecurityContext securityContext*/) {
+	public User get(long id/*, SecurityContext securityContext*/) {
 		/*System.out.println(securityContext.getUserPrincipal().getName());*/
 		Session session = HibernateUtils.getSession();
 		logger.info("session open successfully");
-		List<User> user;
+		User user;
 		try {
 			Query query = session.getNamedQuery("getById");
 			query.setLong("id", id);
-			user = query.list();
+			user = (User)query.uniqueResult();
 			if (user == null) {
 				logger.error("user not found  with empid :-" + id);
 				throw new EntityNotFoundException("record not found with id " + id);

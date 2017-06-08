@@ -1,4 +1,4 @@
-/*package com.synerzip.projectmanagementapp.authentication;
+package com.synerzip.projectmanagementapp.authentication;
 
 import java.io.IOException;
 import java.security.Principal;
@@ -14,13 +14,11 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
-import com.synerzip.projectmanagementapp.authentication.Secured.SECURED;
 import com.synerzip.projectmanagementapp.dbconnection.HibernateUtils;
 import com.synerzip.projectmanagementapp.model.Token;
-import com.synerzip.projectmanagementapp.model.User;
 
 @Provider
-@SECURED
+@Secure
 public class UserAuthenticationFilter implements ContainerRequestFilter {
 
 	@Context
@@ -100,4 +98,4 @@ public class UserAuthenticationFilter implements ContainerRequestFilter {
 		}
 		return null;
 	}
-}*/
+}

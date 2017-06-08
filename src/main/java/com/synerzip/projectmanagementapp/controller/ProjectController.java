@@ -17,6 +17,8 @@ import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
+
+import com.synerzip.projectmanagementapp.authentication.Secure;
 import com.synerzip.projectmanagementapp.httpmethods.Patch.PATCH;
 import com.synerzip.projectmanagementapp.model.Project;
 import com.synerzip.projectmanagementapp.serviceimplementation.ProjectServiceImplementation;
@@ -27,6 +29,7 @@ public class ProjectController {
 	ProjectServiceImplementation service = new ProjectServiceImplementation();
 
 	@GET
+	@Secure
 	@Path("/{projectId}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public String get(@PathParam("projectId") long projectId)
@@ -35,6 +38,7 @@ public class ProjectController {
 	}
 
 	@GET
+	@Secure
 	@Produces(MediaType.APPLICATION_JSON)
 	public String gets(@DefaultValue("0") @QueryParam("start") int start,
 			@DefaultValue("5") @QueryParam("size") int size,
@@ -46,6 +50,7 @@ public class ProjectController {
 	}
 
 	@GET
+	@Secure
 	@Path("/search")
 	@Produces(MediaType.APPLICATION_JSON)
 	public String search(@DefaultValue("0") @QueryParam("start") int start,
@@ -57,6 +62,7 @@ public class ProjectController {
 	}
 
 	@POST
+	@Secure
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response add(Project project) {
@@ -64,6 +70,7 @@ public class ProjectController {
 	}
 
 	@DELETE
+	@Secure
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("{projectId}")
 	public Response delete(@PathParam("projectId") long projectId) {
@@ -71,6 +78,7 @@ public class ProjectController {
 	}
 
 	@PUT
+	@Secure
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("{projectId}")
@@ -80,6 +88,7 @@ public class ProjectController {
 	}
 
 	@PATCH
+	@Secure
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("{projectId}")
