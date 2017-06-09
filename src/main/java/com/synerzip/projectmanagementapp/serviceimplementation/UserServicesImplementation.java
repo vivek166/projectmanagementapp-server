@@ -15,6 +15,8 @@ import org.hibernate.exception.ConstraintViolationException;
 import org.hibernate.search.jpa.FullTextEntityManager;
 import org.hibernate.search.jpa.Search;
 import org.hibernate.search.query.dsl.QueryBuilder;
+import org.hibernate.transform.Transformers;
+
 import com.mysql.jdbc.StringUtils;
 import com.synerzip.projectmanagementapp.dbconnection.HibernateUtils;
 import com.synerzip.projectmanagementapp.exception.FieldCanNotEmpty;
@@ -31,16 +33,16 @@ import com.synerzip.projectmanagementapp.services.UserServices;
 public class UserServicesImplementation implements UserServices {
 
 	static final Logger logger = Logger.getLogger(UserServicesImplementation.class);
-	
-	public User get(long id/*, SecurityContext securityContext*/) {
-		/*System.out.println(securityContext.getUserPrincipal().getName());*/
+
+	public User get(long id/* , SecurityContext securityContext */) {
+		/* System.out.println(securityContext.getUserPrincipal().getName()); */
 		Session session = HibernateUtils.getSession();
 		logger.info("session open successfully");
 		User user;
 		try {
 			Query query = session.getNamedQuery("getById");
 			query.setLong("id", id);
-			user = (User)query.uniqueResult();
+			user = (User) query.uniqueResult();
 			if (user == null) {
 				logger.error("user not found  with empid :-" + id);
 				throw new EntityNotFoundException("record not found with id " + id);
@@ -94,15 +96,15 @@ public class UserServicesImplementation implements UserServices {
 				.createEntityManager();
 		FullTextEntityManager fullTextEntityManager = Search.getFullTextEntityManager(entityManager);
 		try {
-			
-			  /*try { fullTextEntityManager.createIndexer().startAndWait(); }
-			  catch (InterruptedException e) { e.printStackTrace(); }*/
-			 
-			QueryBuilder qb = fullTextEntityManager.getSearchFactory().buildQueryBuilder().forEntity(User.class)
-					.get();
+
+			/*
+			 * try { fullTextEntityManager.createIndexer().startAndWait(); }
+			 * catch (InterruptedException e) { e.printStackTrace(); }
+			 */
+
+			QueryBuilder qb = fullTextEntityManager.getSearchFactory().buildQueryBuilder().forEntity(User.class).get();
 			org.apache.lucene.search.Query query = qb.keyword()
-					.onFields("firstName", "lastName", "department", "skills", "email").matching(content)
-					.createQuery();
+					.onFields("firstName", "lastName", "department", "skills", "email").matching(content).createQuery();
 			javax.persistence.Query fullTextQuery = fullTextEntityManager.createFullTextQuery(query, User.class);
 			fullTextQuery.setFirstResult(start);
 			fullTextQuery.setMaxResults(size);
@@ -136,15 +138,15 @@ public class UserServicesImplementation implements UserServices {
 		org.hibernate.Transaction tx = session.beginTransaction();
 		String companyName = user.getCompanyName();
 		try {
-			/*Company company = isRegisteredComapany(companyName);
-			if (company != null) {
-				throw new ConstraintViolationException("company already present with company name - " + user.getCompanyName(), null,
-						null);
-			} else {
-				company.setCompanyName(companyName);
-				CompanyServiceImplementation companyService = new CompanyServiceImplementation();
-				company = companyService.add(company);
-			}*/
+			/*
+			 * Company company = isRegisteredComapany(companyName); if (company
+			 * != null) { throw new ConstraintViolationException(
+			 * "company already present with company name - " +
+			 * user.getCompanyName(), null, null); } else {
+			 * company.setCompanyName(companyName); CompanyServiceImplementation
+			 * companyService = new CompanyServiceImplementation(); company =
+			 * companyService.add(company); }
+			 */
 
 			if (StringUtils.isEmptyOrWhitespaceOnly(user.getFirstName())) {
 				logger.error("first name is empty");
@@ -207,31 +209,31 @@ public class UserServicesImplementation implements UserServices {
 		org.hibernate.Transaction tx = session.beginTransaction();
 		try {
 			/*
-			 * if (StringUtils.isEmptyOrWhitespaceOnly(user.getFirstName()))
-			 * { logger.error("first name is empty"); throw new
-			 * FieldCanNotEmpty("first  name must be filled"); } else if
-			 * (StringUtils.isEmptyOrWhitespaceOnly(user .getDepartment()))
-			 * { logger.error("department is empty"); throw new
-			 * FieldCanNotEmpty("department must be filled"); } else if
+			 * if (StringUtils.isEmptyOrWhitespaceOnly(user.getFirstName())) {
+			 * logger.error("first name is empty"); throw new FieldCanNotEmpty(
+			 * "first  name must be filled"); } else if
+			 * (StringUtils.isEmptyOrWhitespaceOnly(user .getDepartment())) {
+			 * logger.error("department is empty"); throw new FieldCanNotEmpty(
+			 * "department must be filled"); } else if
 			 * (StringUtils.isEmptyOrWhitespaceOnly(user .getSkills())) {
 			 * logger.error("skills is empty"); throw new FieldCanNotEmpty(
 			 * "skills must be filled"); } else { session.saveOrUpdate(user);
 			 * tx.commit(); }
 			 */
 			if (!StringUtils.isEmptyOrWhitespaceOnly(user.getCompanyName())) {
-				Company company=isRegisteredComapany(user.getCompanyName());
-				if(company!=null){
+				Company company = isRegisteredComapany(user.getCompanyName());
+				if (company != null) {
 					user.setCompany(company);
-				}else{
+				} else {
 					CompanyServiceImplementation companyService = new CompanyServiceImplementation();
-					Company newCompany=new Company();
+					Company newCompany = new Company();
 					newCompany.setCompanyName(user.getCompanyName());
 					user.setCompany(companyService.add(newCompany));
 				}
-			    
-			} else{
-				logger.error("company name is empty"); 
-				throw new FieldCanNotEmpty("company  name must be filled"); 
+
+			} else {
+				logger.error("company name is empty");
+				throw new FieldCanNotEmpty("company  name must be filled");
 			}
 			session.saveOrUpdate(user);
 			tx.commit();
@@ -276,17 +278,17 @@ public class UserServicesImplementation implements UserServices {
 					dbUser.setEmail(user.getEmail());
 				}
 				if (!StringUtils.isEmptyOrWhitespaceOnly(user.getCompanyName())) {
-					Company company=isRegisteredComapany(user.getCompanyName());
-					if(company!=null){
+					Company company = isRegisteredComapany(user.getCompanyName());
+					if (company != null) {
 						dbUser.setCompany(company);
-					}else{
+					} else {
 						CompanyServiceImplementation companyService = new CompanyServiceImplementation();
-						Company newCompany=new Company();
+						Company newCompany = new Company();
 						newCompany.setCompanyName(user.getCompanyName());
 						dbUser.setCompany(companyService.add(newCompany));
 					}
-				    
-				} 
+
+				}
 				session.save(dbUser);
 				session.flush();
 				tx.commit();
@@ -366,28 +368,27 @@ public class UserServicesImplementation implements UserServices {
 		}
 	}
 
-	
 	public Token userAuthentication(UserCredentials userCredentials) {
-		String userName=userCredentials.getUserName();
-		String userPassword=userCredentials.getUserPassword();
-		Session session = HibernateUtils.getSession();                             
-		try{
-			Query query=session.createQuery("from User  where email = :email and password = :password");
+		String userName = userCredentials.getUserName();
+		String userPassword = userCredentials.getUserPassword();
+		Session session = HibernateUtils.getSession();
+		try {
+			Query query = session.createQuery("from User  where email = :email and password = :password");
 			query.setParameter("email", userName);
 			query.setParameter("password", userPassword);
-			User user=(User)query.uniqueResult();
-			if(user!=null){
-				
-					String tokenString = UUID.randomUUID().toString();
-					
-					Token token=new Token();
-					token.setToken(tokenString);
-					token.setUser(user);
-					token.setExpiryTime(Calendar.getInstance().getTime());
-					session.save(token);
-					session.beginTransaction().commit();
-					return token;
-			}else{
+			User user = (User) query.uniqueResult();
+			if (user != null) {
+
+				String tokenString = UUID.randomUUID().toString();
+
+				Token token = new Token();
+				token.setToken(tokenString);
+				token.setUser(user);
+				token.setExpiryTime(Calendar.getInstance().getTime());
+				session.save(token);
+				session.beginTransaction().commit();
+				return token;
+			} else {
 				throw new EntityNotFoundException("userName or password invalid");
 			}
 		} catch (HibernateException exception) {
@@ -412,7 +413,6 @@ public class UserServicesImplementation implements UserServices {
 		}
 	}
 
-
 	public String token(long id) {
 		Session session = HibernateUtils.getSession();
 		try {
@@ -428,4 +428,56 @@ public class UserServicesImplementation implements UserServices {
 		}
 	}
 
+	public List<User> getEmployees(String query) {
+		Session session = HibernateUtils.getSession();
+		try {
+			Query getEmployee = session
+					.createQuery("select new User(u.id, u.firstName, u.lastName, u.email) from User u  where type = :query");
+			getEmployee.setParameter("query", query);
+			List<User> employees = (List<User>) getEmployee.list();
+			if (employees.isEmpty()) {
+				throw new EntityNotFoundException("unable to process your request");
+			}
+			return employees;
+		} catch (HibernateException exception) {
+			throw new EntityNotFoundException("unable to process your request");
+		} finally {
+			session.close();
+		}
+	}
+
+	public String assignProject(long userId, long projectId) {
+		Session session = HibernateUtils.getSession();
+		org.hibernate.Transaction tx = session.beginTransaction();
+		try {
+			Project project = (Project) session.get(Project.class, projectId);
+			User user = (User) session.get(User.class, userId);
+			ProjectEmployee assign = new ProjectEmployee();
+			assign.setProject(project);
+			assign.setUser(user);
+			session.save(assign);
+			tx.commit();
+		} catch (HibernateException exception) {
+			throw new EntityNotFoundException("unable to assign project");
+		} finally {
+			session.close();
+		}
+		return "project assigned to employee";
+	}
+
+	public User profile(long userId) {
+		Session session = HibernateUtils.getSession();
+		try {
+			Query query = session.createQuery(
+					"select new User(u.id , u.firstName, u.lastName, u.type, u.email, u.department, u.skills) from User u where id = :id")
+			.setParameter("id", userId);
+			User user= (User) query.uniqueResult();
+			return user;
+			
+		} catch (HibernateException exception) {
+			throw new EntityNotFoundException("user record not found");
+		} finally {
+			session.close();
+		}
+	}
 }

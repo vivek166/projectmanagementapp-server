@@ -48,6 +48,15 @@ public class UserController {
 			throws JsonGenerationException, JsonMappingException, IOException {
 		return new ObjectMapper().writeValueAsString(service.assigned(id));
 	}
+	
+	@GET
+	@Secure
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/login/profile")
+	public String profile(@QueryParam("userId") long userId)
+			throws JsonGenerationException, JsonMappingException, IOException {
+		return new ObjectMapper().writeValueAsString(service.profile(userId));
+	}
 
 	@GET
 	@Secure
@@ -68,11 +77,28 @@ public class UserController {
 		return new ObjectMapper().writeValueAsString(service.search(start, size, query));
 	}
 	
+	@GET
+	@Secure
+	@Path("/filter")
+	@Produces(MediaType.APPLICATION_JSON)
+	public String getEmployees(@QueryParam("query") String query)
+			throws JsonGenerationException, JsonMappingException, IOException {
+		return new ObjectMapper().writeValueAsString(service.getEmployees(query));
+	}
+	
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response add(User user) {
 		return Response.ok().entity(service.add(user)).build();
+	}
+	
+	@POST
+	@Secure
+	@Path("/assignproject")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response assignProject(@QueryParam("userId") long userId, @QueryParam("projectId") long projectId) {
+		return Response.ok().entity(service.assignProject(userId, projectId)).build();
 	}
 
 	@DELETE

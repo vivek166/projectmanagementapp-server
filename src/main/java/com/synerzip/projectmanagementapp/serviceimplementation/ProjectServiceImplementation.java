@@ -359,4 +359,20 @@ public class ProjectServiceImplementation implements ProjectServices {
 		}
 	}
 
+	public List<Project> getProjects() {
+		Session session = HibernateUtils.getSession();
+		try {
+			Query getProject=session.createQuery("select new Project(p.projectId, p.projectTitle) from Project p");
+			List<Project>  projects=(List<Project>)getProject.list();
+			if(projects.isEmpty()){
+				throw new EntityNotFoundException("unable to process your request");
+			}
+			return projects;
+		} catch (HibernateException exception) {
+			throw new EntityNotFoundException("unable to process your request");
+		}finally {
+			session.close();
+		}
+	}
+
 }

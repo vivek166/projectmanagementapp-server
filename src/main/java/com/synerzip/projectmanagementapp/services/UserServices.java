@@ -33,4 +33,10 @@ public interface UserServices {
     Token userAuthentication(UserCredentials userCredentials);
     
     String token(long id);
+    
+    List<User> getEmployees(String query);
+    
+    String assignProject(long userId, long projectId);
+    
+    User profile(long userId);
 }

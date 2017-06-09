@@ -80,9 +80,28 @@ public class User {
 	public User() {
 
 	}
-
+	
+	public User(long id, String firstName, String lastName, String type, String email, String department, String skills) {
+		super();
+		this.id = id;
+		this.firstName = firstName;
+		this.lastName = lastName;
+		this.department = department;
+		this.skills = skills;
+		this.type = type;
+		this.email = email;
+	}
+	
 	public long getId() {
 		return id;
+	}
+	
+	public User(long id, String firstName, String lastName, String email) {
+		super();
+		this.id = id;
+		this.firstName = firstName;
+		this.lastName = lastName;
+		this.email = email;
 	}
 
 	public void setId(long id) {

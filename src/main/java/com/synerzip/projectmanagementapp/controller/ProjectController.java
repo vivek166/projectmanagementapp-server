@@ -61,6 +61,15 @@ public class ProjectController {
 				size, query));
 	}
 
+	@GET
+	@Secure
+	@Path("/filter")
+	@Produces(MediaType.APPLICATION_JSON)
+	public String getProjects()
+			throws JsonGenerationException, JsonMappingException, IOException {
+		return new ObjectMapper().writeValueAsString(service.getProjects());
+	}
+	
 	@POST
 	@Secure
 	@Consumes(MediaType.APPLICATION_JSON)
