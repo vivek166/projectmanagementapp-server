@@ -72,7 +72,7 @@ public class UserController {
 	@Path("/search")
 	@Produces(MediaType.APPLICATION_JSON)
 	public String search(@DefaultValue("0") @QueryParam("start") int start,
-			@DefaultValue("5") @QueryParam("size") int size, @QueryParam("query") String query)
+			@DefaultValue("5") @QueryParam("size") int size,  @DefaultValue("") @QueryParam("query") String query)
 			throws JsonGenerationException, JsonMappingException, IOException {
 		return new ObjectMapper().writeValueAsString(service.search(start, size, query));
 	}
@@ -81,9 +81,10 @@ public class UserController {
 	@Secure
 	@Path("/filter")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getEmployees(@QueryParam("query") String query)
+	public String getEmployees(@DefaultValue("0") @QueryParam("start") int start,
+			@DefaultValue("5") @QueryParam("size") int size, @QueryParam("query") String query)
 			throws JsonGenerationException, JsonMappingException, IOException {
-		return new ObjectMapper().writeValueAsString(service.getEmployees(query));
+		return new ObjectMapper().writeValueAsString(service.getEmployees(start, size, query));
 	}
 	
 	@POST

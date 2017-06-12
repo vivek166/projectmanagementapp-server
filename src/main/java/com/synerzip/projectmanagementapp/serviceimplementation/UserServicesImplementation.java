@@ -1,5 +1,6 @@
 package com.synerzip.projectmanagementapp.serviceimplementation;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
@@ -15,8 +16,6 @@ import org.hibernate.exception.ConstraintViolationException;
 import org.hibernate.search.jpa.FullTextEntityManager;
 import org.hibernate.search.jpa.Search;
 import org.hibernate.search.query.dsl.QueryBuilder;
-import org.hibernate.transform.Transformers;
-
 import com.mysql.jdbc.StringUtils;
 import com.synerzip.projectmanagementapp.dbconnection.HibernateUtils;
 import com.synerzip.projectmanagementapp.exception.FieldCanNotEmpty;
@@ -428,22 +427,54 @@ public class UserServicesImplementation implements UserServices {
 		}
 	}
 
-	public List<User> getEmployees(String query) {
+	public List<User> getEmployees(int start, int size, String content) {
 		Session session = HibernateUtils.getSession();
-		try {
-			Query getEmployee = session
-					.createQuery("select new User(u.id, u.firstName, u.lastName, u.email) from User u  where type = :query");
-			getEmployee.setParameter("query", query);
-			List<User> employees = (List<User>) getEmployee.list();
-			if (employees.isEmpty()) {
+		if(org.apache.commons.lang.StringUtils.isEmpty(content)){
+			try {
+				Query getEmployee = session
+						.createQuery("select new User(u.id, u.firstName, u.lastName, u.email) from User u  where type = :query");
+				getEmployee.setParameter("query", "employee");
+				getEmployee.setFirstResult(start);
+				getEmployee.setMaxResults(size);
+				List<User> employees = (List<User>) getEmployee.list();
+				if (employees.isEmpty()) {
+					throw new EntityNotFoundException("unable to process your request");
+				}
+				return employees;
+			} catch (HibernateException exception) {
 				throw new EntityNotFoundException("unable to process your request");
+			} finally {
+				session.close();
 			}
-			return employees;
-		} catch (HibernateException exception) {
-			throw new EntityNotFoundException("unable to process your request");
-		} finally {
-			session.close();
+		}else{
+			EntityManager entityManager = Persistence.createEntityManagerFactory("HibernatePersistence")
+					.createEntityManager();
+			FullTextEntityManager fullTextEntityManager = Search.getFullTextEntityManager(entityManager);
+			try {
+
+				try { fullTextEntityManager.createIndexer().startAndWait(); }
+				catch (InterruptedException e) { e.printStackTrace(); }
+				QueryBuilder qb = fullTextEntityManager.getSearchFactory().buildQueryBuilder().forEntity(User.class).get();
+				org.apache.lucene.search.Query query = qb.keyword()
+						.onFields("firstName", "lastName", "email").matching(content).createQuery();
+				javax.persistence.Query fullTextQuery = fullTextEntityManager.createFullTextQuery(query, User.class);
+				fullTextQuery.setFirstResult(start);
+				fullTextQuery.setMaxResults(size);
+				int count = fullTextQuery.getResultList().size();
+				List<User> userResult = fullTextQuery.getResultList();
+				return userResult;
+			} catch (HibernateException exception) {
+				logger.error("abnormal ternination, search() of user");
+				throw new HibernateException("unable to process your request");
+			} finally {
+				if (fullTextEntityManager != null) {
+					fullTextEntityManager.close();
+					logger.info("session closed successfully");
+				}
+				fullTextEntityManager = null;
+			}
 		}
+		
 	}
 
 	public String assignProject(long userId, long projectId) {
@@ -452,6 +483,10 @@ public class UserServicesImplementation implements UserServices {
 		try {
 			Project project = (Project) session.get(Project.class, projectId);
 			User user = (User) session.get(User.class, userId);
+			/*List<Integer> ids=new ArrayList<Integer>();
+			ids.add((int) project.getProjectId());
+			user.setProjectIds(ids);
+			session.update(user);*/
 			ProjectEmployee assign = new ProjectEmployee();
 			assign.setProject(project);
 			assign.setUser(user);

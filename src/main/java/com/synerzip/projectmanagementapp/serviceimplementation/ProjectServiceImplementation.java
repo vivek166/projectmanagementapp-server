@@ -359,19 +359,60 @@ public class ProjectServiceImplementation implements ProjectServices {
 		}
 	}
 
-	public List<Project> getProjects() {
-		Session session = HibernateUtils.getSession();
-		try {
-			Query getProject=session.createQuery("select new Project(p.projectId, p.projectTitle) from Project p");
-			List<Project>  projects=(List<Project>)getProject.list();
-			if(projects.isEmpty()){
+	public List<Project> getProjects(int start, int size, String content) {
+		if(org.apache.commons.lang.StringUtils.isEmpty(content)){
+			Session session = HibernateUtils.getSession();
+			try {
+				Query getProject=session.createQuery("select new Project(p.projectId, p.projectTitle) from Project p");
+				List<Project>  projects=(List<Project>)getProject.list();
+				if(projects.isEmpty()){
+					throw new EntityNotFoundException("unable to process your request");
+				}
+				return projects;
+			} catch (HibernateException exception) {
 				throw new EntityNotFoundException("unable to process your request");
+			}finally {
+				session.close();
 			}
-			return projects;
-		} catch (HibernateException exception) {
-			throw new EntityNotFoundException("unable to process your request");
-		}finally {
-			session.close();
+		}else{
+			EntityManager entityManager = Persistence.createEntityManagerFactory(
+					"HibernatePersistence").createEntityManager();
+			logger.info("session open successfully");
+			entityManager.getTransaction().begin();
+			FullTextEntityManager fullTextEntityManager = Search
+					.getFullTextEntityManager(entityManager);
+			try {
+				try {
+					fullTextEntityManager.createIndexer().startAndWait();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+
+				QueryBuilder queryBuilder = fullTextEntityManager
+						.getSearchFactory().buildQueryBuilder()
+						.forEntity(Project.class).get();
+				org.apache.lucene.search.Query query = queryBuilder
+						.keyword()
+						.onFields("projectId", "technologyUsed", "projectFeature",
+								"projectDescription", "projectTitle").matching(content)
+						.createQuery();
+				javax.persistence.Query fullTextQuery = fullTextEntityManager
+						.createFullTextQuery(query, Project.class);
+				int count = fullTextQuery.getResultList().size();
+				fullTextQuery.setFirstResult(start);
+				fullTextQuery.setMaxResults(size);
+				List<Project> projectResult = fullTextQuery.getResultList();
+				return projectResult;
+			} catch (HibernateException exception) {
+				logger.error("abnormal ternination, search() of project");
+				throw new HibernateException("unable to process your request");
+			} finally {
+				if (fullTextEntityManager != null) {
+					fullTextEntityManager.close();
+					logger.info("session closed successfully");
+				}
+				fullTextEntityManager = null;
+			}
 		}
 	}
 
