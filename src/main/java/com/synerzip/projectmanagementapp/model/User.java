@@ -20,16 +20,10 @@ import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
 
-
-
 @Entity
 @Table(name = "user")
 @Indexed
-@NamedQueries(
-		{ 
-			@NamedQuery(name = "getById", query = "from User where id = :id") 
-		}
-	)
+@NamedQueries({ @NamedQuery(name = "getById", query = "from User where id = :id") })
 public class User {
 
 	@Id
@@ -47,8 +41,8 @@ public class User {
 	private String lastName;
 
 	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
-	@Column(name = "department")
-	private String department;
+	@Column(name = "mobile")
+	private String mobile;
 
 	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
 	@Column(name = "skills")
@@ -80,28 +74,41 @@ public class User {
 	public User() {
 
 	}
+
+	public User(String firstName, String lastName, String type, String email, String mobile,
+			String skills, Company company) {
+		super();
+		this.firstName = firstName;
+		this.lastName = lastName;
+		this.mobile = mobile;
+		this.skills = skills;
+		this.type = type;
+		this.email = email;
+		this.company = company;
+	}
+
 	
-	public User(long id, String firstName, String lastName, String type, String email, String department, String skills) {
+	public User(long id, String firstName, String lastName, String mobile, String skills, String type, String email) {
 		super();
 		this.id = id;
 		this.firstName = firstName;
 		this.lastName = lastName;
-		this.department = department;
+		this.mobile = mobile;
 		this.skills = skills;
 		this.type = type;
 		this.email = email;
 	}
-	
-	public long getId() {
-		return id;
-	}
-	
+
 	public User(long id, String firstName, String lastName, String email) {
 		super();
 		this.id = id;
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.email = email;
+	}
+	
+	public long getId() {
+		return id;
 	}
 
 	public void setId(long id) {
@@ -124,12 +131,12 @@ public class User {
 		this.lastName = lastName;
 	}
 
-	public String getDepartment() {
-		return department;
+	public String getMobile() {
+		return mobile;
 	}
 
-	public void setDepartment(String department) {
-		this.department = department;
+	public void setMobile(String mobile) {
+		this.mobile = mobile;
 	}
 
 	public String getSkills() {
@@ -190,7 +197,7 @@ public class User {
 
 	@Override
 	public String toString() {
-		return "User [id=" + id + ", firstName=" + firstName + ", lastName=" + lastName + ", department=" + department
+		return "User [id=" + id + ", firstName=" + firstName + ", lastName=" + lastName + ", mobile=" + mobile
 				+ ", skills=" + skills + ", type=" + type + ", email=" + email + ", password=" + password
 				+ ", projectIds=" + projectIds + ", companyName=" + companyName + ", company=" + company + "]";
 	}

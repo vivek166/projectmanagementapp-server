@@ -26,8 +26,7 @@ import com.synerzip.projectmanagementapp.services.ProjectServices;
 
 public class ProjectServiceImplementation implements ProjectServices {
 
-	static final Logger logger = Logger
-			.getLogger(ProjectServiceImplementation.class);
+	static final Logger logger = Logger.getLogger(ProjectServiceImplementation.class);
 
 	public Project get(long projectId) {
 		Session session = HibernateUtils.getSession();
@@ -37,12 +36,10 @@ public class ProjectServiceImplementation implements ProjectServices {
 			project = (Project) session.get(Project.class, projectId);
 			if (project == null) {
 				logger.error("project not found  with projectId :-" + projectId);
-				throw new EntityNotFoundException("record not found with id "
-						+ projectId);
+				throw new EntityNotFoundException("record not found with id " + projectId);
 			}
 		} catch (HibernateException exception) {
-			logger.error("abnormal ternination, get() of project for projectId :-"
-					+ projectId);
+			logger.error("abnormal ternination, get() of project for projectId :-" + projectId);
 			throw new HibernateException("unable to process your request");
 		} finally {
 			session.close();
@@ -57,12 +54,10 @@ public class ProjectServiceImplementation implements ProjectServices {
 		if (org.apache.commons.lang.StringUtils.isEmpty(content)) {
 			try {
 				int count = ((Long) session
-						.createQuery(
-								"select count(*) from com.synerzip.projectmanagementapp.model.Project")
+						.createQuery("select count(*) from com.synerzip.projectmanagementapp.model.Project")
 						.uniqueResult()).intValue();
 				if (count > 0) {
-					Query query = session
-							.createQuery("from com.synerzip.projectmanagementapp.model.Project");
+					Query query = session.createQuery("from com.synerzip.projectmanagementapp.model.Project");
 					query.setFirstResult(start);
 					query.setMaxResults(size);
 					List<Project> projects = query.list();
@@ -88,12 +83,11 @@ public class ProjectServiceImplementation implements ProjectServices {
 	}
 
 	public PageResult search(int start, int size, String content) {
-		EntityManager entityManager = Persistence.createEntityManagerFactory(
-				"HibernatePersistence").createEntityManager();
+		EntityManager entityManager = Persistence.createEntityManagerFactory("HibernatePersistence")
+				.createEntityManager();
 		logger.info("session open successfully");
 		entityManager.getTransaction().begin();
-		FullTextEntityManager fullTextEntityManager = Search
-				.getFullTextEntityManager(entityManager);
+		FullTextEntityManager fullTextEntityManager = Search.getFullTextEntityManager(entityManager);
 		try {
 
 			/*try {
@@ -102,16 +96,12 @@ public class ProjectServiceImplementation implements ProjectServices {
 				e.printStackTrace();
 			}*/
 
-			QueryBuilder queryBuilder = fullTextEntityManager
-					.getSearchFactory().buildQueryBuilder()
+			QueryBuilder queryBuilder = fullTextEntityManager.getSearchFactory().buildQueryBuilder()
 					.forEntity(Project.class).get();
-			org.apache.lucene.search.Query query = queryBuilder
-					.keyword()
-					.onFields("projectId", "technologyUsed", "projectFeature",
-							"projectDescription").matching(content)
+			org.apache.lucene.search.Query query = queryBuilder.keyword()
+					.onFields("projectId", "technologyUsed", "projectFeature", "projectDescription").matching(content)
 					.createQuery();
-			javax.persistence.Query fullTextQuery = fullTextEntityManager
-					.createFullTextQuery(query, Project.class);
+			javax.persistence.Query fullTextQuery = fullTextEntityManager.createFullTextQuery(query, Project.class);
 			int count = fullTextQuery.getResultList().size();
 			fullTextQuery.setFirstResult(start);
 			fullTextQuery.setMaxResults(size);
@@ -122,10 +112,8 @@ public class ProjectServiceImplementation implements ProjectServices {
 				pageResults.setTotalResult(count);
 				return pageResults;
 			} else {
-				logger.error("does not found any matched record with content:-"
-						+ content);
-				throw new NotFoundException("No record matching with "
-						+ content);
+				logger.error("does not found any matched record with content:-" + content);
+				throw new NotFoundException("No record matching with " + content);
 			}
 		} catch (HibernateException exception) {
 			logger.error("abnormal ternination, search() of project");
@@ -147,19 +135,15 @@ public class ProjectServiceImplementation implements ProjectServices {
 			if (StringUtils.isEmptyOrWhitespaceOnly(project.getProjectTitle())) {
 				logger.error("project Title is empty");
 				throw new FieldCanNotEmpty("project Title must be filled");
-			} else if (StringUtils.isEmptyOrWhitespaceOnly(project
-					.getProjectFeature())) {
+			} else if (StringUtils.isEmptyOrWhitespaceOnly(project.getProjectFeature())) {
 				logger.error("project Feature is empty");
 				throw new FieldCanNotEmpty("project Feature must be filled");
-			} else if (StringUtils.isEmptyOrWhitespaceOnly(project
-					.getProjectDescription())) {
+			} else if (StringUtils.isEmptyOrWhitespaceOnly(project.getProjectDescription())) {
 				logger.error("project Description is empty");
 				throw new FieldCanNotEmpty("project Description must be filled");
-			} else if (StringUtils.isEmptyOrWhitespaceOnly(project
-					.getTechnologyUsed())) {
+			} else if (StringUtils.isEmptyOrWhitespaceOnly(project.getTechnologyUsed())) {
 				logger.error("project TechnologyUsed is empty");
-				throw new FieldCanNotEmpty(
-						"project TechnologyUsed  must be filled");
+				throw new FieldCanNotEmpty("project TechnologyUsed  must be filled");
 			} else {
 				session.save(project);
 				tx.commit();
@@ -167,9 +151,8 @@ public class ProjectServiceImplementation implements ProjectServices {
 			return project;
 		} catch (HibernateException exception) {
 			logger.error("abnormal ternination, add() of project");
-			throw new ConstraintViolationException(
-					"record already present with title-- "
-							+ project.getProjectTitle(), null, null);
+			throw new ConstraintViolationException("record already present with title-- " + project.getProjectTitle(),
+					null, null);
 		} finally {
 			session.close();
 			logger.info("session closed successfully");
@@ -187,8 +170,7 @@ public class ProjectServiceImplementation implements ProjectServices {
 			int affectedRow = query.executeUpdate();
 			if (affectedRow == 0) {
 				logger.error("record already deleted or not exist");
-				throw new EntityNotFoundException("no record found with id:-"
-						+ projectId);
+				throw new EntityNotFoundException("no record found with id:-" + projectId);
 			}
 			tx.commit();
 		} catch (HibernateException exception) {
@@ -209,19 +191,15 @@ public class ProjectServiceImplementation implements ProjectServices {
 			if (StringUtils.isEmptyOrWhitespaceOnly(project.getProjectTitle())) {
 				logger.error("project Title is empty");
 				throw new FieldCanNotEmpty("project Title must be filled");
-			} else if (StringUtils.isEmptyOrWhitespaceOnly(project
-					.getProjectFeature())) {
+			} else if (StringUtils.isEmptyOrWhitespaceOnly(project.getProjectFeature())) {
 				logger.error("project Feature is empty");
 				throw new FieldCanNotEmpty("project Feature must be filled");
-			} else if (StringUtils.isEmptyOrWhitespaceOnly(project
-					.getProjectDescription())) {
+			} else if (StringUtils.isEmptyOrWhitespaceOnly(project.getProjectDescription())) {
 				logger.error("project Description is empty");
 				throw new FieldCanNotEmpty("project Description must be filled");
-			} else if (StringUtils.isEmptyOrWhitespaceOnly(project
-					.getTechnologyUsed())) {
+			} else if (StringUtils.isEmptyOrWhitespaceOnly(project.getTechnologyUsed())) {
 				logger.error("project TechnologyUsed is empty");
-				throw new FieldCanNotEmpty(
-						"project TechnologyUsed  must be filled");
+				throw new FieldCanNotEmpty("project TechnologyUsed  must be filled");
 			} else {
 				session.saveOrUpdate(project);
 				tx.commit();
@@ -229,9 +207,8 @@ public class ProjectServiceImplementation implements ProjectServices {
 			return project;
 		} catch (HibernateException exception) {
 			logger.error("abnormal ternination, update() of project");
-			throw new ConstraintViolationException(
-					"record already present with title-- "
-							+ project.getProjectTitle(), null, null);
+			throw new ConstraintViolationException("record already present with title-- " + project.getProjectTitle(),
+					null, null);
 		} finally {
 			session.close();
 			logger.info("session closed successfully");
@@ -245,39 +222,30 @@ public class ProjectServiceImplementation implements ProjectServices {
 		try {
 			Project dbProject = (Project) session.get(Project.class, projectId);
 			if (dbProject != null) {
-				if (!StringUtils.isEmptyOrWhitespaceOnly(project
-						.getProjectTitle())) {
+				if (!StringUtils.isEmptyOrWhitespaceOnly(project.getProjectTitle())) {
 					dbProject.setProjectTitle(project.getProjectTitle());
 				}
-				if (!StringUtils.isEmptyOrWhitespaceOnly(project
-						.getProjectFeature())) {
+				if (!StringUtils.isEmptyOrWhitespaceOnly(project.getProjectFeature())) {
 					dbProject.setProjectFeature(project.getProjectFeature());
 				}
-				if (!StringUtils.isEmptyOrWhitespaceOnly(project
-						.getProjectDescription())) {
-					dbProject.setProjectDescription(project
-							.getProjectDescription());
+				if (!StringUtils.isEmptyOrWhitespaceOnly(project.getProjectDescription())) {
+					dbProject.setProjectDescription(project.getProjectDescription());
 				}
-				if (!StringUtils.isEmptyOrWhitespaceOnly(project
-						.getTechnologyUsed())) {
+				if (!StringUtils.isEmptyOrWhitespaceOnly(project.getTechnologyUsed())) {
 					dbProject.setTechnologyUsed(project.getTechnologyUsed());
 				}
 				session.save(dbProject);
 				session.flush();
 				tx.commit();
 			} else {
-				logger.error("Can't update, project not found with projectId :-"
-						+ projectId);
-				throw new EntityNotFoundException(
-						"Can't update, project not found with projectId :-"
-								+ projectId);
+				logger.error("Can't update, project not found with projectId :-" + projectId);
+				throw new EntityNotFoundException("Can't update, project not found with projectId :-" + projectId);
 			}
 			return dbProject;
 		} catch (HibernateException exception) {
 			logger.error("abnormal ternination, patch() of project");
-			throw new ConstraintViolationException(
-					"record already present with title-- "
-							+ project.getProjectTitle(), null, null);
+			throw new ConstraintViolationException("record already present with title-- " + project.getProjectTitle(),
+					null, null);
 		} finally {
 			session.close();
 			logger.info("session closed successfully");
@@ -289,14 +257,12 @@ public class ProjectServiceImplementation implements ProjectServices {
 		logger.info("session open successfully");
 		List<User> empResult = null;
 		try {
-			Query query = session
-					.createQuery("select user from ProjectEmployee where project_id = :project_id");
+			Query query = session.createQuery("select user from ProjectEmployee where project_id = :project_id");
 			query.setParameter("project_id", projectId);
 			empResult = query.list();
 			if (empResult.size() == 0) {
 				logger.error("No User assign to this project " + projectId);
-				throw new EntityNotFoundException(
-						"No User assign to this project " + projectId);
+				throw new EntityNotFoundException("No User assign to this project " + projectId);
 			}
 		} catch (HibernateException exception) {
 			logger.error("abnormal ternination, assigned() of project");
@@ -319,28 +285,23 @@ public class ProjectServiceImplementation implements ProjectServices {
 			if (empIds.size() != 0) {
 				ProjectEmployee projectEmployee = new ProjectEmployee();
 				for (Integer empId : empIds) {
-					User user = (User) session.get(User.class,
-							(long) empId);
+					User user = (User) session.get(User.class, (long) empId);
 					if (user != null) {
 						String empType = user.getType();
 						if (empType.equals("employee")) {
-							org.hibernate.Transaction txEmployee = session
-									.beginTransaction();
+							org.hibernate.Transaction txEmployee = session.beginTransaction();
 							projectEmployee.setUser(user);
 							projectEmployee.setProject(project);
 							session.save(projectEmployee);
 							txEmployee.commit();
 						} else {
-							logger.error("empId must be of User Type but it is :-"
-									+ user.getType());
-							throw new MediaTypeException(
-									"User must be of employee Type");
+							logger.error("empId must be of User Type but it is :-" + user.getType());
+							throw new MediaTypeException("User must be of employee Type");
 						}
 
 					} else {
 						logger.error("User not exist with empId :-" + empId);
-						throw new EntityNotFoundException(
-								"can't assign, emp not exist");
+						throw new EntityNotFoundException("can't assign, emp not exist");
 					}
 				}
 				return projectEmployee;
@@ -351,8 +312,7 @@ public class ProjectServiceImplementation implements ProjectServices {
 		} catch (HibernateException exception) {
 			logger.error("trying to insert duplicate value");
 			throw new ConstraintViolationException(
-					"unable to assign, project already present with title :-"
-							+ project.getProjectTitle(), null, null);
+					"unable to assign, project already present with title :-" + project.getProjectTitle(), null, null);
 		} finally {
 			session.close();
 			logger.info("session closed successfully");
@@ -360,44 +320,39 @@ public class ProjectServiceImplementation implements ProjectServices {
 	}
 
 	public List<Project> getProjects(int start, int size, String content) {
-		if(org.apache.commons.lang.StringUtils.isEmpty(content)){
+		if (org.apache.commons.lang.StringUtils.isEmpty(content)) {
 			Session session = HibernateUtils.getSession();
 			try {
-				Query getProject=session.createQuery("select new Project(p.projectId, p.projectTitle) from Project p");
-				List<Project>  projects=(List<Project>)getProject.list();
-				if(projects.isEmpty()){
+				Query getProject = session
+						.createQuery("select new Project(p.projectId, p.projectTitle) from Project p");
+				List<Project> projects = (List<Project>) getProject.list();
+				if (projects.isEmpty()) {
 					throw new EntityNotFoundException("unable to process your request");
 				}
 				return projects;
 			} catch (HibernateException exception) {
 				throw new EntityNotFoundException("unable to process your request");
-			}finally {
+			} finally {
 				session.close();
 			}
-		}else{
-			EntityManager entityManager = Persistence.createEntityManagerFactory(
-					"HibernatePersistence").createEntityManager();
+		} else {
+			EntityManager entityManager = Persistence.createEntityManagerFactory("HibernatePersistence")
+					.createEntityManager();
 			logger.info("session open successfully");
 			entityManager.getTransaction().begin();
-			FullTextEntityManager fullTextEntityManager = Search
-					.getFullTextEntityManager(entityManager);
+			FullTextEntityManager fullTextEntityManager = Search.getFullTextEntityManager(entityManager);
 			try {
-				try {
-					fullTextEntityManager.createIndexer().startAndWait();
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
+				/*
+				 * try { fullTextEntityManager.createIndexer().startAndWait(); }
+				 * catch (InterruptedException e) { e.printStackTrace(); }
+				 */
 
-				QueryBuilder queryBuilder = fullTextEntityManager
-						.getSearchFactory().buildQueryBuilder()
+				QueryBuilder queryBuilder = fullTextEntityManager.getSearchFactory().buildQueryBuilder()
 						.forEntity(Project.class).get();
-				org.apache.lucene.search.Query query = queryBuilder
-						.keyword()
-						.onFields("projectId", "technologyUsed", "projectFeature",
-								"projectDescription", "projectTitle").matching(content)
-						.createQuery();
-				javax.persistence.Query fullTextQuery = fullTextEntityManager
-						.createFullTextQuery(query, Project.class);
+				org.apache.lucene.search.Query query = queryBuilder.keyword()
+						.onFields("projectId", "technologyUsed", "projectFeature", "projectDescription", "projectTitle")
+						.matching(content).createQuery();
+				javax.persistence.Query fullTextQuery = fullTextEntityManager.createFullTextQuery(query, Project.class);
 				int count = fullTextQuery.getResultList().size();
 				fullTextQuery.setFirstResult(start);
 				fullTextQuery.setMaxResults(size);

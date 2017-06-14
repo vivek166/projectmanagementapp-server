@@ -56,14 +56,12 @@ public class Project {
 	public Project() {
 
 	}
-	
+
 	public Project(long projectId, String projectTitle) {
 		super();
 		this.projectId = projectId;
 		this.projectTitle = projectTitle;
 	}
-
-
 
 	public long getProjectId() {
 		return projectId;

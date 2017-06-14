@@ -7,7 +7,7 @@ public interface CompanyServices {
 
 	Company get(long companyId);
 
-	PageResult gets(int start, int size, String content);
+	PageResult gets(int start, int size, int companyId, String content);
 
 	Company add(Company company);
 

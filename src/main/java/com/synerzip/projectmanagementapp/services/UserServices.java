@@ -3,6 +3,8 @@ package com.synerzip.projectmanagementapp.services;
 import java.util.List;
 
 import javax.ws.rs.core.SecurityContext;
+
+import com.google.gson.JsonObject;
 import com.synerzip.projectmanagementapp.model.PageResult;
 import com.synerzip.projectmanagementapp.model.Project;
 import com.synerzip.projectmanagementapp.model.ProjectEmployee;
@@ -12,9 +14,9 @@ import com.synerzip.projectmanagementapp.model.UserCredentials;
 
 public interface UserServices {
 
-	User get(long id/*, SecurityContext securityContext*/);
+	User get(long id/* , SecurityContext securityContext */);
 
-	PageResult gets(int start, int size, String content);
+	PageResult gets(int start, int size, int companyId, String content);
 
 	User add(User user);
 
@@ -29,14 +31,14 @@ public interface UserServices {
 	PageResult search(int start, int size, String content);
 
 	User patch(User user, long id);
-	
-    Token userAuthentication(UserCredentials userCredentials);
-    
-    String token(long id);
-    
-    List<User> getEmployees(int start, int size, String content);
-    
-    String assignProject(long userId, long projectId);
-    
-    User profile(long userId);
+
+	Token userAuthentication(UserCredentials userCredentials);
+
+	String token(long id);
+
+	List<User> getEmployees(int start, int size, String content);
+
+	String assignProject(long userId, long projectId);
+
+	User profile(long userId);
 }

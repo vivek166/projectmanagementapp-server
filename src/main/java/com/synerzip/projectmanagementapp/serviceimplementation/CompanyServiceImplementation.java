@@ -18,8 +18,9 @@ import com.synerzip.projectmanagementapp.dbconnection.HibernateUtils;
 import com.synerzip.projectmanagementapp.exception.FieldCanNotEmpty;
 import com.synerzip.projectmanagementapp.model.Company;
 import com.synerzip.projectmanagementapp.model.PageResult;
+import com.synerzip.projectmanagementapp.services.CompanyServices;
 
-public class CompanyServiceImplementation {
+public class CompanyServiceImplementation implements CompanyServices {
 
 	static final Logger logger = Logger
 			.getLogger(CompanyServiceImplementation.class);
@@ -46,18 +47,18 @@ public class CompanyServiceImplementation {
 		return company;
 	}
 
-	public PageResult gets(int start, int size, String content) {
+	public PageResult gets(int start, int size, int companyId, String content) {
 		Session session = HibernateUtils.getSession();
 		logger.info("session open successfully");
 		if (org.apache.commons.lang.StringUtils.isEmpty(content)) {
 			try {
 				int count = ((Long) session
 						.createQuery(
-								"select count(*) from com.synerzip.projectmanagementapp.model.Company")
+								"select count(*) from Company where company_id="+companyId)
 						.uniqueResult()).intValue();
 				if (count > 0) {
 					Query query = session
-							.createQuery("from com.synerzip.projectmanagementapp.model.Company");
+							.createQuery("select new Company(c.companyId, c.companyName, c.companyAddress, c.companyContactNumber) from Company c where company_id="+companyId);
 					query.setFirstResult(start);
 					query.setMaxResults(size);
 					List<Company> companees = query.list();

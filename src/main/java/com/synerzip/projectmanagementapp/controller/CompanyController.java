@@ -41,12 +41,11 @@ public class CompanyController {
 	@Secure
 	@Produces(MediaType.APPLICATION_JSON)
 	public String gets(@DefaultValue("0") @QueryParam("start") int start,
-			@DefaultValue("5") @QueryParam("size") int size,
+			@DefaultValue("5") @QueryParam("size") int size, @QueryParam("companyid") int companyId, 
 			@DefaultValue("") @QueryParam("query") String query)
 			throws JsonGenerationException, JsonMappingException, IOException,
 			EntityNotFoundException {
-		return new ObjectMapper().writeValueAsString(service.gets(start, size,
-				query));
+		return new ObjectMapper().writeValueAsString(service.gets(start, size, companyId, query));
 	}
 
 	@GET

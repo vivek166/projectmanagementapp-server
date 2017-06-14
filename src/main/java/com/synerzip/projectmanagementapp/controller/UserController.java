@@ -35,20 +35,21 @@ public class UserController {
 	@Secure
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/{id}")
-	public String get(@PathParam("id") long id/*, @Context SecurityContext securityContext*/)
-			throws JsonGenerationException, JsonMappingException, IOException {
-		return new ObjectMapper().writeValueAsString(service.get(id/*, securityContext*/));
+	public String get(@PathParam("id") long id/*
+												 * , @Context SecurityContext
+												 * securityContext
+												 */) throws JsonGenerationException, JsonMappingException, IOException {
+		return new ObjectMapper().writeValueAsString(service.get(id/* ,securityContext */));
 	}
-	
+
 	@GET
 	@Secure
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/{id}/assignedproject")
-	public String assigned(@PathParam("id") long id)
-			throws JsonGenerationException, JsonMappingException, IOException {
+	public String assigned(@PathParam("id") long id) throws JsonGenerationException, JsonMappingException, IOException {
 		return new ObjectMapper().writeValueAsString(service.assigned(id));
 	}
-	
+
 	@GET
 	@Secure
 	@Produces(MediaType.APPLICATION_JSON)
@@ -62,9 +63,10 @@ public class UserController {
 	@Secure
 	@Produces(MediaType.APPLICATION_JSON)
 	public String gets(@DefaultValue("0") @QueryParam("start") int start,
-			@DefaultValue("5") @QueryParam("size") int size, @DefaultValue("") @QueryParam("query") String query)
+			@DefaultValue("5") @QueryParam("size") int size, @QueryParam("companyid") int companyId,
+			@DefaultValue("") @QueryParam("query") String query)
 			throws JsonGenerationException, JsonMappingException, IOException {
-		return new ObjectMapper().writeValueAsString(service.gets(start, size, query));
+		return new ObjectMapper().writeValueAsString(service.gets(start, size, companyId, query));
 	}
 
 	@GET
@@ -72,11 +74,11 @@ public class UserController {
 	@Path("/search")
 	@Produces(MediaType.APPLICATION_JSON)
 	public String search(@DefaultValue("0") @QueryParam("start") int start,
-			@DefaultValue("5") @QueryParam("size") int size,  @DefaultValue("") @QueryParam("query") String query)
+			@DefaultValue("5") @QueryParam("size") int size, @DefaultValue("") @QueryParam("query") String query)
 			throws JsonGenerationException, JsonMappingException, IOException {
 		return new ObjectMapper().writeValueAsString(service.search(start, size, query));
 	}
-	
+
 	@GET
 	@Secure
 	@Path("/filter")
@@ -86,14 +88,14 @@ public class UserController {
 			throws JsonGenerationException, JsonMappingException, IOException {
 		return new ObjectMapper().writeValueAsString(service.getEmployees(start, size, query));
 	}
-	
+
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response add(User user) {
 		return Response.ok().entity(service.add(user)).build();
 	}
-	
+
 	@POST
 	@Secure
 	@Path("/assignproject")
@@ -109,7 +111,7 @@ public class UserController {
 	public Response delete(@PathParam("id") long id) {
 		return Response.ok().entity(service.delete(id)).build();
 	}
-	
+
 	@DELETE
 	@Secure
 	@Produces(MediaType.APPLICATION_JSON)
@@ -117,7 +119,6 @@ public class UserController {
 	public Response token(@PathParam("id") long id) {
 		return Response.ok().entity(service.token(id)).build();
 	}
-	
 
 	@PUT
 	@Secure
@@ -136,13 +137,13 @@ public class UserController {
 	public Response patch(User user, @PathParam("id") long id) {
 		return Response.ok().entity(service.patch(user, id)).build();
 	}
-	
+
 	@POST
 	@Path("/authentication")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response userAuthentication(UserCredentials userCredentials){
+	public Response userAuthentication(UserCredentials userCredentials) {
 		return Response.ok().entity(service.userAuthentication(userCredentials)).build();
 	}
-	
+
 }

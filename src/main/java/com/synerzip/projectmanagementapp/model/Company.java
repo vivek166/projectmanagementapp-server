@@ -38,6 +38,16 @@ public class Company {
 	public Company() {
 	}
 
+	
+	public Company(long companyId, String companyName, String companyAddress, String companyContactNumber) {
+		super();
+		this.companyId = companyId;
+		this.companyName = companyName;
+		this.companyAddress = companyAddress;
+		this.companyContactNumber = companyContactNumber;
+	}
+
+
 	public long getCompanyId() {
 		return companyId;
 	}

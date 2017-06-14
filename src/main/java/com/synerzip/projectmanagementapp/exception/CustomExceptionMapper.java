@@ -40,6 +40,12 @@ public class CustomExceptionMapper implements ExceptionMapper<Exception> {
 		} else if (exception instanceof MediaTypeException) {
 			ErrorMessage errorMessage = new ErrorMessage(exception.getMessage(), 415, "https:github.com/vivek166");
 			return Response.status(Status.UNSUPPORTED_MEDIA_TYPE).entity(errorMessage).type("text/json").build();
+		} else if (exception instanceof CompanyAlreadyPresent) {
+			ErrorMessage errorMessage = new ErrorMessage(exception.getMessage(), 409, "https:github.com/vivek166");
+			return Response.status(Status.NOT_MODIFIED).entity(errorMessage).type("text/json").build();
+		} else if (exception instanceof UserAlreadyPresent) {
+			ErrorMessage errorMessage = new ErrorMessage(exception.getMessage(), 409, "https:github.com/vivek166");
+			return Response.status(Status.NOT_MODIFIED).entity(errorMessage).type("text/json").build();
 		} else {
 			ErrorMessage errorMessage = new ErrorMessage("internal server error", 505, "https:github.com/vivek166");
 			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(errorMessage).type("text/json").build();

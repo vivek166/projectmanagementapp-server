@@ -41,12 +41,9 @@ public class ProjectController {
 	@Secure
 	@Produces(MediaType.APPLICATION_JSON)
 	public String gets(@DefaultValue("0") @QueryParam("start") int start,
-			@DefaultValue("5") @QueryParam("size") int size,
-			@DefaultValue("") @QueryParam("query") String query)
-			throws JsonGenerationException, JsonMappingException, IOException,
-			EntityNotFoundException {
-		return new ObjectMapper().writeValueAsString(service.gets(start, size,
-				query));
+			@DefaultValue("5") @QueryParam("size") int size, @DefaultValue("") @QueryParam("query") String query)
+			throws JsonGenerationException, JsonMappingException, IOException, EntityNotFoundException {
+		return new ObjectMapper().writeValueAsString(service.gets(start, size, query));
 	}
 
 	@GET
@@ -54,11 +51,9 @@ public class ProjectController {
 	@Path("/search")
 	@Produces(MediaType.APPLICATION_JSON)
 	public String search(@DefaultValue("0") @QueryParam("start") int start,
-			@DefaultValue("5") @QueryParam("size") int size,
-			@QueryParam("query") String query) throws JsonGenerationException,
-			JsonMappingException, IOException {
-		return new ObjectMapper().writeValueAsString(service.search(start,
-				size, query));
+			@DefaultValue("5") @QueryParam("size") int size, @QueryParam("query") String query)
+			throws JsonGenerationException, JsonMappingException, IOException {
+		return new ObjectMapper().writeValueAsString(service.search(start, size, query));
 	}
 
 	@GET
@@ -66,13 +61,11 @@ public class ProjectController {
 	@Path("/filter")
 	@Produces(MediaType.APPLICATION_JSON)
 	public String getProjects(@DefaultValue("0") @QueryParam("start") int start,
-			@DefaultValue("5") @QueryParam("size") int size,
-			@QueryParam("query") String query)
+			@DefaultValue("5") @QueryParam("size") int size, @QueryParam("query") String query)
 			throws JsonGenerationException, JsonMappingException, IOException {
-		return new ObjectMapper().writeValueAsString(service.getProjects(start,
-				size, query));
+		return new ObjectMapper().writeValueAsString(service.getProjects(start, size, query));
 	}
-	
+
 	@POST
 	@Secure
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -94,8 +87,7 @@ public class ProjectController {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("{projectId}")
-	public Response update(Project project,
-			@PathParam("projectId") long projectId) {
+	public Response update(Project project, @PathParam("projectId") long projectId) {
 		return Response.ok().entity(service.update(project, projectId)).build();
 	}
 
@@ -104,8 +96,7 @@ public class ProjectController {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("{projectId}")
-	public Response patch(Project project,
-			@PathParam("projectId") long projectId) {
+	public Response patch(Project project, @PathParam("projectId") long projectId) {
 		return Response.ok().entity(service.patch(project, projectId)).build();
 	}
 }
