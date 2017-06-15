@@ -18,10 +18,12 @@ import org.hibernate.search.jpa.Search;
 import org.hibernate.search.query.dsl.QueryBuilder;
 import com.mysql.jdbc.StringUtils;
 import com.synerzip.projectmanagementapp.dbconnection.HibernateUtils;
+import com.synerzip.projectmanagementapp.exception.CanNotChangePassword;
 import com.synerzip.projectmanagementapp.exception.CompanyAlreadyPresent;
 import com.synerzip.projectmanagementapp.exception.FieldCanNotEmpty;
 import com.synerzip.projectmanagementapp.exception.MediaTypeException;
 import com.synerzip.projectmanagementapp.exception.UserAlreadyPresent;
+import com.synerzip.projectmanagementapp.model.ChangePassword;
 import com.synerzip.projectmanagementapp.model.Company;
 import com.synerzip.projectmanagementapp.model.PageResult;
 import com.synerzip.projectmanagementapp.model.Project;
@@ -35,8 +37,8 @@ public class UserServicesImplementation implements UserServices {
 
 	static final Logger logger = Logger.getLogger(UserServicesImplementation.class);
 
-	public User get(long id/* , SecurityContext securityContext */) {
-		/* System.out.println(securityContext.getUserPrincipal().getName()); */
+	public User get(long id, SecurityContext securityContext) {
+		System.out.println(securityContext.getUserPrincipal());
 		Session session = HibernateUtils.getSession();
 		logger.info("session open successfully");
 		User user;
@@ -100,9 +102,9 @@ public class UserServicesImplementation implements UserServices {
 		FullTextEntityManager fullTextEntityManager = Search.getFullTextEntityManager(entityManager);
 		try {
 
-			/*
-			 * try { fullTextEntityManager.createIndexer().startAndWait(); }
-			 * catch (InterruptedException e) { e.printStackTrace(); }
+			
+			 /* try { fullTextEntityManager.createIndexer().startAndWait(); }
+			  catch (InterruptedException e) { e.printStackTrace(); }
 			 */
 
 			QueryBuilder qb = fullTextEntityManager.getSearchFactory().buildQueryBuilder().forEntity(User.class).get();
@@ -142,7 +144,8 @@ public class UserServicesImplementation implements UserServices {
 			if(!StringUtils.isEmptyOrWhitespaceOnly(user.getCompany().getCompanyName())){
 				session.save(user);
 				session.beginTransaction().commit();
-				return user;
+				User newUser = new User(user.getId(), user.getFirstName(), user.getLastName(), user.getMobile(), user.getSkills(), user.getType(), user.getEmail(), user.getCompany());
+				return newUser;
 			}
 		}catch(Exception exception){
 			try {
@@ -183,7 +186,8 @@ public class UserServicesImplementation implements UserServices {
 				user.setCompany(newCompany);
 				session.save(user);
 				tx.commit();
-				return user;
+				User newUser = new User(user.getId(), user.getFirstName(), user.getLastName(), user.getMobile(), user.getSkills(), user.getType(), user.getEmail(), user.getCompany());
+				return newUser;
 			} catch (HibernateException hibernateException) {
 				logger.error("abnormal ternination, add() of user");
 				throw new ConstraintViolationException("record already present with email - " + user.getEmail(), null,
@@ -193,7 +197,7 @@ public class UserServicesImplementation implements UserServices {
 				logger.info("session closed successfully");
 			}
 		}
-		return user;
+		return null;
 		
 	}
 
@@ -472,10 +476,10 @@ public class UserServicesImplementation implements UserServices {
 			FullTextEntityManager fullTextEntityManager = Search.getFullTextEntityManager(entityManager);
 			try {
 
-				/*
-				 * try { fullTextEntityManager.createIndexer().startAndWait(); }
-				 * catch (InterruptedException e) { e.printStackTrace(); }
-				 */
+				
+				 /* try { TextEntityManager.createIndexer().startAndWait(); }
+				  catch (InterruptedException e) { e.printStackTrace(); }*/
+				 
 				QueryBuilder qb = fullTextEntityManager.getSearchFactory().buildQueryBuilder().forEntity(User.class)
 						.get();
 				org.apache.lucene.search.Query query = qb.keyword().onFields("firstName", "lastName", "email")
@@ -539,5 +543,38 @@ public class UserServicesImplementation implements UserServices {
 		} finally {
 			session.close();
 		}
+	}
+
+	public ChangePassword changePassword(String username, ChangePassword data) {
+		String userName=data.getUserName();
+		String oldPass=data.getOldPassword();
+		String newPass=data.getNewPassword();
+		Session session = HibernateUtils.getSession();
+		ChangePassword changePass=null;
+		try{
+			Query query = session.createQuery("select password from user where email = :user_name");
+			query.setParameter("user_name", userName);
+			String dbPass = (String) query.uniqueResult();
+			if(dbPass.equals(oldPass)){
+				Query updateQuery = session.createQuery("UPDATE user SET password = :new_pass where email = :user_name");
+				updateQuery.setParameter("new_pass", newPass);
+				updateQuery.setParameter("user_name", username);
+				int affectedRow = updateQuery.executeUpdate();
+				if(affectedRow==0){
+					logger.error("incorrect password");
+					throw new CanNotChangePassword("incorrect password : password can not change");
+				}
+				changePass=new ChangePassword();
+				changePass.setNewPassword(newPass);
+				changePass.setUserName(userName);
+			}
+		}catch(HibernateException exception){
+			logger.error("incorrect password");
+			throw new HibernateException("unable to process your request");
+		}finally {
+			session.close();
+			logger.error("session close");
+		}
+		return changePass;
 	}
 }

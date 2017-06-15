@@ -22,6 +22,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 
 import com.synerzip.projectmanagementapp.authentication.Secure;
 import com.synerzip.projectmanagementapp.httpmethods.Patch.PATCH;
+import com.synerzip.projectmanagementapp.model.ChangePassword;
 import com.synerzip.projectmanagementapp.model.User;
 import com.synerzip.projectmanagementapp.model.UserCredentials;
 import com.synerzip.projectmanagementapp.serviceimplementation.UserServicesImplementation;
@@ -35,11 +36,9 @@ public class UserController {
 	@Secure
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/{id}")
-	public String get(@PathParam("id") long id/*
-												 * , @Context SecurityContext
-												 * securityContext
-												 */) throws JsonGenerationException, JsonMappingException, IOException {
-		return new ObjectMapper().writeValueAsString(service.get(id/* ,securityContext */));
+	public String get(@PathParam("id") long id, @Context SecurityContext securityContext)
+			throws JsonGenerationException, JsonMappingException, IOException {
+		return new ObjectMapper().writeValueAsString(service.get(id, securityContext));
 	}
 
 	@GET
@@ -84,8 +83,8 @@ public class UserController {
 	@Path("/filter")
 	@Produces(MediaType.APPLICATION_JSON)
 	public String getEmployees(@DefaultValue("0") @QueryParam("start") int start,
-			@DefaultValue("5") @QueryParam("size") int size, @QueryParam("companyid") int companyId, @QueryParam("query") String query)
-			throws JsonGenerationException, JsonMappingException, IOException {
+			@DefaultValue("5") @QueryParam("size") int size, @QueryParam("companyid") int companyId,
+			@QueryParam("query") String query) throws JsonGenerationException, JsonMappingException, IOException {
 		return new ObjectMapper().writeValueAsString(service.getEmployees(start, size, companyId, query));
 	}
 
@@ -94,6 +93,15 @@ public class UserController {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response add(User user) {
 		return Response.ok().entity(service.add(user)).build();
+	}
+
+	@POST
+	@Secure
+	@Path("/changepassword/{username}")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response changePassword(@QueryParam("username") String username, ChangePassword data) {
+		return Response.ok().entity(service.changePassword(username, data)).build();
 	}
 
 	@POST

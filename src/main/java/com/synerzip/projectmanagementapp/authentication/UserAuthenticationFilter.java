@@ -15,7 +15,9 @@ import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import com.synerzip.projectmanagementapp.dbconnection.HibernateUtils;
+import com.synerzip.projectmanagementapp.model.Company;
 import com.synerzip.projectmanagementapp.model.Token;
+import com.synerzip.projectmanagementapp.model.User;
 
 @Provider
 @Secure
@@ -45,35 +47,9 @@ public class UserAuthenticationFilter implements ContainerRequestFilter {
 
 			final Token tokenObj = validateToken(token);
 			final SecurityContext currentSecurityContext = requestContext.getSecurityContext();
-			requestContext.setSecurityContext(new SecurityContext() {
-
-				@Override
-				public Principal getUserPrincipal() {
-
-					return new Principal() {
-
-						@Override
-						public String getName() {
-							return tokenObj.getUser().getEmail();
-						}
-					};
-				}
-
-				@Override
-				public boolean isUserInRole(String role) {
-					return true;
-				}
-
-				@Override
-				public boolean isSecure() {
-					return currentSecurityContext.isSecure();
-				}
-
-				@Override
-				public String getAuthenticationScheme() {
-					return "" + tokenObj.getToken();
-				}
-			});
+			User user =tokenObj.getUser();
+			User userObj=new User(user.getId(), user.getFirstName(), user.getLastName(), user.getMobile(), user.getSkills(), user.getType(), user.getEmail(), user.getCompany());
+			requestContext.setSecurityContext(new UserSecurityContext(userObj, "https"));
 
 		} catch (Exception e) {
 			requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());

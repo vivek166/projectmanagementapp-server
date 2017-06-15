@@ -1,5 +1,6 @@
 package com.synerzip.projectmanagementapp.model;
 
+import java.security.Principal;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -24,7 +25,7 @@ import org.hibernate.search.annotations.Store;
 @Table(name = "user")
 @Indexed
 @NamedQueries({ @NamedQuery(name = "getById", query = "from User where id = :id") })
-public class User {
+public class User implements Principal {
 
 	@Id
 	@GeneratedValue
@@ -106,6 +107,20 @@ public class User {
 		this.lastName = lastName;
 		this.email = email;
 	}
+	
+	public User(long id, String firstName, String lastName, String mobile, String skills, String type, String email,
+			Company company) {
+		super();
+		this.id = id;
+		this.firstName = firstName;
+		this.lastName = lastName;
+		this.mobile = mobile;
+		this.skills = skills;
+		this.type = type;
+		this.email = email;
+		this.company = company;
+	}
+	
 	
 	public long getId() {
 		return id;
@@ -200,6 +215,11 @@ public class User {
 		return "User [id=" + id + ", firstName=" + firstName + ", lastName=" + lastName + ", mobile=" + mobile
 				+ ", skills=" + skills + ", type=" + type + ", email=" + email + ", password=" + password
 				+ ", projectIds=" + projectIds + ", companyName=" + companyName + ", company=" + company + "]";
+	}
+
+	@Override
+	public String getName() {
+		return this.firstName + " " + this.lastName;
 	}
 
 }

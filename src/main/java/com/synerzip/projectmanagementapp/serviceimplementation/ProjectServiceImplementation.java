@@ -384,10 +384,10 @@ public class ProjectServiceImplementation implements ProjectServices {
 			FullTextEntityManager fullTextEntityManager = Search
 					.getFullTextEntityManager(entityManager);
 			try {
-				/*
-				 * try { fullTextEntityManager.createIndexer().startAndWait(); }
-				 * catch (InterruptedException e) { e.printStackTrace(); }
-				 */
+				
+				  /*try { fullTextEntityManager.createIndexer().startAndWait(); }
+				 catch (InterruptedException e) { e.printStackTrace(); }*/
+				 
 
 				QueryBuilder queryBuilder = fullTextEntityManager
 						.getSearchFactory().buildQueryBuilder()

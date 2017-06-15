@@ -5,6 +5,7 @@ import java.util.List;
 import javax.ws.rs.core.SecurityContext;
 
 import com.google.gson.JsonObject;
+import com.synerzip.projectmanagementapp.model.ChangePassword;
 import com.synerzip.projectmanagementapp.model.PageResult;
 import com.synerzip.projectmanagementapp.model.Project;
 import com.synerzip.projectmanagementapp.model.ProjectEmployee;
@@ -14,7 +15,7 @@ import com.synerzip.projectmanagementapp.model.UserCredentials;
 
 public interface UserServices {
 
-	User get(long id/* , SecurityContext securityContext */);
+	User get(long id, SecurityContext securityContext);
 
 	PageResult gets(int start, int size, int companyId, String content);
 
@@ -41,4 +42,6 @@ public interface UserServices {
 	String assignProject(long userId, long projectId);
 
 	User profile(long userId);
+	
+	ChangePassword changePassword(String username, ChangePassword data);
 }
