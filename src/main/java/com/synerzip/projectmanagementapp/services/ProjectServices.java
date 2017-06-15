@@ -10,7 +10,7 @@ public interface ProjectServices {
 
 	Project get(long projectId);
 
-	PageResult gets(int start, int size, String content);
+	PageResult gets(int start, int size, int companyId, String content);
 
 	Project add(Project project);
 
@@ -26,6 +26,6 @@ public interface ProjectServices {
 
 	PageResult search(int start, int size, String content);
 
-	List<Project> getProjects(int start, int size, String content);
+	List<Project> getProjects(int start, int size, int companyId, String content);
 
 }

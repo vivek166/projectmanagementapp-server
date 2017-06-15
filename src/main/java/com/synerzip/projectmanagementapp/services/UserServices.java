@@ -36,7 +36,7 @@ public interface UserServices {
 
 	String token(long id);
 
-	List<User> getEmployees(int start, int size, String content);
+	List<User> getEmployees(int start, int size, int companyId, String content);
 
 	String assignProject(long userId, long projectId);
 

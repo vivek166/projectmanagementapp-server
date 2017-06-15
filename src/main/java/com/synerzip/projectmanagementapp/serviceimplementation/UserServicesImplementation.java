@@ -64,8 +64,8 @@ public class UserServicesImplementation implements UserServices {
 		if (org.apache.commons.lang.StringUtils.isEmpty(content)) {
 			try {
 				int count = ((Long) session
-						.createQuery("select count(*) from com.synerzip.projectmanagementapp.model.User where company_id="+companyId)
-						.uniqueResult()).intValue();
+						.createQuery("select count(*) from com.synerzip.projectmanagementapp.model.User where company_id = :company_id")
+						.setParameter("company_id", companyId).uniqueResult()).intValue();
 				if (count > 0) {
 					Query query = session.createQuery(
 							"select new User(u.id, u.firstName, u.lastName, u.type, u.email, u.mobile, u.skills) from User u  where company_id = :company_id");
@@ -138,56 +138,63 @@ public class UserServicesImplementation implements UserServices {
 	public User add(User user) {
 		Session session = HibernateUtils.getSession();
 		logger.info("session open successfully");
-		try {
+		try{
 			if(!StringUtils.isEmptyOrWhitespaceOnly(user.getCompany().getCompanyName())){
-				
+				session.save(user);
+				session.beginTransaction().commit();
+				return user;
 			}
-			String companyName = user.getCompanyName();
-			Query getCompanyQuery = session.createQuery("from Company where company_name = :company_name");
-			getCompanyQuery.setParameter("company_name", companyName);
-			Company company = (Company) getCompanyQuery.uniqueResult();
-			if (company != null) {
-				throw new CompanyAlreadyPresent("company already present with company name - " + user.getCompanyName());
+		}catch(Exception exception){
+			try {
+				String companyName = user.getCompanyName();
+				Query getCompanyQuery = session.createQuery("from Company where company_name = :company_name");
+				getCompanyQuery.setParameter("company_name", companyName);
+				Company company = (Company) getCompanyQuery.uniqueResult();
+				if (company != null) {
+					throw new CompanyAlreadyPresent("company already present with company name - " + user.getCompanyName());
+				}
+				String userName = user.getEmail();
+				Query getUserQuery = session.createQuery("from User where email = :user_name");
+				getUserQuery.setParameter("user_name", userName);
+				User bdUser = (User) getUserQuery.uniqueResult();
+				if (bdUser != null) {
+					throw new UserAlreadyPresent("user already present with user name - " + user.getEmail());
+				}
+				if (StringUtils.isEmptyOrWhitespaceOnly(user.getFirstName())) {
+					logger.error("first name is empty");
+					throw new FieldCanNotEmpty("first name must be filled");
+				} else if (StringUtils.isEmptyOrWhitespaceOnly(user.getLastName())) {
+					logger.error("last name is empty");
+					throw new FieldCanNotEmpty("last name must be filled");
+				} else if (StringUtils.isEmptyOrWhitespaceOnly(user.getMobile())) {
+					logger.error("mobile is empty");
+					throw new FieldCanNotEmpty("mobile must be filled");
+				} else if (StringUtils.isEmptyOrWhitespaceOnly(user.getSkills())) {
+					logger.error("skills is empty");
+					throw new FieldCanNotEmpty("skills must be filled");
+				} else if (StringUtils.isEmptyOrWhitespaceOnly(user.getType())) {
+					logger.error("user type is empty");
+					throw new FieldCanNotEmpty("user type must be filled");
+				}
+				org.hibernate.Transaction tx = session.beginTransaction();
+				Company newCompany = new Company();
+				newCompany.setCompanyName(companyName);
+				session.save(newCompany);
+				user.setCompany(newCompany);
+				session.save(user);
+				tx.commit();
+				return user;
+			} catch (HibernateException hibernateException) {
+				logger.error("abnormal ternination, add() of user");
+				throw new ConstraintViolationException("record already present with email - " + user.getEmail(), null,
+						null);
+			} finally {
+				session.close();
+				logger.info("session closed successfully");
 			}
-			String userName = user.getEmail();
-			Query getUserQuery = session.createQuery("from User where email = :user_name");
-			getUserQuery.setParameter("user_name", userName);
-			User bdUser = (User) getUserQuery.uniqueResult();
-			if (bdUser != null) {
-				throw new UserAlreadyPresent("user already present with user name - " + user.getEmail());
-			}
-			if (StringUtils.isEmptyOrWhitespaceOnly(user.getFirstName())) {
-				logger.error("first name is empty");
-				throw new FieldCanNotEmpty("first name must be filled");
-			} else if (StringUtils.isEmptyOrWhitespaceOnly(user.getLastName())) {
-				logger.error("last name is empty");
-				throw new FieldCanNotEmpty("last name must be filled");
-			} else if (StringUtils.isEmptyOrWhitespaceOnly(user.getMobile())) {
-				logger.error("mobile is empty");
-				throw new FieldCanNotEmpty("mobile must be filled");
-			} else if (StringUtils.isEmptyOrWhitespaceOnly(user.getSkills())) {
-				logger.error("skills is empty");
-				throw new FieldCanNotEmpty("skills must be filled");
-			} else if (StringUtils.isEmptyOrWhitespaceOnly(user.getType())) {
-				logger.error("user type is empty");
-				throw new FieldCanNotEmpty("user type must be filled");
-			}
-			org.hibernate.Transaction tx = session.beginTransaction();
-			Company newCompany = new Company();
-			newCompany.setCompanyName(companyName);
-			session.save(newCompany);
-			user.setCompany(newCompany);
-			session.save(user);
-			tx.commit();
-			return user;
-		} catch (HibernateException exception) {
-			logger.error("abnormal ternination, add() of user");
-			throw new ConstraintViolationException("record already present with email - " + user.getEmail(), null,
-					null);
-		} finally {
-			session.close();
-			logger.info("session closed successfully");
 		}
+		return user;
+		
 	}
 
 	public String delete(long id) {
@@ -439,13 +446,14 @@ public class UserServicesImplementation implements UserServices {
 		}
 	}
 
-	public List<User> getEmployees(int start, int size, String content) {
+	public List<User> getEmployees(int start, int size, int companyId, String content) {
 		Session session = HibernateUtils.getSession();
 		if (org.apache.commons.lang.StringUtils.isEmpty(content)) {
 			try {
 				Query getEmployee = session.createQuery(
-						"select new User(u.id, u.firstName, u.lastName, u.email) from User u  where type = :query");
+						"select new User(u.id, u.firstName, u.lastName, u.email) from User u  where type = :query and company_id = :company_id");
 				getEmployee.setParameter("query", "employee");
+				getEmployee.setParameter("company_id", companyId);
 				getEmployee.setFirstResult(start);
 				getEmployee.setMaxResults(size);
 				List<User> employees = (List<User>) getEmployee.list();

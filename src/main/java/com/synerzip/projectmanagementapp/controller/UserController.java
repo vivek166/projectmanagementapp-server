@@ -84,9 +84,9 @@ public class UserController {
 	@Path("/filter")
 	@Produces(MediaType.APPLICATION_JSON)
 	public String getEmployees(@DefaultValue("0") @QueryParam("start") int start,
-			@DefaultValue("5") @QueryParam("size") int size, @QueryParam("query") String query)
+			@DefaultValue("5") @QueryParam("size") int size, @QueryParam("companyid") int companyId, @QueryParam("query") String query)
 			throws JsonGenerationException, JsonMappingException, IOException {
-		return new ObjectMapper().writeValueAsString(service.getEmployees(start, size, query));
+		return new ObjectMapper().writeValueAsString(service.getEmployees(start, size, companyId, query));
 	}
 
 	@POST

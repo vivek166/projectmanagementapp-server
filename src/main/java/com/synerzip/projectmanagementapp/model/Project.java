@@ -62,6 +62,15 @@ public class Project {
 		this.projectId = projectId;
 		this.projectTitle = projectTitle;
 	}
+	public Project(long projectId, String projectTitle, String technologyUsed,
+			String projectDescription, String projectFeature) {
+		super();
+		this.projectId = projectId;
+		this.projectTitle = projectTitle;
+		this.technologyUsed = technologyUsed;
+		this.projectDescription = projectDescription;
+		this.projectFeature = projectFeature;
+	}
 
 	public long getProjectId() {
 		return projectId;
