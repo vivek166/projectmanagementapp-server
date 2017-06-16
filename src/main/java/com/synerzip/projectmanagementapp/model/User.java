@@ -24,7 +24,7 @@ import org.hibernate.search.annotations.Store;
 @Entity
 @Table(name = "user")
 @Indexed
-@NamedQueries({ @NamedQuery(name = "getById", query = "from User where id = :id") })
+@NamedQueries({ @NamedQuery(name = "getUserById", query = "from User where id = :id and company_id = :companyid") })
 public class User implements Principal {
 
 	@Id
@@ -44,10 +44,6 @@ public class User implements Principal {
 	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
 	@Column(name = "mobile")
 	private String mobile;
-
-	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
-	@Column(name = "skills")
-	private String skills;
 
 	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
 	@Column(name = "type")
@@ -77,25 +73,23 @@ public class User implements Principal {
 	}
 
 	public User(String firstName, String lastName, String type, String email, String mobile,
-			String skills, Company company) {
+			Company company) {
 		super();
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.mobile = mobile;
-		this.skills = skills;
 		this.type = type;
 		this.email = email;
 		this.company = company;
 	}
 
 	
-	public User(long id, String firstName, String lastName, String mobile, String skills, String type, String email) {
+	public User(long id, String firstName, String lastName, String mobile, String type, String email) {
 		super();
 		this.id = id;
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.mobile = mobile;
-		this.skills = skills;
 		this.type = type;
 		this.email = email;
 	}
@@ -108,14 +102,13 @@ public class User implements Principal {
 		this.email = email;
 	}
 	
-	public User(long id, String firstName, String lastName, String mobile, String skills, String type, String email,
+	public User(long id, String firstName, String lastName, String mobile, String type, String email,
 			Company company) {
 		super();
 		this.id = id;
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.mobile = mobile;
-		this.skills = skills;
 		this.type = type;
 		this.email = email;
 		this.company = company;
@@ -152,14 +145,6 @@ public class User implements Principal {
 
 	public void setMobile(String mobile) {
 		this.mobile = mobile;
-	}
-
-	public String getSkills() {
-		return skills;
-	}
-
-	public void setSkills(String skills) {
-		this.skills = skills;
 	}
 
 	public String getType() {
@@ -213,7 +198,7 @@ public class User implements Principal {
 	@Override
 	public String toString() {
 		return "User [id=" + id + ", firstName=" + firstName + ", lastName=" + lastName + ", mobile=" + mobile
-				+ ", skills=" + skills + ", type=" + type + ", email=" + email + ", password=" + password
+				+ ", type=" + type + ", email=" + email + ", password=" + password
 				+ ", projectIds=" + projectIds + ", companyName=" + companyName + ", company=" + company + "]";
 	}
 

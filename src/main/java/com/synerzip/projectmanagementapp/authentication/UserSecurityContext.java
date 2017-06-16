@@ -9,13 +9,14 @@ public class UserSecurityContext implements SecurityContext {
 	private String scheme;
 
 	public UserSecurityContext(User user, String scheme) {
-        this.user = user;
-        this.scheme = scheme;
-    }
+		this.user = user;
+		this.scheme = scheme;
+	}
 
 	@Override
 	public Principal getUserPrincipal() {
-		return this.user;
+		User newUser = new User(user.getId(), user.getFirstName(), user.getLastName(), user.getMobile(), user.getType(), user.getEmail(), user.getCompany());
+		return newUser;
 	}
 
 	@Override

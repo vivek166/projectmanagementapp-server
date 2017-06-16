@@ -22,7 +22,7 @@ import com.synerzip.projectmanagementapp.services.CompanyServices;
 
 public class CompanyServiceImplementation implements CompanyServices {
 
-	static final Logger logger = Logger
+	private static final Logger logger = Logger
 			.getLogger(CompanyServiceImplementation.class);
 
 	public Company get(long companyId) {

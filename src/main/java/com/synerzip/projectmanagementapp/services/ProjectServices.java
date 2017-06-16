@@ -8,9 +8,9 @@ import com.synerzip.projectmanagementapp.model.User;
 
 public interface ProjectServices {
 
-	Project get(long projectId);
+	Project get(long projectId, long companyId);
 
-	PageResult gets(int start, int size, int companyId, String content);
+	PageResult gets(int start, int size, String content, long companyId);
 
 	Project add(Project project);
 
@@ -24,8 +24,8 @@ public interface ProjectServices {
 
 	Project patch(Project project, long projectId);
 
-	PageResult search(int start, int size, String content);
+	PageResult search(int start, int size, String content, long companyId);
 
-	List<Project> getProjects(int start, int size, int companyId, String content);
+	List<Project> getProjects(int start, int size, String content, long companyId);
 
 }

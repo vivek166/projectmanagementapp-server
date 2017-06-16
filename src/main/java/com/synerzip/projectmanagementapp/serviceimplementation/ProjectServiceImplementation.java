@@ -26,15 +26,18 @@ import com.synerzip.projectmanagementapp.services.ProjectServices;
 
 public class ProjectServiceImplementation implements ProjectServices {
 
-	static final Logger logger = Logger
+	private static final Logger logger = Logger
 			.getLogger(ProjectServiceImplementation.class);
 
-	public Project get(long projectId) {
+	public Project get(long projectId, long companyId) {
 		Session session = HibernateUtils.getSession();
 		logger.info("session open successfully");
 		Project project;
 		try {
-			project = (Project) session.get(Project.class, projectId);
+			Query query = session.getNamedQuery("getProjectById");
+			query.setLong("projectid", projectId);
+			query.setLong("companyid", companyId);
+			project = (Project) query.uniqueResult();
 			if (project == null) {
 				logger.error("project not found  with projectId :-" + projectId);
 				throw new EntityNotFoundException("record not found with id "
@@ -51,7 +54,7 @@ public class ProjectServiceImplementation implements ProjectServices {
 		return project;
 	}
 
-	public PageResult gets(int start, int size, int companyId, String content) {
+	public PageResult gets(int start, int size, String content, long companyId) {
 		Session session = HibernateUtils.getSession();
 		logger.info("session open successfully");
 		if (org.apache.commons.lang.StringUtils.isEmpty(content)) {
@@ -82,11 +85,11 @@ public class ProjectServiceImplementation implements ProjectServices {
 				logger.info("session closed successfully");
 			}
 		} else {
-			return search(start, size, content);
+			return search(start, size, content, companyId);
 		}
 	}
 
-	public PageResult search(int start, int size, String content) {
+	public PageResult search(int start, int size, String content, long companyId) {
 		EntityManager entityManager = Persistence.createEntityManagerFactory(
 				"HibernatePersistence").createEntityManager();
 		logger.info("session open successfully");
@@ -356,7 +359,7 @@ public class ProjectServiceImplementation implements ProjectServices {
 		}
 	}
 
-	public List<Project> getProjects(int start, int size, int companyId, String content) {
+	public List<Project> getProjects(int start, int size, String content, long companyId) {
 		if (org.apache.commons.lang.StringUtils.isEmpty(content)) {
 			Session session = HibernateUtils.getSession();
 			try {

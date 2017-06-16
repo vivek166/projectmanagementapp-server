@@ -15,9 +15,9 @@ import com.synerzip.projectmanagementapp.model.UserCredentials;
 
 public interface UserServices {
 
-	User get(long id, SecurityContext securityContext);
+	User get(long id, long companyId);
 
-	PageResult gets(int start, int size, int companyId, String content);
+	PageResult gets(int start, int size, String content, long companyId);
 
 	User add(User user);
 
@@ -37,7 +37,7 @@ public interface UserServices {
 
 	String token(long id);
 
-	List<User> getEmployees(int start, int size, int companyId, String content);
+	List<User> getEmployees(int start, int size, String content, long companyId);
 
 	String assignProject(long userId, long projectId);
 

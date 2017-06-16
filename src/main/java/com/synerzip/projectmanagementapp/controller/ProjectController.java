@@ -3,8 +3,11 @@ package com.synerzip.projectmanagementapp.controller;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.SecurityContext;
+
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -21,6 +24,7 @@ import javax.ws.rs.QueryParam;
 import com.synerzip.projectmanagementapp.authentication.Secure;
 import com.synerzip.projectmanagementapp.httpmethods.Patch.PATCH;
 import com.synerzip.projectmanagementapp.model.Project;
+import com.synerzip.projectmanagementapp.model.User;
 import com.synerzip.projectmanagementapp.serviceimplementation.ProjectServiceImplementation;
 
 @Path("/project")
@@ -32,18 +36,22 @@ public class ProjectController {
 	@Secure
 	@Path("/{projectId}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String get(@PathParam("projectId") long projectId)
+	public String get(@PathParam("projectId") long projectId, @Context SecurityContext securityContext)
 			throws JsonGenerationException, JsonMappingException, IOException {
-		return new ObjectMapper().writeValueAsString(service.get(projectId));
+		User user=(User)securityContext.getUserPrincipal();
+		long companyId=user.getCompany().getCompanyId();
+		return new ObjectMapper().writeValueAsString(service.get(projectId, companyId));
 	}
 
 	@GET
 	@Secure
 	@Produces(MediaType.APPLICATION_JSON)
 	public String gets(@DefaultValue("0") @QueryParam("start") int start,
-			@DefaultValue("5") @QueryParam("size") int size, @QueryParam("companyid") int companyId, @DefaultValue("") @QueryParam("query") String query)
+			@DefaultValue("5") @QueryParam("size") int size, @DefaultValue("") @QueryParam("query") String query, @Context SecurityContext securityContext)
 			throws JsonGenerationException, JsonMappingException, IOException, EntityNotFoundException {
-		return new ObjectMapper().writeValueAsString(service.gets(start, size, companyId, query));
+		User user=(User)securityContext.getUserPrincipal();
+		long companyId=user.getCompany().getCompanyId();
+		return new ObjectMapper().writeValueAsString(service.gets(start, size, query, companyId));
 	}
 
 	@GET
@@ -51,9 +59,11 @@ public class ProjectController {
 	@Path("/search")
 	@Produces(MediaType.APPLICATION_JSON)
 	public String search(@DefaultValue("0") @QueryParam("start") int start,
-			@DefaultValue("5") @QueryParam("size") int size, @QueryParam("query") String query)
+			@DefaultValue("5") @QueryParam("size") int size, @QueryParam("query") String query, @Context SecurityContext securityContext)
 			throws JsonGenerationException, JsonMappingException, IOException {
-		return new ObjectMapper().writeValueAsString(service.search(start, size, query));
+		User user=(User)securityContext.getUserPrincipal();
+		long companyId=user.getCompany().getCompanyId();
+		return new ObjectMapper().writeValueAsString(service.search(start, size, query, companyId));
 	}
 
 	@GET
@@ -61,9 +71,11 @@ public class ProjectController {
 	@Path("/filter")
 	@Produces(MediaType.APPLICATION_JSON)
 	public String getProjects(@DefaultValue("0") @QueryParam("start") int start,
-			@DefaultValue("5") @QueryParam("size") int size, @DefaultValue("5") @QueryParam("companyid") int companyId, @QueryParam("query") String query)
+			@DefaultValue("5") @QueryParam("size") int size, @QueryParam("query") String query, @Context SecurityContext securityContext)
 			throws JsonGenerationException, JsonMappingException, IOException {
-		return new ObjectMapper().writeValueAsString(service.getProjects(start, size, companyId, query));
+		User user=(User)securityContext.getUserPrincipal();
+		long companyId=user.getCompany().getCompanyId();
+		return new ObjectMapper().writeValueAsString(service.getProjects(start, size, query, companyId));
 	}
 
 	@POST

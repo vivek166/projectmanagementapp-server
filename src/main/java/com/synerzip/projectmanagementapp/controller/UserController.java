@@ -38,7 +38,9 @@ public class UserController {
 	@Path("/{id}")
 	public String get(@PathParam("id") long id, @Context SecurityContext securityContext)
 			throws JsonGenerationException, JsonMappingException, IOException {
-		return new ObjectMapper().writeValueAsString(service.get(id, securityContext));
+		User user=(User)securityContext.getUserPrincipal();
+		long companyId=user.getCompany().getCompanyId();
+		return new ObjectMapper().writeValueAsString(service.get(id, companyId));
 	}
 
 	@GET
@@ -62,10 +64,12 @@ public class UserController {
 	@Secure
 	@Produces(MediaType.APPLICATION_JSON)
 	public String gets(@DefaultValue("0") @QueryParam("start") int start,
-			@DefaultValue("5") @QueryParam("size") int size, @QueryParam("companyid") int companyId,
-			@DefaultValue("") @QueryParam("query") String query)
+			@DefaultValue("5") @QueryParam("size") int size,
+			@DefaultValue("") @QueryParam("query") String query, @Context SecurityContext securityContext)
 			throws JsonGenerationException, JsonMappingException, IOException {
-		return new ObjectMapper().writeValueAsString(service.gets(start, size, companyId, query));
+		User user=(User)securityContext.getUserPrincipal();
+		long companyId=user.getCompany().getCompanyId();
+		return new ObjectMapper().writeValueAsString(service.gets(start, size, query, companyId));
 	}
 
 	@GET
@@ -83,9 +87,11 @@ public class UserController {
 	@Path("/filter")
 	@Produces(MediaType.APPLICATION_JSON)
 	public String getEmployees(@DefaultValue("0") @QueryParam("start") int start,
-			@DefaultValue("5") @QueryParam("size") int size, @QueryParam("companyid") int companyId,
-			@QueryParam("query") String query) throws JsonGenerationException, JsonMappingException, IOException {
-		return new ObjectMapper().writeValueAsString(service.getEmployees(start, size, companyId, query));
+			@DefaultValue("5") @QueryParam("size") int size,
+			@QueryParam("query") String query, @Context SecurityContext securityContext) throws JsonGenerationException, JsonMappingException, IOException {
+		User user=(User)securityContext.getUserPrincipal();
+		long companyId=user.getCompany().getCompanyId();
+		return new ObjectMapper().writeValueAsString(service.getEmployees(start, size, query, companyId));
 	}
 
 	@POST
@@ -97,7 +103,7 @@ public class UserController {
 
 	@POST
 	@Secure
-	@Path("/changepassword/{username}")
+	@Path("/changepassword")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response changePassword(@QueryParam("username") String username, ChangePassword data) {

@@ -48,8 +48,8 @@ public class UserAuthenticationFilter implements ContainerRequestFilter {
 			final Token tokenObj = validateToken(token);
 			final SecurityContext currentSecurityContext = requestContext.getSecurityContext();
 			User user =tokenObj.getUser();
-			User userObj=new User(user.getId(), user.getFirstName(), user.getLastName(), user.getMobile(), user.getSkills(), user.getType(), user.getEmail(), user.getCompany());
-			requestContext.setSecurityContext(new UserSecurityContext(userObj, "https"));
+			//User userObj=new User(user.getId(), user.getFirstName(), user.getLastName(), user.getMobile(), user.getSkills(), user.getType(), user.getEmail(), user.getCompany());
+			requestContext.setSecurityContext(new UserSecurityContext(user, "https"));
 
 		} catch (Exception e) {
 			requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());

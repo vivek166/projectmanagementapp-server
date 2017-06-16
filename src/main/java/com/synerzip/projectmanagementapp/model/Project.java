@@ -9,6 +9,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
@@ -21,6 +23,7 @@ import org.hibernate.search.annotations.Store;
 @Entity
 @Table(name = "project")
 @Indexed
+@NamedQueries({ @NamedQuery(name = "getProjectById", query = "from Project where project_id = :projectid and company_id = :companyid") })
 public class Project {
 
 	@Id
