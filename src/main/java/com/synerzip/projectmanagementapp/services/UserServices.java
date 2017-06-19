@@ -21,7 +21,7 @@ public interface UserServices {
 
 	User add(User user);
 
-	String delete(long id);
+	String delete(long id, long companyId);
 
 	User update(User user, long id);
 

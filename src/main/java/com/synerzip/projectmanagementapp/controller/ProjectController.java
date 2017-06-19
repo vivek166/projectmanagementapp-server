@@ -88,10 +88,12 @@ public class ProjectController {
 
 	@DELETE
 	@Secure
-	@Produces(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.TEXT_PLAIN)
 	@Path("{projectId}")
-	public Response delete(@PathParam("projectId") long projectId) {
-		return Response.ok().entity(service.delete(projectId)).build();
+	public Response delete(@PathParam("projectId") long projectId, @Context SecurityContext securityContext) {
+		User user=(User)securityContext.getUserPrincipal();
+		long companyId=user.getCompany().getCompanyId();
+		return Response.ok().entity(service.delete(projectId, companyId)).build();
 	}
 
 	@PUT

@@ -50,7 +50,7 @@ public class Project {
 
 	@Transient
 	@Column(name = "emp_ids")
-	private List<Integer> empIds;
+	private List<Long> empIds;
 
 	@ManyToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "company_id")
@@ -115,11 +115,11 @@ public class Project {
 		this.projectFeature = projectFeature;
 	}
 
-	public List<Integer> getEmpIds() {
+	public List<Long> getEmpIds() {
 		return empIds;
 	}
 
-	public void setEmpIds(List<Integer> empIds) {
+	public void setEmpIds(List<Long> empIds) {
 		this.empIds = empIds;
 	}
 

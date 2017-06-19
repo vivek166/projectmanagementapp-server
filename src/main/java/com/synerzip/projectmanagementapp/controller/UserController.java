@@ -106,24 +106,28 @@ public class UserController {
 	@Path("/changepassword")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response changePassword(@QueryParam("username") String username, ChangePassword data) {
-		return Response.ok().entity(service.changePassword(username, data)).build();
+	public Response changePassword(ChangePassword data, @Context SecurityContext securityContext) {
+		User user=(User)securityContext.getUserPrincipal();
+		String userName= user.getEmail();
+		return Response.ok().entity(service.changePassword(userName, data)).build();
 	}
 
 	@POST
 	@Secure
 	@Path("/assignproject")
-	@Produces(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.TEXT_PLAIN)
 	public Response assignProject(@QueryParam("userId") long userId, @QueryParam("projectId") long projectId) {
 		return Response.ok().entity(service.assignProject(userId, projectId)).build();
 	}
 
 	@DELETE
 	@Secure
-	@Produces(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.TEXT_PLAIN)
 	@Path("{id}")
-	public Response delete(@PathParam("id") long id) {
-		return Response.ok().entity(service.delete(id)).build();
+	public Response delete(@PathParam("id") long id, @Context SecurityContext securityContext) {
+		User user=(User)securityContext.getUserPrincipal();
+		long companyId=user.getCompany().getCompanyId();
+		return Response.ok().entity(service.delete(id, companyId)).build();
 	}
 
 	@DELETE

@@ -98,10 +98,10 @@ public class ProjectServiceImplementation implements ProjectServices {
 				.getFullTextEntityManager(entityManager);
 		try {
 
-			/*
-			 * try { fullTextEntityManager.createIndexer().startAndWait(); }
-			 * catch (InterruptedException e) { e.printStackTrace(); }
-			 */
+			
+			 /* try { fullTextEntityManager.createIndexer().startAndWait(); }
+			  catch (InterruptedException e) { e.printStackTrace(); }*/
+			 
 
 			QueryBuilder queryBuilder = fullTextEntityManager
 					.getSearchFactory().buildQueryBuilder()
@@ -177,14 +177,15 @@ public class ProjectServiceImplementation implements ProjectServices {
 		}
 	}
 
-	public String delete(long projectId) {
+	public String delete(long projectId, long companyId) {
 		Session session = HibernateUtils.getSession();
 		logger.info("session open successfully");
 		org.hibernate.Transaction tx = session.beginTransaction();
 		try {
-			String deleteQuery = "DELETE FROM Project WHERE project_id = :project_id";
+			String deleteQuery = "DELETE FROM Project WHERE project_id = :project_id and company_id = :company_id";
 			Query query = session.createQuery(deleteQuery);
 			query.setParameter("project_id", projectId);
+			query.setParameter("company_id", companyId);
 			int affectedRow = query.executeUpdate();
 			if (affectedRow == 0) {
 				logger.error("record already deleted or not exist");
@@ -316,10 +317,10 @@ public class ProjectServiceImplementation implements ProjectServices {
 		try {
 			session.save(project);
 			txProject.commit();
-			List<Integer> empIds = project.getEmpIds();
+			List<Long> empIds = project.getEmpIds();
 			if (empIds.size() != 0) {
 				ProjectEmployee projectEmployee = new ProjectEmployee();
-				for (Integer empId : empIds) {
+				for (Long empId : empIds) {
 					User user = (User) session.get(User.class, (long) empId);
 					if (user != null) {
 						String empType = user.getType();
@@ -388,7 +389,7 @@ public class ProjectServiceImplementation implements ProjectServices {
 					.getFullTextEntityManager(entityManager);
 			try {
 				
-				  /*try { fullTextEntityManager.createIndexer().startAndWait(); }
+				 /* try { fullTextEntityManager.createIndexer().startAndWait(); }
 				 catch (InterruptedException e) { e.printStackTrace(); }*/
 				 
 

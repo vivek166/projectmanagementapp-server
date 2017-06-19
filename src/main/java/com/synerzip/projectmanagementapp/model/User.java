@@ -58,7 +58,7 @@ public class User implements Principal {
 
 	@Transient
 	@Column(name = "project_ids")
-	private List<Integer> projectIds;
+	private List<Long> projectIds;
 
 	@Transient
 	@Column(name = "company_name")
@@ -171,11 +171,11 @@ public class User implements Principal {
 		this.password = password;
 	}
 
-	public List<Integer> getProjectIds() {
+	public List<Long> getProjectIds() {
 		return projectIds;
 	}
 
-	public void setProjectIds(List<Integer> projectIds) {
+	public void setProjectIds(List<Long> projectIds) {
 		this.projectIds = projectIds;
 	}
 

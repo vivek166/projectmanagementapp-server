@@ -14,7 +14,7 @@ public interface ProjectServices {
 
 	Project add(Project project);
 
-	String delete(long projectId);
+	String delete(long projectId, long companyId);
 
 	Project update(Project project, long projectId);
 

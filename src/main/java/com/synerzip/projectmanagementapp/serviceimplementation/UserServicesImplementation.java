@@ -20,6 +20,7 @@ import com.synerzip.projectmanagementapp.exception.CanNotChangePassword;
 import com.synerzip.projectmanagementapp.exception.CompanyAlreadyPresent;
 import com.synerzip.projectmanagementapp.exception.FieldCanNotEmpty;
 import com.synerzip.projectmanagementapp.exception.MediaTypeException;
+import com.synerzip.projectmanagementapp.exception.ProjectAlreadyAssigned;
 import com.synerzip.projectmanagementapp.exception.UserAlreadyPresent;
 import com.synerzip.projectmanagementapp.model.ChangePassword;
 import com.synerzip.projectmanagementapp.model.Company;
@@ -103,10 +104,10 @@ public class UserServicesImplementation implements UserServices {
 		FullTextEntityManager fullTextEntityManager = Search.getFullTextEntityManager(entityManager);
 		try {
 
-			/*
-			 * try { fullTextEntityManager.createIndexer().startAndWait(); }
-			 * catch (InterruptedException e) { e.printStackTrace(); }
-			 */
+			
+			 /* try { fullTextEntityManager.createIndexer().startAndWait(); }
+			  catch (InterruptedException e) { e.printStackTrace(); }*/
+			 
 
 			QueryBuilder qb = fullTextEntityManager.getSearchFactory().buildQueryBuilder().forEntity(User.class).get();
 			org.apache.lucene.search.Query query = qb.keyword().onFields("firstName", "lastName", "department", "email")
@@ -199,14 +200,15 @@ public class UserServicesImplementation implements UserServices {
 
 	}
 
-	public String delete(long id) {
+	public String delete(long id, long companyId) {
 		Session session = HibernateUtils.getSession();
 		logger.info("session open successfully");
 		org.hibernate.Transaction tx = session.beginTransaction();
 		try {
-			String deleteQuery = "DELETE FROM User WHERE id = :id";
+			String deleteQuery = "DELETE FROM User WHERE id = :id and company_id = :company_id";
 			Query query = session.createQuery(deleteQuery);
 			query.setParameter("id", id);
+			query.setParameter("company_id", companyId);
 			int affectedRow = query.executeUpdate();
 			if (affectedRow == 0) {
 				logger.error("record already deleted or not exist");
@@ -237,7 +239,7 @@ public class UserServicesImplementation implements UserServices {
 			 * "department must be filled"); } else {
 			 * session.saveOrUpdate(user); tx.commit(); }
 			 */
-			if (!StringUtils.isEmptyOrWhitespaceOnly(user.getCompanyName())) {
+			/*if (!StringUtils.isEmptyOrWhitespaceOnly(user.getCompanyName())) {
 				Company company = isRegisteredComapany(user.getCompanyName());
 				if (company != null) {
 					user.setCompany(company);
@@ -251,7 +253,7 @@ public class UserServicesImplementation implements UserServices {
 			} else {
 				logger.error("company name is empty");
 				throw new FieldCanNotEmpty("company  name must be filled");
-			}
+			}*/
 			session.saveOrUpdate(user);
 			tx.commit();
 			return user;
@@ -351,9 +353,9 @@ public class UserServicesImplementation implements UserServices {
 			session.save(user);
 			txUser.commit();
 			if (user.getType().equals("employee")) {
-				List<Integer> projectIds = user.getProjectIds();
+				List<Long> projectIds = user.getProjectIds();
 				ProjectEmployee projectEmployee = new ProjectEmployee();
-				for (Integer projectId : projectIds) {
+				for (Long projectId : projectIds) {
 					Project project = (Project) session.get(Project.class, (long) projectId);
 					if (project != null) {
 						org.hibernate.Transaction txProject = session.beginTransaction();
@@ -469,8 +471,8 @@ public class UserServicesImplementation implements UserServices {
 			try {
 
 				/*
-				 * try { TextEntityManager.createIndexer().startAndWait(); }
-				 * catch (InterruptedException e) { e.printStackTrace(); }
+				  try { fullTextEntityManager.createIndexer().startAndWait(); }
+				  catch (InterruptedException e) { e.printStackTrace(); }
 				 */
 
 				QueryBuilder qb = fullTextEntityManager.getSearchFactory().buildQueryBuilder().forEntity(User.class)
@@ -503,11 +505,36 @@ public class UserServicesImplementation implements UserServices {
 		try {
 			Project project = (Project) session.get(Project.class, projectId);
 			User user = (User) session.get(User.class, userId);
-			/*
-			 * List<Integer> ids=new ArrayList<Integer>(); ids.add((int)
-			 * project.getProjectId()); user.setProjectIds(ids);
-			 * session.update(user);
-			 */
+			
+			/*List<Long> projectIds=user.getProjectIds();
+			List<Long> userIds=project.getEmpIds();
+			if(projectIds==null){
+				ProjectEmployee assign = new ProjectEmployee();
+				userIds.add(userId);
+				project.setEmpIds(userIds);
+				assign.setProject(project);
+				projectIds.add(projectId);
+				user.setProjectIds(projectIds);
+				assign.setUser(user);
+				session.save(assign);
+				tx.commit();
+			}else{
+				for(Long pId : projectIds){
+					if(pId==projectId){
+						throw new ProjectAlreadyAssigned("project already assigned to this employee");
+					}
+				}
+				ProjectEmployee assign = new ProjectEmployee();
+				userIds.add(userId);
+				project.setEmpIds(userIds);
+				assign.setProject(project);
+				projectIds.add(projectId);
+				user.setProjectIds(projectIds);
+				assign.setUser(user);
+				session.save(assign);
+				tx.commit();
+			}*/
+			
 			ProjectEmployee assign = new ProjectEmployee();
 			assign.setProject(project);
 			assign.setUser(user);

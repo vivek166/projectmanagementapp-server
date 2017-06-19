@@ -92,11 +92,11 @@ public class CompanyServiceImplementation implements CompanyServices {
 				.getFullTextEntityManager(entityManager);
 		try {
 
-			/*try {
+			try {
 				fullTextEntityManager.createIndexer().startAndWait();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
-			}*/
+			}
 
 			QueryBuilder queryBuilder = fullTextEntityManager
 					.getSearchFactory().buildQueryBuilder()
