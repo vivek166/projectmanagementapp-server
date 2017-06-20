@@ -1,7 +1,6 @@
 package com.synerzip.projectmanagementapp.authentication;
 
 import java.io.IOException;
-import java.security.Principal;
 import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
@@ -15,7 +14,6 @@ import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import com.synerzip.projectmanagementapp.dbconnection.HibernateUtils;
-import com.synerzip.projectmanagementapp.model.Company;
 import com.synerzip.projectmanagementapp.model.Token;
 import com.synerzip.projectmanagementapp.model.User;
 
@@ -48,7 +46,6 @@ public class UserAuthenticationFilter implements ContainerRequestFilter {
 			final Token tokenObj = validateToken(token);
 			final SecurityContext currentSecurityContext = requestContext.getSecurityContext();
 			User user =tokenObj.getUser();
-			//User userObj=new User(user.getId(), user.getFirstName(), user.getLastName(), user.getMobile(), user.getSkills(), user.getType(), user.getEmail(), user.getCompany());
 			requestContext.setSecurityContext(new UserSecurityContext(user, "https"));
 
 		} catch (Exception e) {

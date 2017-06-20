@@ -38,7 +38,6 @@ public class Company {
 	public Company() {
 	}
 
-	
 	public Company(long companyId, String companyName, String companyAddress, String companyContactNumber) {
 		super();
 		this.companyId = companyId;
@@ -46,7 +45,6 @@ public class Company {
 		this.companyAddress = companyAddress;
 		this.companyContactNumber = companyContactNumber;
 	}
-
 
 	public long getCompanyId() {
 		return companyId;
@@ -82,8 +80,7 @@ public class Company {
 
 	@Override
 	public String toString() {
-		return "Company [companyId=" + companyId + ", companyName="
-				+ companyName + ", companyAddress=" + companyAddress
+		return "Company [companyId=" + companyId + ", companyName=" + companyName + ", companyAddress=" + companyAddress
 				+ ", companyContactNumber=" + companyContactNumber + "]";
 	}
 

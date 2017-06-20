@@ -34,8 +34,8 @@ public class ChangePassword {
 
 	@Override
 	public String toString() {
-		return "ChangePassword [userName=" + userName + ", oldPassword=" + oldPassword
-				+ ", newPassword=" + newPassword + "]";
+		return "ChangePassword [userName=" + userName + ", oldPassword=" + oldPassword + ", newPassword=" + newPassword
+				+ "]";
 	}
 
 }

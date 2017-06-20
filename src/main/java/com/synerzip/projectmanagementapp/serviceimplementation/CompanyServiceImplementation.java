@@ -18,12 +18,12 @@ import com.synerzip.projectmanagementapp.dbconnection.HibernateUtils;
 import com.synerzip.projectmanagementapp.exception.FieldCanNotEmpty;
 import com.synerzip.projectmanagementapp.model.Company;
 import com.synerzip.projectmanagementapp.model.PageResult;
+import com.synerzip.projectmanagementapp.model.User;
 import com.synerzip.projectmanagementapp.services.CompanyServices;
 
 public class CompanyServiceImplementation implements CompanyServices {
 
-	private static final Logger logger = Logger
-			.getLogger(CompanyServiceImplementation.class);
+	private static final Logger logger = Logger.getLogger(CompanyServiceImplementation.class);
 
 	public Company get(long companyId) {
 		Session session = HibernateUtils.getSession();
@@ -33,12 +33,10 @@ public class CompanyServiceImplementation implements CompanyServices {
 			company = (Company) session.get(Company.class, companyId);
 			if (company == null) {
 				logger.error("company not found  with companyId :-" + companyId);
-				throw new EntityNotFoundException("record not found with id "
-						+ companyId);
+				throw new EntityNotFoundException("record not found with id " + companyId);
 			}
 		} catch (HibernateException exception) {
-			logger.error("abnormal ternination, get() of company for companyId :-"
-					+ companyId);
+			logger.error("abnormal ternination, get() of company for companyId :-" + companyId);
 			throw new HibernateException("unable to process your request");
 		} finally {
 			session.close();
@@ -52,13 +50,12 @@ public class CompanyServiceImplementation implements CompanyServices {
 		logger.info("session open successfully");
 		if (org.apache.commons.lang.StringUtils.isEmpty(content)) {
 			try {
-				int count = ((Long) session
-						.createQuery(
-								"select count(*) from Company where company_id="+companyId)
+				int count = ((Long) session.createQuery("select count(*) from Company where company_id=" + companyId)
 						.uniqueResult()).intValue();
 				if (count > 0) {
-					Query query = session
-							.createQuery("select new Company(c.companyId, c.companyName, c.companyAddress, c.companyContactNumber) from Company c where company_id="+companyId);
+					Query query = session.createQuery(
+							"select new Company(c.companyId, c.companyName, c.companyAddress, c.companyContactNumber) from Company c where company_id="
+									+ companyId);
 					query.setFirstResult(start);
 					query.setMaxResults(size);
 					List<Company> companees = query.list();
@@ -84,12 +81,11 @@ public class CompanyServiceImplementation implements CompanyServices {
 	}
 
 	public PageResult search(int start, int size, String content) {
-		EntityManager entityManager = Persistence.createEntityManagerFactory(
-				"HibernatePersistence").createEntityManager();
+		EntityManager entityManager = Persistence.createEntityManagerFactory("HibernatePersistence")
+				.createEntityManager();
 		logger.info("session open successfully");
 		entityManager.getTransaction().begin();
-		FullTextEntityManager fullTextEntityManager = Search
-				.getFullTextEntityManager(entityManager);
+		FullTextEntityManager fullTextEntityManager = Search.getFullTextEntityManager(entityManager);
 		try {
 
 			try {
@@ -98,16 +94,12 @@ public class CompanyServiceImplementation implements CompanyServices {
 				e.printStackTrace();
 			}
 
-			QueryBuilder queryBuilder = fullTextEntityManager
-					.getSearchFactory().buildQueryBuilder()
+			QueryBuilder queryBuilder = fullTextEntityManager.getSearchFactory().buildQueryBuilder()
 					.forEntity(Company.class).get();
-			org.apache.lucene.search.Query query = queryBuilder
-					.keyword()
-					.onFields("companyId", "companyName", "companyAddress",
-							"companyContactNumber").matching(content)
+			org.apache.lucene.search.Query query = queryBuilder.keyword()
+					.onFields("companyId", "companyName", "companyAddress", "companyContactNumber").matching(content)
 					.createQuery();
-			javax.persistence.Query fullTextQuery = fullTextEntityManager
-					.createFullTextQuery(query, Company.class);
+			javax.persistence.Query fullTextQuery = fullTextEntityManager.createFullTextQuery(query, Company.class);
 			int count = fullTextQuery.getResultList().size();
 			fullTextQuery.setFirstResult(start);
 			fullTextQuery.setMaxResults(size);
@@ -118,10 +110,8 @@ public class CompanyServiceImplementation implements CompanyServices {
 				pageResults.setTotalResult(count);
 				return pageResults;
 			} else {
-				logger.error("does not found any matched record with content:-"
-						+ content);
-				throw new NotFoundException("No record matching with "
-						+ content);
+				logger.error("does not found any matched record with content:-" + content);
+				throw new NotFoundException("No record matching with " + content);
 			}
 		} catch (HibernateException exception) {
 			logger.error("abnormal ternination, search() of company");
@@ -135,35 +125,24 @@ public class CompanyServiceImplementation implements CompanyServices {
 		}
 	}
 
-	public Company add(Company company) {
+	public Company add(User user) {
 		Session session = HibernateUtils.getSession();
 		logger.info("session open successfully");
 		org.hibernate.Transaction tx = session.beginTransaction();
+		Company company = new Company();
 		try {
-			/*if (StringUtils.isEmptyOrWhitespaceOnly(company.getCompanyName())) {
-				logger.error("company name is empty");
-				throw new CanNotEmptyField("company name must be filled");
-			} else if (StringUtils.isEmptyOrWhitespaceOnly(company
-					.getCompanyAddress())) {
-				logger.error("company address is empty");
-				throw new CanNotEmptyField("company address must be filled");
-			} else if (StringUtils.isEmptyOrWhitespaceOnly(company
-					.getCompanyContactNumber())) {
-				logger.error("company contact number is empty");
-				throw new CanNotEmptyField(
-						"company contact number must be filled");
-			} else {
-				session.save(company);
-				tx.commit();
-			}*/
+			String companyName = user.getCompanyName();
+			company.setCompanyName(companyName);
 			session.save(company);
 			tx.commit();
+
+			UserServicesImplementation userService = new UserServicesImplementation();
+			userService.add(user, company.getCompanyId());
 			return company;
 		} catch (HibernateException exception) {
 			logger.error("abnormal ternination, add() of company");
-			throw new ConstraintViolationException(
-					"record already present with name-- "
-							+ company.getCompanyName(), null, null);
+			throw new ConstraintViolationException("company already present with name-- " + company.getCompanyName(),
+					null, null);
 		} finally {
 			session.close();
 			logger.info("session closed successfully");
@@ -181,8 +160,7 @@ public class CompanyServiceImplementation implements CompanyServices {
 			int affectedRow = query.executeUpdate();
 			if (affectedRow == 0) {
 				logger.error("record already deleted or not exist");
-				throw new EntityNotFoundException("no record found with id:-"
-						+ companyId);
+				throw new EntityNotFoundException("no record found with id:-" + companyId);
 			}
 			tx.commit();
 		} catch (HibernateException exception) {
@@ -203,15 +181,12 @@ public class CompanyServiceImplementation implements CompanyServices {
 			if (StringUtils.isEmptyOrWhitespaceOnly(company.getCompanyName())) {
 				logger.error("company name is empty");
 				throw new FieldCanNotEmpty("company name must be filled");
-			} else if (StringUtils.isEmptyOrWhitespaceOnly(company
-					.getCompanyAddress())) {
+			} else if (StringUtils.isEmptyOrWhitespaceOnly(company.getCompanyAddress())) {
 				logger.error("company address is empty");
 				throw new FieldCanNotEmpty("company address must be filled");
-			} else if (StringUtils.isEmptyOrWhitespaceOnly(company
-					.getCompanyContactNumber())) {
+			} else if (StringUtils.isEmptyOrWhitespaceOnly(company.getCompanyContactNumber())) {
 				logger.error("company contact number is empty");
-				throw new FieldCanNotEmpty(
-						"company contact number must be filled");
+				throw new FieldCanNotEmpty("company contact number must be filled");
 			} else {
 				session.saveOrUpdate(company);
 				tx.commit();
@@ -219,9 +194,8 @@ public class CompanyServiceImplementation implements CompanyServices {
 			return company;
 		} catch (HibernateException exception) {
 			logger.error("abnormal ternination, update() of project");
-			throw new ConstraintViolationException(
-					"record already present with title-- "
-							+ company.getCompanyName(), null, null);
+			throw new ConstraintViolationException("record already present with title-- " + company.getCompanyName(),
+					null, null);
 		} finally {
 			session.close();
 			logger.info("session closed successfully");
@@ -235,35 +209,27 @@ public class CompanyServiceImplementation implements CompanyServices {
 		try {
 			Company dbCompany = (Company) session.get(Company.class, companyId);
 			if (dbCompany != null) {
-				if (!StringUtils.isEmptyOrWhitespaceOnly(company
-						.getCompanyName())) {
+				if (!StringUtils.isEmptyOrWhitespaceOnly(company.getCompanyName())) {
 					dbCompany.setCompanyName((company.getCompanyName()));
 				}
-				if (!StringUtils.isEmptyOrWhitespaceOnly(company
-						.getCompanyAddress())) {
+				if (!StringUtils.isEmptyOrWhitespaceOnly(company.getCompanyAddress())) {
 					dbCompany.setCompanyAddress((company.getCompanyAddress()));
 				}
-				if (!StringUtils.isEmptyOrWhitespaceOnly(company
-						.getCompanyContactNumber())) {
-					dbCompany.setCompanyContactNumber((company
-							.getCompanyContactNumber()));
+				if (!StringUtils.isEmptyOrWhitespaceOnly(company.getCompanyContactNumber())) {
+					dbCompany.setCompanyContactNumber((company.getCompanyContactNumber()));
 				}
 				session.save(dbCompany);
 				session.flush();
 				tx.commit();
 			} else {
-				logger.error("Can't update, company not found with companyId :-"
-						+ companyId);
-				throw new EntityNotFoundException(
-						"Can't update, project not found with companyId :-"
-								+ companyId);
+				logger.error("Can't update, company not found with companyId :-" + companyId);
+				throw new EntityNotFoundException("Can't update, project not found with companyId :-" + companyId);
 			}
 			return dbCompany;
 		} catch (HibernateException exception) {
 			logger.error("abnormal ternination, patch() of company");
-			throw new ConstraintViolationException(
-					"record already present with title-- "
-							+ company.getCompanyName(), null, null);
+			throw new ConstraintViolationException("record already present with title-- " + company.getCompanyName(),
+					null, null);
 		} finally {
 			session.close();
 			logger.info("session closed successfully");

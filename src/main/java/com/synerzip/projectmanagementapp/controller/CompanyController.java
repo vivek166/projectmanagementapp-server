@@ -21,6 +21,7 @@ import javax.ws.rs.QueryParam;
 import com.synerzip.projectmanagementapp.authentication.Secure;
 import com.synerzip.projectmanagementapp.httpmethods.Patch.PATCH;
 import com.synerzip.projectmanagementapp.model.Company;
+import com.synerzip.projectmanagementapp.model.User;
 import com.synerzip.projectmanagementapp.serviceimplementation.CompanyServiceImplementation;
 
 @Path("/company")
@@ -41,10 +42,9 @@ public class CompanyController {
 	@Secure
 	@Produces(MediaType.APPLICATION_JSON)
 	public String gets(@DefaultValue("0") @QueryParam("start") int start,
-			@DefaultValue("5") @QueryParam("size") int size, @QueryParam("companyid") int companyId, 
+			@DefaultValue("5") @QueryParam("size") int size, @QueryParam("companyid") int companyId,
 			@DefaultValue("") @QueryParam("query") String query)
-			throws JsonGenerationException, JsonMappingException, IOException,
-			EntityNotFoundException {
+			throws JsonGenerationException, JsonMappingException, IOException, EntityNotFoundException {
 		return new ObjectMapper().writeValueAsString(service.gets(start, size, companyId, query));
 	}
 
@@ -53,19 +53,16 @@ public class CompanyController {
 	@Path("/search")
 	@Produces(MediaType.APPLICATION_JSON)
 	public String search(@DefaultValue("0") @QueryParam("start") int start,
-			@DefaultValue("5") @QueryParam("size") int size,
-			@QueryParam("query") String query) throws JsonGenerationException,
-			JsonMappingException, IOException {
-		return new ObjectMapper().writeValueAsString(service.search(start,
-				size, query));
+			@DefaultValue("5") @QueryParam("size") int size, @QueryParam("query") String query)
+			throws JsonGenerationException, JsonMappingException, IOException {
+		return new ObjectMapper().writeValueAsString(service.search(start, size, query));
 	}
 
 	@POST
-	@Secure
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response add(Company company) {
-		return Response.ok().entity(service.add(company)).build();
+	public Response add(User user) {
+		return Response.ok().entity(service.add(user)).build();
 	}
 
 	@DELETE
@@ -81,8 +78,7 @@ public class CompanyController {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("{companyId}")
-	public Response update(Company company,
-			@PathParam("companyId") long companyId) {
+	public Response update(Company company, @PathParam("companyId") long companyId) {
 		return Response.ok().entity(service.update(company, companyId)).build();
 	}
 
@@ -91,8 +87,7 @@ public class CompanyController {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("{projectId}")
-	public Response patch(Company company,
-			@PathParam("projectId") long companyId) {
+	public Response patch(Company company, @PathParam("projectId") long companyId) {
 		return Response.ok().entity(service.patch(company, companyId)).build();
 	}
 }

@@ -23,7 +23,8 @@ import org.hibernate.search.annotations.Store;
 @Entity
 @Table(name = "project")
 @Indexed
-@NamedQueries({ @NamedQuery(name = "getProjectById", query = "from Project where project_id = :projectid and company_id = :companyid") })
+@NamedQueries({
+		@NamedQuery(name = "getProjectById", query = "from Project where project_id = :projectid and company_id = :companyid") })
 public class Project {
 
 	@Id
@@ -65,8 +66,9 @@ public class Project {
 		this.projectId = projectId;
 		this.projectTitle = projectTitle;
 	}
-	public Project(long projectId, String projectTitle, String technologyUsed,
-			String projectDescription, String projectFeature) {
+
+	public Project(long projectId, String projectTitle, String technologyUsed, String projectDescription,
+			String projectFeature) {
 		super();
 		this.projectId = projectId;
 		this.projectTitle = projectTitle;

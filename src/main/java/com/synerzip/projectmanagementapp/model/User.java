@@ -72,8 +72,7 @@ public class User implements Principal {
 
 	}
 
-	public User(String firstName, String lastName, String type, String email, String mobile,
-			Company company) {
+	public User(String firstName, String lastName, String type, String email, String mobile, Company company) {
 		super();
 		this.firstName = firstName;
 		this.lastName = lastName;
@@ -83,7 +82,6 @@ public class User implements Principal {
 		this.company = company;
 	}
 
-	
 	public User(long id, String firstName, String lastName, String mobile, String type, String email) {
 		super();
 		this.id = id;
@@ -101,9 +99,8 @@ public class User implements Principal {
 		this.lastName = lastName;
 		this.email = email;
 	}
-	
-	public User(long id, String firstName, String lastName, String mobile, String type, String email,
-			Company company) {
+
+	public User(long id, String firstName, String lastName, String mobile, String type, String email, Company company) {
 		super();
 		this.id = id;
 		this.firstName = firstName;
@@ -113,8 +110,7 @@ public class User implements Principal {
 		this.email = email;
 		this.company = company;
 	}
-	
-	
+
 	public long getId() {
 		return id;
 	}
@@ -198,8 +194,8 @@ public class User implements Principal {
 	@Override
 	public String toString() {
 		return "User [id=" + id + ", firstName=" + firstName + ", lastName=" + lastName + ", mobile=" + mobile
-				+ ", type=" + type + ", email=" + email + ", password=" + password
-				+ ", projectIds=" + projectIds + ", companyName=" + companyName + ", company=" + company + "]";
+				+ ", type=" + type + ", email=" + email + ", password=" + password + ", projectIds=" + projectIds
+				+ ", companyName=" + companyName + ", company=" + company + "]";
 	}
 
 	@Override

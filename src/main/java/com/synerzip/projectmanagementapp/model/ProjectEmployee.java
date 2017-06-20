@@ -7,9 +7,12 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-
+import javax.persistence.UniqueConstraint;
 @Entity
-@Table(name = "project_employee")
+@Table(
+		   name = "project_employee", 
+		   uniqueConstraints = {@UniqueConstraint(columnNames = {"project_id", "emp_id"})}
+		)
 public class ProjectEmployee {
 	@Id
 	@GeneratedValue

@@ -2,6 +2,7 @@ package com.synerzip.projectmanagementapp.services;
 
 import com.synerzip.projectmanagementapp.model.Company;
 import com.synerzip.projectmanagementapp.model.PageResult;
+import com.synerzip.projectmanagementapp.model.User;
 
 public interface CompanyServices {
 
@@ -9,7 +10,7 @@ public interface CompanyServices {
 
 	PageResult gets(int start, int size, int companyId, String content);
 
-	Company add(Company company);
+	Company add(User user);
 
 	String delete(long companyId);
 

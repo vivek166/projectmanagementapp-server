@@ -17,11 +17,7 @@ import org.hibernate.search.query.dsl.QueryBuilder;
 import com.mysql.jdbc.StringUtils;
 import com.synerzip.projectmanagementapp.dbconnection.HibernateUtils;
 import com.synerzip.projectmanagementapp.exception.CanNotChangePassword;
-import com.synerzip.projectmanagementapp.exception.CompanyAlreadyPresent;
-import com.synerzip.projectmanagementapp.exception.FieldCanNotEmpty;
 import com.synerzip.projectmanagementapp.exception.MediaTypeException;
-import com.synerzip.projectmanagementapp.exception.ProjectAlreadyAssigned;
-import com.synerzip.projectmanagementapp.exception.UserAlreadyPresent;
 import com.synerzip.projectmanagementapp.model.ChangePassword;
 import com.synerzip.projectmanagementapp.model.Company;
 import com.synerzip.projectmanagementapp.model.PageResult;
@@ -104,10 +100,10 @@ public class UserServicesImplementation implements UserServices {
 		FullTextEntityManager fullTextEntityManager = Search.getFullTextEntityManager(entityManager);
 		try {
 
-			
-			 /* try { fullTextEntityManager.createIndexer().startAndWait(); }
-			  catch (InterruptedException e) { e.printStackTrace(); }*/
-			 
+			/*
+			 * try { fullTextEntityManager.createIndexer().startAndWait(); }
+			 * catch (InterruptedException e) { e.printStackTrace(); }
+			 */
 
 			QueryBuilder qb = fullTextEntityManager.getSearchFactory().buildQueryBuilder().forEntity(User.class).get();
 			org.apache.lucene.search.Query query = qb.keyword().onFields("firstName", "lastName", "department", "email")
@@ -139,65 +135,20 @@ public class UserServicesImplementation implements UserServices {
 		}
 	}
 
-	public User add(User user) {
+	public User add(User user, long companyId) {
 		Session session = HibernateUtils.getSession();
 		logger.info("session open successfully");
 		try {
-			if (!StringUtils.isEmptyOrWhitespaceOnly(user.getCompany().getCompanyName())) {
-				session.save(user);
-				session.beginTransaction().commit();
-				User newUser = new User(user.getId(), user.getFirstName(), user.getLastName(), user.getMobile(),
-						user.getType(), user.getEmail(), user.getCompany());
-				return newUser;
-			}
-		} catch (Exception exception) {
-			try {
-				String companyName = user.getCompanyName();
-				Query getCompanyQuery = session.createQuery("from Company where company_name = :company_name");
-				getCompanyQuery.setParameter("company_name", companyName);
-				Company company = (Company) getCompanyQuery.uniqueResult();
-				if (company != null) {
-					throw new CompanyAlreadyPresent(
-							"company already present with company name - " + user.getCompanyName());
-				}
-				String userName = user.getEmail();
-				Query getUserQuery = session.createQuery("from User where email = :user_name");
-				getUserQuery.setParameter("user_name", userName);
-				User bdUser = (User) getUserQuery.uniqueResult();
-				if (bdUser != null) {
-					throw new UserAlreadyPresent("user already present with user name - " + user.getEmail());
-				}
-				if (StringUtils.isEmptyOrWhitespaceOnly(user.getFirstName())) {
-					logger.error("first name is empty");
-					throw new FieldCanNotEmpty("first name must be filled");
-				} else if (StringUtils.isEmptyOrWhitespaceOnly(user.getLastName())) {
-					logger.error("last name is empty");
-					throw new FieldCanNotEmpty("last name must be filled");
-				} else if (StringUtils.isEmptyOrWhitespaceOnly(user.getType())) {
-					logger.error("user type is empty");
-					throw new FieldCanNotEmpty("user type must be filled");
-				}
-				org.hibernate.Transaction tx = session.beginTransaction();
-				Company newCompany = new Company();
-				newCompany.setCompanyName(companyName);
-				session.save(newCompany);
-				user.setCompany(newCompany);
-				session.save(user);
-				tx.commit();
-				User newUser = new User(user.getId(), user.getFirstName(), user.getLastName(), user.getMobile(),
-						user.getType(), user.getEmail(), user.getCompany());
-				return newUser;
-			} catch (HibernateException hibernateException) {
-				logger.error("abnormal ternination, add() of user");
-				throw new ConstraintViolationException("record already present with email - " + user.getEmail(), null,
-						null);
-			} finally {
-				session.close();
-				logger.info("session closed successfully");
-			}
+			Company company = (Company) session.get(Company.class, companyId);
+			user.setCompany(company);
+			session.save(user);
+			session.beginTransaction().commit();
+			return user;
+		} catch (HibernateException exception) {
+			throw new ConstraintViolationException("user  already present with name-- " + user.getEmail(), null, null);
+		} finally {
+			session.close();
 		}
-		return null;
-
 	}
 
 	public String delete(long id, long companyId) {
@@ -230,30 +181,6 @@ public class UserServicesImplementation implements UserServices {
 		logger.info("session open successfully");
 		org.hibernate.Transaction tx = session.beginTransaction();
 		try {
-			/*
-			 * if (StringUtils.isEmptyOrWhitespaceOnly(user.getFirstName())) {
-			 * logger.error("first name is empty"); throw new FieldCanNotEmpty(
-			 * "first  name must be filled"); } else if
-			 * (StringUtils.isEmptyOrWhitespaceOnly(user .getDepartment())) {
-			 * logger.error("department is empty"); throw new FieldCanNotEmpty(
-			 * "department must be filled"); } else {
-			 * session.saveOrUpdate(user); tx.commit(); }
-			 */
-			/*if (!StringUtils.isEmptyOrWhitespaceOnly(user.getCompanyName())) {
-				Company company = isRegisteredComapany(user.getCompanyName());
-				if (company != null) {
-					user.setCompany(company);
-				} else {
-					CompanyServiceImplementation companyService = new CompanyServiceImplementation();
-					Company newCompany = new Company();
-					newCompany.setCompanyName(user.getCompanyName());
-					user.setCompany(companyService.add(newCompany));
-				}
-
-			} else {
-				logger.error("company name is empty");
-				throw new FieldCanNotEmpty("company  name must be filled");
-			}*/
 			session.saveOrUpdate(user);
 			tx.commit();
 			return user;
@@ -301,7 +228,7 @@ public class UserServicesImplementation implements UserServices {
 						CompanyServiceImplementation companyService = new CompanyServiceImplementation();
 						Company newCompany = new Company();
 						newCompany.setCompanyName(user.getCompanyName());
-						dbUser.setCompany(companyService.add(newCompany));
+						dbUser.setCompany(companyService.add(user));
 					}
 
 				}
@@ -471,8 +398,8 @@ public class UserServicesImplementation implements UserServices {
 			try {
 
 				/*
-				  try { fullTextEntityManager.createIndexer().startAndWait(); }
-				  catch (InterruptedException e) { e.printStackTrace(); }
+				 * try { fullTextEntityManager.createIndexer().startAndWait(); }
+				 * catch (InterruptedException e) { e.printStackTrace(); }
 				 */
 
 				QueryBuilder qb = fullTextEntityManager.getSearchFactory().buildQueryBuilder().forEntity(User.class)
@@ -505,43 +432,13 @@ public class UserServicesImplementation implements UserServices {
 		try {
 			Project project = (Project) session.get(Project.class, projectId);
 			User user = (User) session.get(User.class, userId);
-			
-			/*List<Long> projectIds=user.getProjectIds();
-			List<Long> userIds=project.getEmpIds();
-			if(projectIds==null){
-				ProjectEmployee assign = new ProjectEmployee();
-				userIds.add(userId);
-				project.setEmpIds(userIds);
-				assign.setProject(project);
-				projectIds.add(projectId);
-				user.setProjectIds(projectIds);
-				assign.setUser(user);
-				session.save(assign);
-				tx.commit();
-			}else{
-				for(Long pId : projectIds){
-					if(pId==projectId){
-						throw new ProjectAlreadyAssigned("project already assigned to this employee");
-					}
-				}
-				ProjectEmployee assign = new ProjectEmployee();
-				userIds.add(userId);
-				project.setEmpIds(userIds);
-				assign.setProject(project);
-				projectIds.add(projectId);
-				user.setProjectIds(projectIds);
-				assign.setUser(user);
-				session.save(assign);
-				tx.commit();
-			}*/
-			
 			ProjectEmployee assign = new ProjectEmployee();
 			assign.setProject(project);
 			assign.setUser(user);
 			session.save(assign);
 			tx.commit();
 		} catch (HibernateException exception) {
-			throw new EntityNotFoundException("unable to assign project");
+			throw new EntityNotFoundException("project already assigned to this employee");
 		} finally {
 			session.close();
 		}
@@ -565,7 +462,7 @@ public class UserServicesImplementation implements UserServices {
 		}
 	}
 
-	public ChangePassword changePassword(String username, ChangePassword data) {
+	public String changePassword(String username, ChangePassword data) {
 		String userName = data.getUserName();
 		String oldPass = data.getOldPassword();
 		String newPass = data.getNewPassword();
@@ -597,6 +494,6 @@ public class UserServicesImplementation implements UserServices {
 			session.close();
 			logger.error("session close");
 		}
-		return changePass;
+		return "password changed";
 	}
 }

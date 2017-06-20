@@ -1,10 +1,6 @@
 package com.synerzip.projectmanagementapp.services;
 
 import java.util.List;
-
-import javax.ws.rs.core.SecurityContext;
-
-import com.google.gson.JsonObject;
 import com.synerzip.projectmanagementapp.model.ChangePassword;
 import com.synerzip.projectmanagementapp.model.PageResult;
 import com.synerzip.projectmanagementapp.model.Project;
@@ -19,7 +15,7 @@ public interface UserServices {
 
 	PageResult gets(int start, int size, String content, long companyId);
 
-	User add(User user);
+	User add(User user, long companyId);
 
 	String delete(long id, long companyId);
 
@@ -42,6 +38,6 @@ public interface UserServices {
 	String assignProject(long userId, long projectId);
 
 	User profile(long userId);
-	
-	ChangePassword changePassword(String username, ChangePassword data);
+
+	String changePassword(String username, ChangePassword data);
 }

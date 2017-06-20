@@ -13,7 +13,7 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "token")
 public class Token implements Serializable {
-	
+
 	private static final long serialVersionUID = 1L;
 
 	@Id
@@ -21,7 +21,7 @@ public class Token implements Serializable {
 	@Column(name = "token_id")
 	private long tokenId;
 
-	@Column(name = "token", unique=true)
+	@Column(name = "token", unique = true)
 	private String token;
 
 	@Column(name = "expiry_time")
@@ -30,7 +30,7 @@ public class Token implements Serializable {
 	@OneToOne
 	@JoinColumn(name = "user_id")
 	private User user;
-	
+
 	public Token() {
 	}
 
@@ -70,6 +70,5 @@ public class Token implements Serializable {
 	public String toString() {
 		return "Token [tokenId=" + tokenId + ", token=" + token + ", expiryTime=" + expiryTime + ", user=" + user + "]";
 	}
-	
+
 }
-	

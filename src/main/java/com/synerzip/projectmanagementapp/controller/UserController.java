@@ -5,7 +5,6 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
-import javax.ws.rs.OPTIONS;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -19,7 +18,6 @@ import javax.ws.rs.core.SecurityContext;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
-
 import com.synerzip.projectmanagementapp.authentication.Secure;
 import com.synerzip.projectmanagementapp.httpmethods.Patch.PATCH;
 import com.synerzip.projectmanagementapp.model.ChangePassword;
@@ -38,8 +36,8 @@ public class UserController {
 	@Path("/{id}")
 	public String get(@PathParam("id") long id, @Context SecurityContext securityContext)
 			throws JsonGenerationException, JsonMappingException, IOException {
-		User user=(User)securityContext.getUserPrincipal();
-		long companyId=user.getCompany().getCompanyId();
+		User user = (User) securityContext.getUserPrincipal();
+		long companyId = user.getCompany().getCompanyId();
 		return new ObjectMapper().writeValueAsString(service.get(id, companyId));
 	}
 
@@ -64,11 +62,11 @@ public class UserController {
 	@Secure
 	@Produces(MediaType.APPLICATION_JSON)
 	public String gets(@DefaultValue("0") @QueryParam("start") int start,
-			@DefaultValue("5") @QueryParam("size") int size,
-			@DefaultValue("") @QueryParam("query") String query, @Context SecurityContext securityContext)
+			@DefaultValue("5") @QueryParam("size") int size, @DefaultValue("") @QueryParam("query") String query,
+			@Context SecurityContext securityContext)
 			throws JsonGenerationException, JsonMappingException, IOException {
-		User user=(User)securityContext.getUserPrincipal();
-		long companyId=user.getCompany().getCompanyId();
+		User user = (User) securityContext.getUserPrincipal();
+		long companyId = user.getCompany().getCompanyId();
 		return new ObjectMapper().writeValueAsString(service.gets(start, size, query, companyId));
 	}
 
@@ -87,28 +85,32 @@ public class UserController {
 	@Path("/filter")
 	@Produces(MediaType.APPLICATION_JSON)
 	public String getEmployees(@DefaultValue("0") @QueryParam("start") int start,
-			@DefaultValue("5") @QueryParam("size") int size,
-			@QueryParam("query") String query, @Context SecurityContext securityContext) throws JsonGenerationException, JsonMappingException, IOException {
-		User user=(User)securityContext.getUserPrincipal();
-		long companyId=user.getCompany().getCompanyId();
+			@DefaultValue("5") @QueryParam("size") int size, @QueryParam("query") String query,
+			@Context SecurityContext securityContext)
+			throws JsonGenerationException, JsonMappingException, IOException {
+		User user = (User) securityContext.getUserPrincipal();
+		long companyId = user.getCompany().getCompanyId();
 		return new ObjectMapper().writeValueAsString(service.getEmployees(start, size, query, companyId));
 	}
 
 	@POST
+	@Secure
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response add(User user) {
-		return Response.ok().entity(service.add(user)).build();
+	public Response add(User user, @Context SecurityContext securityContext) {
+		User sessionUser = (User) securityContext.getUserPrincipal();
+		long companyId = sessionUser.getCompany().getCompanyId();
+		return Response.ok().entity(service.add(user, companyId)).build();
 	}
 
 	@POST
 	@Secure
 	@Path("/changepassword")
 	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.TEXT_PLAIN)
 	public Response changePassword(ChangePassword data, @Context SecurityContext securityContext) {
-		User user=(User)securityContext.getUserPrincipal();
-		String userName= user.getEmail();
+		User user = (User) securityContext.getUserPrincipal();
+		String userName = user.getEmail();
 		return Response.ok().entity(service.changePassword(userName, data)).build();
 	}
 
@@ -125,8 +127,8 @@ public class UserController {
 	@Produces(MediaType.TEXT_PLAIN)
 	@Path("{id}")
 	public Response delete(@PathParam("id") long id, @Context SecurityContext securityContext) {
-		User user=(User)securityContext.getUserPrincipal();
-		long companyId=user.getCompany().getCompanyId();
+		User user = (User) securityContext.getUserPrincipal();
+		long companyId = user.getCompany().getCompanyId();
 		return Response.ok().entity(service.delete(id, companyId)).build();
 	}
 

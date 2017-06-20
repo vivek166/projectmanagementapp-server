@@ -38,8 +38,8 @@ public class ProjectController {
 	@Produces(MediaType.APPLICATION_JSON)
 	public String get(@PathParam("projectId") long projectId, @Context SecurityContext securityContext)
 			throws JsonGenerationException, JsonMappingException, IOException {
-		User user=(User)securityContext.getUserPrincipal();
-		long companyId=user.getCompany().getCompanyId();
+		User user = (User) securityContext.getUserPrincipal();
+		long companyId = user.getCompany().getCompanyId();
 		return new ObjectMapper().writeValueAsString(service.get(projectId, companyId));
 	}
 
@@ -47,10 +47,11 @@ public class ProjectController {
 	@Secure
 	@Produces(MediaType.APPLICATION_JSON)
 	public String gets(@DefaultValue("0") @QueryParam("start") int start,
-			@DefaultValue("5") @QueryParam("size") int size, @DefaultValue("") @QueryParam("query") String query, @Context SecurityContext securityContext)
+			@DefaultValue("5") @QueryParam("size") int size, @DefaultValue("") @QueryParam("query") String query,
+			@Context SecurityContext securityContext)
 			throws JsonGenerationException, JsonMappingException, IOException, EntityNotFoundException {
-		User user=(User)securityContext.getUserPrincipal();
-		long companyId=user.getCompany().getCompanyId();
+		User user = (User) securityContext.getUserPrincipal();
+		long companyId = user.getCompany().getCompanyId();
 		return new ObjectMapper().writeValueAsString(service.gets(start, size, query, companyId));
 	}
 
@@ -59,10 +60,11 @@ public class ProjectController {
 	@Path("/search")
 	@Produces(MediaType.APPLICATION_JSON)
 	public String search(@DefaultValue("0") @QueryParam("start") int start,
-			@DefaultValue("5") @QueryParam("size") int size, @QueryParam("query") String query, @Context SecurityContext securityContext)
+			@DefaultValue("5") @QueryParam("size") int size, @QueryParam("query") String query,
+			@Context SecurityContext securityContext)
 			throws JsonGenerationException, JsonMappingException, IOException {
-		User user=(User)securityContext.getUserPrincipal();
-		long companyId=user.getCompany().getCompanyId();
+		User user = (User) securityContext.getUserPrincipal();
+		long companyId = user.getCompany().getCompanyId();
 		return new ObjectMapper().writeValueAsString(service.search(start, size, query, companyId));
 	}
 
@@ -71,10 +73,11 @@ public class ProjectController {
 	@Path("/filter")
 	@Produces(MediaType.APPLICATION_JSON)
 	public String getProjects(@DefaultValue("0") @QueryParam("start") int start,
-			@DefaultValue("5") @QueryParam("size") int size, @QueryParam("query") String query, @Context SecurityContext securityContext)
+			@DefaultValue("5") @QueryParam("size") int size, @QueryParam("query") String query,
+			@Context SecurityContext securityContext)
 			throws JsonGenerationException, JsonMappingException, IOException {
-		User user=(User)securityContext.getUserPrincipal();
-		long companyId=user.getCompany().getCompanyId();
+		User user = (User) securityContext.getUserPrincipal();
+		long companyId = user.getCompany().getCompanyId();
 		return new ObjectMapper().writeValueAsString(service.getProjects(start, size, query, companyId));
 	}
 
@@ -91,8 +94,8 @@ public class ProjectController {
 	@Produces(MediaType.TEXT_PLAIN)
 	@Path("{projectId}")
 	public Response delete(@PathParam("projectId") long projectId, @Context SecurityContext securityContext) {
-		User user=(User)securityContext.getUserPrincipal();
-		long companyId=user.getCompany().getCompanyId();
+		User user = (User) securityContext.getUserPrincipal();
+		long companyId = user.getCompany().getCompanyId();
 		return Response.ok().entity(service.delete(projectId, companyId)).build();
 	}
 
