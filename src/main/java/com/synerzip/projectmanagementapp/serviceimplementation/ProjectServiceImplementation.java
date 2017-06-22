@@ -93,20 +93,21 @@ public class ProjectServiceImplementation implements ProjectServices {
 		FullTextEntityManager fullTextEntityManager = Search.getFullTextEntityManager(entityManager);
 		try {
 
-			/*
-			 * try { fullTextEntityManager.createIndexer().startAndWait(); }
-			 * catch (InterruptedException e) { e.printStackTrace(); }
-			 */
+			/*try {
+				fullTextEntityManager.createIndexer().startAndWait();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}*/
 
 			QueryBuilder queryBuilder = fullTextEntityManager.getSearchFactory().buildQueryBuilder()
 					.forEntity(Project.class).get();
 			org.apache.lucene.search.Query query = queryBuilder.keyword()
-					.onFields("projectId", "technologyUsed", "projectFeature", "projectDescription").matching(content)
-					.createQuery();
+					.onFields("projectTitle", "technologyUsed", "projectFeature", "projectDescription").matching(content).createQuery();
 			javax.persistence.Query fullTextQuery = fullTextEntityManager.createFullTextQuery(query, Project.class);
 			int count = fullTextQuery.getResultList().size();
 			fullTextQuery.setFirstResult(start);
 			fullTextQuery.setMaxResults(size);
+			/*fullTextQuery.setParameter("company_id", companyId);*/
 			List<Project> projectResult = fullTextQuery.getResultList();
 			if (projectResult.size() != 0) {
 				PageResult pageResults = new PageResult();
@@ -347,20 +348,22 @@ public class ProjectServiceImplementation implements ProjectServices {
 			FullTextEntityManager fullTextEntityManager = Search.getFullTextEntityManager(entityManager);
 			try {
 
-				/*
-				 * try { fullTextEntityManager.createIndexer().startAndWait(); }
-				 * catch (InterruptedException e) { e.printStackTrace(); }
-				 */
+				/*try {
+					fullTextEntityManager.createIndexer().startAndWait();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}*/
 
 				QueryBuilder queryBuilder = fullTextEntityManager.getSearchFactory().buildQueryBuilder()
 						.forEntity(Project.class).get();
 				org.apache.lucene.search.Query query = queryBuilder.keyword()
-						.onFields("projectId", "technologyUsed", "projectFeature", "projectDescription", "projectTitle")
+						.onFields("technologyUsed", "projectFeature", "projectDescription", "projectTitle")
 						.matching(content).createQuery();
 				javax.persistence.Query fullTextQuery = fullTextEntityManager.createFullTextQuery(query, Project.class);
 				int count = fullTextQuery.getResultList().size();
 				fullTextQuery.setFirstResult(start);
 				fullTextQuery.setMaxResults(size);
+				/*fullTextQuery.setParameter("company_id", companyId);*/
 				List<Project> projectResult = fullTextQuery.getResultList();
 				return projectResult;
 			} catch (HibernateException exception) {

@@ -2,7 +2,6 @@ package com.synerzip.projectmanagementapp.model;
 
 import java.security.Principal;
 import java.util.List;
-
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -14,22 +13,27 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.FullTextFilterDef;
+import org.hibernate.search.annotations.FullTextFilterDefs;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
 
+import com.synerzip.projectmanagementapp.filter.SecurityFilterFactory;
+import com.synerzip.projectmanagementapp.filter.UserFilterByCompany;
+
 @Entity
 @Table(name = "user")
 @Indexed
+@FullTextFilterDefs({ @FullTextFilterDef(name = "typeFilter", impl = UserFilterByCompany.class),
+		@FullTextFilterDef(name = "UserFilterByType", impl = SecurityFilterFactory.class) })
 @NamedQueries({ @NamedQuery(name = "getUserById", query = "from User where id = :id and company_id = :companyid") })
 public class User implements Principal {
 
 	@Id
 	@GeneratedValue
-	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
 	@Column(name = "id")
 	private long id;
 
@@ -82,7 +86,7 @@ public class User implements Principal {
 		this.company = company;
 	}
 
-	public User(long id, String firstName, String lastName, String mobile, String type, String email) {
+	public User(long id, String firstName, String lastName, String type, String email, String mobile) {
 		super();
 		this.id = id;
 		this.firstName = firstName;

@@ -75,9 +75,12 @@ public class UserController {
 	@Path("/search")
 	@Produces(MediaType.APPLICATION_JSON)
 	public String search(@DefaultValue("0") @QueryParam("start") int start,
-			@DefaultValue("5") @QueryParam("size") int size, @DefaultValue("") @QueryParam("query") String query)
+			@DefaultValue("5") @QueryParam("size") int size, @DefaultValue("") @QueryParam("query") String query,
+			@Context SecurityContext securityContext)
 			throws JsonGenerationException, JsonMappingException, IOException {
-		return new ObjectMapper().writeValueAsString(service.search(start, size, query));
+		User user = (User) securityContext.getUserPrincipal();
+		long companyId = user.getCompany().getCompanyId();
+		return new ObjectMapper().writeValueAsString(service.search(start, size, query, companyId));
 	}
 
 	@GET

@@ -15,9 +15,7 @@ public class UserSecurityContext implements SecurityContext {
 
 	@Override
 	public Principal getUserPrincipal() {
-		User newUser = new User(user.getId(), user.getFirstName(), user.getLastName(), user.getMobile(), user.getType(),
-				user.getEmail(), user.getCompany());
-		return newUser;
+		return this.user;
 	}
 
 	@Override

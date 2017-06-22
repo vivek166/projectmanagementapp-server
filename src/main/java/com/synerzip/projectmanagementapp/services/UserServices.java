@@ -25,7 +25,7 @@ public interface UserServices {
 
 	ProjectEmployee assign(User user);
 
-	PageResult search(int start, int size, String content);
+	PageResult search(int start, int size, String content, long companyId);
 
 	User patch(User user, long id);
 

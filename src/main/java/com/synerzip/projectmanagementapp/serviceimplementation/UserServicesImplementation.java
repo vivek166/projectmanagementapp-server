@@ -12,6 +12,7 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.exception.ConstraintViolationException;
 import org.hibernate.search.jpa.FullTextEntityManager;
+import org.hibernate.search.jpa.FullTextQuery;
 import org.hibernate.search.jpa.Search;
 import org.hibernate.search.query.dsl.QueryBuilder;
 import com.mysql.jdbc.StringUtils;
@@ -38,9 +39,9 @@ public class UserServicesImplementation implements UserServices {
 		User user;
 		try {
 			Query query = session.getNamedQuery("getUserById");
-			query.setLong("id", id);
-			query.setLong("companyid", companyId);
-			user = (User) query.uniqueResult();
+ 			query.setLong("id", id);
+ 			query.setLong("companyid", companyId);
+ 			user = (User) query.uniqueResult();
 			if (user == null) {
 				logger.error("user not found  with empid :-" + id);
 				throw new EntityNotFoundException("record not found with id " + id);
@@ -90,25 +91,28 @@ public class UserServicesImplementation implements UserServices {
 				logger.info("session closed successfully");
 			}
 		} else {
-			return search(start, size, content);
+			return search(start, size, content, companyId);
 		}
 	}
 
-	public PageResult search(int start, int size, String content) {
+	public PageResult search(int start, int size, String content, long companyId) {
 		EntityManager entityManager = Persistence.createEntityManagerFactory("HibernatePersistence")
 				.createEntityManager();
 		FullTextEntityManager fullTextEntityManager = Search.getFullTextEntityManager(entityManager);
 		try {
 
-			/*
-			 * try { fullTextEntityManager.createIndexer().startAndWait(); }
-			 * catch (InterruptedException e) { e.printStackTrace(); }
-			 */
+			try {
+				fullTextEntityManager.createIndexer().startAndWait();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 
 			QueryBuilder qb = fullTextEntityManager.getSearchFactory().buildQueryBuilder().forEntity(User.class).get();
-			org.apache.lucene.search.Query query = qb.keyword().onFields("firstName", "lastName", "department", "email")
+			org.apache.lucene.search.Query query = qb.keyword().onFields("firstName", "lastName", "mobile", "email")
 					.matching(content).createQuery();
 			javax.persistence.Query fullTextQuery = fullTextEntityManager.createFullTextQuery(query, User.class);
+			((FullTextQuery) fullTextQuery).enableFullTextFilter("UserFilterByType").setParameter("type",
+					"employee");
 			fullTextQuery.setFirstResult(start);
 			fullTextQuery.setMaxResults(size);
 			int count = fullTextQuery.getResultList().size();
@@ -316,7 +320,8 @@ public class UserServicesImplementation implements UserServices {
 		String userPassword = userCredentials.getUserPassword();
 		Session session = HibernateUtils.getSession();
 		try {
-			Query query = session.createQuery("from User  where email = :email and password = :password");
+			Query query = session.createQuery(
+					"select new User(u.id, u.firstName, u.lastName, u.type, u.email, u.mobile) from User u  where email = :email and password = :password");
 			query.setParameter("email", userName);
 			query.setParameter("password", userPassword);
 			User user = (User) query.uniqueResult();
@@ -406,9 +411,8 @@ public class UserServicesImplementation implements UserServices {
 						.get();
 				org.apache.lucene.search.Query query = qb.keyword().onFields("firstName", "lastName", "email")
 						.matching(content).createQuery();
-				javax.persistence.Query fullTextQuery = fullTextEntityManager.createFullTextQuery(query, User.class);
-				fullTextQuery.setFirstResult(start);
-				fullTextQuery.setMaxResults(size);
+				javax.persistence.Query fullTextQuery = fullTextEntityManager.createFullTextQuery(query, User.class)
+						.setFirstResult(start).setMaxResults(size);
 				int count = fullTextQuery.getResultList().size();
 				List<User> userResult = fullTextQuery.getResultList();
 				return userResult;

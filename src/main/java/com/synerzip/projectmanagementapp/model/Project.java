@@ -16,6 +16,8 @@ import javax.persistence.Transient;
 
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.FullTextFilterDef;
+import org.hibernate.search.annotations.FullTextFilterDefs;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
@@ -23,13 +25,15 @@ import org.hibernate.search.annotations.Store;
 @Entity
 @Table(name = "project")
 @Indexed
+@FullTextFilterDefs( {
+    @FullTextFilterDef(name = "companyIdFilterInProject", impl = Project.class) 
+})
 @NamedQueries({
 		@NamedQuery(name = "getProjectById", query = "from Project where project_id = :projectid and company_id = :companyid") })
 public class Project {
 
 	@Id
 	@GeneratedValue
-	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
 	@Column(name = "project_id")
 	private long projectId;
 
