@@ -2,6 +2,7 @@ package com.synerzip.projectmanagementapp.services;
 
 import java.util.List;
 import com.synerzip.projectmanagementapp.model.ChangePassword;
+import com.synerzip.projectmanagementapp.model.Company;
 import com.synerzip.projectmanagementapp.model.PageResult;
 import com.synerzip.projectmanagementapp.model.Project;
 import com.synerzip.projectmanagementapp.model.ProjectEmployee;

@@ -111,8 +111,8 @@ public class UserServicesImplementation implements UserServices {
 			org.apache.lucene.search.Query query = qb.keyword().onFields("firstName", "lastName", "mobile", "email")
 					.matching(content).createQuery();
 			javax.persistence.Query fullTextQuery = fullTextEntityManager.createFullTextQuery(query, User.class);
-			((FullTextQuery) fullTextQuery).enableFullTextFilter("UserFilterByType").setParameter("type",
-					"employee");
+			((FullTextQuery) fullTextQuery).enableFullTextFilter("UserFilterByCompanyId").setParameter("companyId",
+					companyId);
 			fullTextQuery.setFirstResult(start);
 			fullTextQuery.setMaxResults(size);
 			int count = fullTextQuery.getResultList().size();

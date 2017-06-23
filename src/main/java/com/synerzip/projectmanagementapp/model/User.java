@@ -20,15 +20,16 @@ import org.hibernate.search.annotations.FullTextFilterDefs;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
-
 import com.synerzip.projectmanagementapp.filter.SecurityFilterFactory;
 import com.synerzip.projectmanagementapp.filter.UserFilterByCompany;
+import com.synerzip.projectmanagementapp.filter.UserFilterFactoryByCompany;
 
 @Entity
 @Table(name = "user")
 @Indexed
 @FullTextFilterDefs({ @FullTextFilterDef(name = "typeFilter", impl = UserFilterByCompany.class),
-		@FullTextFilterDef(name = "UserFilterByType", impl = SecurityFilterFactory.class) })
+		@FullTextFilterDef(name = "UserFilterByType", impl = SecurityFilterFactory.class),
+		@FullTextFilterDef(name = "UserFilterByCompanyId", impl = UserFilterFactoryByCompany.class) })
 @NamedQueries({ @NamedQuery(name = "getUserById", query = "from User where id = :id and company_id = :companyid") })
 public class User implements Principal {
 
@@ -71,7 +72,10 @@ public class User implements Principal {
 	@ManyToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "company_id")
 	private Company company;
-
+	
+	@Column(name="company_id", insertable=false, updatable=false)
+	private Long companyId;
+	
 	public User() {
 
 	}
@@ -193,6 +197,14 @@ public class User implements Principal {
 
 	public void setCompany(Company company) {
 		this.company = company;
+	}
+	
+	public Long getCompanyId() {
+		return companyId;
+	}
+
+	public void setCompanyId(Long companyId) {
+		this.companyId = companyId;
 	}
 
 	@Override

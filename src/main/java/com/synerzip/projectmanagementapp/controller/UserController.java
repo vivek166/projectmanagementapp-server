@@ -21,6 +21,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import com.synerzip.projectmanagementapp.authentication.Secure;
 import com.synerzip.projectmanagementapp.httpmethods.Patch.PATCH;
 import com.synerzip.projectmanagementapp.model.ChangePassword;
+import com.synerzip.projectmanagementapp.model.Company;
 import com.synerzip.projectmanagementapp.model.User;
 import com.synerzip.projectmanagementapp.model.UserCredentials;
 import com.synerzip.projectmanagementapp.serviceimplementation.UserServicesImplementation;
