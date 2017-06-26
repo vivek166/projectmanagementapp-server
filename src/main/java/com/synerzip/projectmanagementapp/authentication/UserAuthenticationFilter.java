@@ -21,53 +21,42 @@ import com.synerzip.projectmanagementapp.model.User;
 @Provider
 @Secure
 public class UserAuthenticationFilter implements ContainerRequestFilter {
-
+	
 	@Context
 	SecurityContext securityContext;
 	static final Logger logger = Logger.getLogger(UserAuthenticationFilter.class);
 
 	@Override
 	public void filter(final ContainerRequestContext requestContext) throws IOException {
-
-		System.out.println("got request -> " + requestContext.getHeaderString(HttpHeaders.AUTHORIZATION));
-
 		logger.info("starting authentication");
-
 		String authorizationHeader = requestContext.getHeaderString(HttpHeaders.AUTHORIZATION);
-
 		if (StringUtils.isEmpty(authorizationHeader) || !authorizationHeader.startsWith("Bearer ")) {
 			logger.error("Authorization header must be provided ");
 			throw new NotAuthorizedException("Authorization header must be provided");
 		}
-
 		String token = authorizationHeader.substring("Bearer".length()).trim();
-
 		try {
-
 			final Token tokenObj = validateToken(token);
-			final SecurityContext currentSecurityContext = requestContext.getSecurityContext();
-			User user =tokenObj.getUser();
+			User user = tokenObj.getUser();
 			requestContext.setSecurityContext(new UserSecurityContext(user, "https"));
-
 		} catch (Exception e) {
 			requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
 			logger.info("authentication successfully done");
-
 		}
 	}
 
-	private Token validateToken(String token){
+	private Token validateToken(String token) {
 		Session session = HibernateUtils.getSession();
-		try{
-				Query query = session.createQuery("from Token where token =:token");
-				query.setParameter("token", token);
-				Token result = (Token) query.uniqueResult();
-				if (token.equals(result.getToken())) {
-					return result;
-					}
-		}catch(Exception exception){
+		try {
+			Query query = session.createQuery("from Token where token =:token");
+			query.setParameter("token", token);
+			Token result = (Token) query.uniqueResult();
+			if (token.equals(result.getToken())) {
+				return result;
+			}
+		} catch (Exception exception) {
 			throw new NotAuthorizedException("authentication failed : invalid token");
-		}finally{
+		} finally {
 			session.close();
 		}
 		return null;

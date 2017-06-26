@@ -13,7 +13,6 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-
 import org.hibernate.search.annotations.Analyze;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.FullTextFilterDef;
@@ -21,13 +20,12 @@ import org.hibernate.search.annotations.FullTextFilterDefs;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
+import com.synerzip.projectmanagementapp.filter.FilterByCompanyId;
 
 @Entity
 @Table(name = "project")
 @Indexed
-@FullTextFilterDefs( {
-    @FullTextFilterDef(name = "companyIdFilterInProject", impl = Project.class) 
-})
+@FullTextFilterDefs({ @FullTextFilterDef(name = "ProjectFilterByCompanyId", impl = FilterByCompanyId.class) })
 @NamedQueries({
 		@NamedQuery(name = "getProjectById", query = "from Project where project_id = :projectid and company_id = :companyid") })
 public class Project {
@@ -60,6 +58,10 @@ public class Project {
 	@ManyToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "company_id")
 	private Company company;
+	
+	@Column(name="company_id", insertable=false, updatable=false)
+	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
+	private Long companyId;
 
 	public Project() {
 
@@ -79,6 +81,14 @@ public class Project {
 		this.technologyUsed = technologyUsed;
 		this.projectDescription = projectDescription;
 		this.projectFeature = projectFeature;
+	}
+	
+	public Long getCompanyId() {
+		return companyId;
+	}
+
+	public void setCompanyId(Long companyId) {
+		this.companyId = companyId;
 	}
 
 	public long getProjectId() {

@@ -11,6 +11,7 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.exception.ConstraintViolationException;
 import org.hibernate.search.jpa.FullTextEntityManager;
+import org.hibernate.search.jpa.FullTextQuery;
 import org.hibernate.search.jpa.Search;
 import org.hibernate.search.query.dsl.QueryBuilder;
 import com.mysql.jdbc.StringUtils;
@@ -93,21 +94,22 @@ public class ProjectServiceImplementation implements ProjectServices {
 		FullTextEntityManager fullTextEntityManager = Search.getFullTextEntityManager(entityManager);
 		try {
 
-			/*try {
-				fullTextEntityManager.createIndexer().startAndWait();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}*/
+			/*
+			 * try { fullTextEntityManager.createIndexer().startAndWait(); }
+			 * catch (InterruptedException e) { e.printStackTrace(); }
+			 */
 
 			QueryBuilder queryBuilder = fullTextEntityManager.getSearchFactory().buildQueryBuilder()
 					.forEntity(Project.class).get();
 			org.apache.lucene.search.Query query = queryBuilder.keyword()
-					.onFields("projectTitle", "technologyUsed", "projectFeature", "projectDescription").matching(content).createQuery();
+					.onFields("projectTitle", "technologyUsed", "projectFeature", "projectDescription")
+					.matching(content).createQuery();
 			javax.persistence.Query fullTextQuery = fullTextEntityManager.createFullTextQuery(query, Project.class);
 			int count = fullTextQuery.getResultList().size();
 			fullTextQuery.setFirstResult(start);
 			fullTextQuery.setMaxResults(size);
-			/*fullTextQuery.setParameter("company_id", companyId);*/
+			((FullTextQuery) fullTextQuery).enableFullTextFilter("ProjectFilterByCompanyId").setParameter("companyId",
+					companyId);
 			List<Project> projectResult = fullTextQuery.getResultList();
 			if (projectResult.size() != 0) {
 				PageResult pageResults = new PageResult();
@@ -330,6 +332,8 @@ public class ProjectServiceImplementation implements ProjectServices {
 				Query getProject = session.createQuery(
 						"select new Project(p.projectId, p.projectTitle) from Project p where company_id = :company_id");
 				getProject.setParameter("company_id", companyId);
+				getProject.setFirstResult(start);
+				getProject.setMaxResults(size);
 				List<Project> projects = (List<Project>) getProject.list();
 				if (projects.isEmpty()) {
 					throw new EntityNotFoundException("unable to process your request");
@@ -348,11 +352,10 @@ public class ProjectServiceImplementation implements ProjectServices {
 			FullTextEntityManager fullTextEntityManager = Search.getFullTextEntityManager(entityManager);
 			try {
 
-				/*try {
-					fullTextEntityManager.createIndexer().startAndWait();
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}*/
+				/*
+				 * try { fullTextEntityManager.createIndexer().startAndWait(); }
+				 * catch (InterruptedException e) { e.printStackTrace(); }
+				 */
 
 				QueryBuilder queryBuilder = fullTextEntityManager.getSearchFactory().buildQueryBuilder()
 						.forEntity(Project.class).get();
@@ -360,10 +363,10 @@ public class ProjectServiceImplementation implements ProjectServices {
 						.onFields("technologyUsed", "projectFeature", "projectDescription", "projectTitle")
 						.matching(content).createQuery();
 				javax.persistence.Query fullTextQuery = fullTextEntityManager.createFullTextQuery(query, Project.class);
-				int count = fullTextQuery.getResultList().size();
 				fullTextQuery.setFirstResult(start);
 				fullTextQuery.setMaxResults(size);
-				/*fullTextQuery.setParameter("company_id", companyId);*/
+				((FullTextQuery) fullTextQuery).enableFullTextFilter("ProjectFilterByCompanyId")
+						.setParameter("companyId", companyId);
 				List<Project> projectResult = fullTextQuery.getResultList();
 				return projectResult;
 			} catch (HibernateException exception) {

@@ -39,9 +39,9 @@ public class UserServicesImplementation implements UserServices {
 		User user;
 		try {
 			Query query = session.getNamedQuery("getUserById");
- 			query.setLong("id", id);
- 			query.setLong("companyid", companyId);
- 			user = (User) query.uniqueResult();
+			query.setLong("id", id);
+			query.setLong("companyid", companyId);
+			user = (User) query.uniqueResult();
 			if (user == null) {
 				logger.error("user not found  with empid :-" + id);
 				throw new EntityNotFoundException("record not found with id " + id);
@@ -101,11 +101,10 @@ public class UserServicesImplementation implements UserServices {
 		FullTextEntityManager fullTextEntityManager = Search.getFullTextEntityManager(entityManager);
 		try {
 
-			try {
-				fullTextEntityManager.createIndexer().startAndWait();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+			/*
+			 * try { fullTextEntityManager.createIndexer().startAndWait(); }
+			 * catch (InterruptedException e) { e.printStackTrace(); }
+			 */
 
 			QueryBuilder qb = fullTextEntityManager.getSearchFactory().buildQueryBuilder().forEntity(User.class).get();
 			org.apache.lucene.search.Query query = qb.keyword().onFields("firstName", "lastName", "mobile", "email")
@@ -185,9 +184,22 @@ public class UserServicesImplementation implements UserServices {
 		logger.info("session open successfully");
 		org.hibernate.Transaction tx = session.beginTransaction();
 		try {
-			session.saveOrUpdate(user);
-			tx.commit();
-			return user;
+			User dbUser = (User) session.get(User.class, id);
+			if (dbUser != null) {
+				if (!StringUtils.isEmptyOrWhitespaceOnly(user.getFirstName())) {
+					dbUser.setFirstName(user.getFirstName());
+				}
+				if (!StringUtils.isEmptyOrWhitespaceOnly(user.getLastName())) {
+					dbUser.setLastName(user.getLastName());
+				}
+				if (!StringUtils.isEmptyOrWhitespaceOnly(user.getMobile())) {
+					dbUser.setMobile(user.getMobile());
+				}
+				session.save(dbUser);
+				session.flush();
+				tx.commit();
+			}
+			return dbUser;
 		} catch (HibernateException exception) {
 			logger.error("abnormal ternination, update() of user");
 			tx.rollback();
@@ -214,27 +226,6 @@ public class UserServicesImplementation implements UserServices {
 				}
 				if (!StringUtils.isEmptyOrWhitespaceOnly(user.getMobile())) {
 					dbUser.setMobile(user.getMobile());
-				}
-				if (!StringUtils.isEmptyOrWhitespaceOnly(user.getType())) {
-					dbUser.setType(user.getType());
-				}
-				if (!StringUtils.isEmptyOrWhitespaceOnly(user.getCompanyName())) {
-					dbUser.setCompanyName(user.getCompanyName());
-				}
-				if (!StringUtils.isEmptyOrWhitespaceOnly(user.getEmail())) {
-					dbUser.setEmail(user.getEmail());
-				}
-				if (!StringUtils.isEmptyOrWhitespaceOnly(user.getCompanyName())) {
-					Company company = isRegisteredComapany(user.getCompanyName());
-					if (company != null) {
-						dbUser.setCompany(company);
-					} else {
-						CompanyServiceImplementation companyService = new CompanyServiceImplementation();
-						Company newCompany = new Company();
-						newCompany.setCompanyName(user.getCompanyName());
-						dbUser.setCompany(companyService.add(user));
-					}
-
 				}
 				session.save(dbUser);
 				session.flush();
@@ -321,7 +312,7 @@ public class UserServicesImplementation implements UserServices {
 		Session session = HibernateUtils.getSession();
 		try {
 			Query query = session.createQuery(
-					"select new User(u.id, u.firstName, u.lastName, u.type, u.email, u.mobile) from User u  where email = :email and password = :password");
+					"select new User(u.id, u.firstName, u.lastName, u.type, u.email, u.mobile, u.company) from User u  where email = :email and password = :password");
 			query.setParameter("email", userName);
 			query.setParameter("password", userPassword);
 			User user = (User) query.uniqueResult();
@@ -413,6 +404,10 @@ public class UserServicesImplementation implements UserServices {
 						.matching(content).createQuery();
 				javax.persistence.Query fullTextQuery = fullTextEntityManager.createFullTextQuery(query, User.class)
 						.setFirstResult(start).setMaxResults(size);
+				((FullTextQuery) fullTextQuery).enableFullTextFilter("UserFilterByCompanyId").setParameter("companyId",
+						companyId);
+				((FullTextQuery) fullTextQuery).enableFullTextFilter("UserFilterByType").setParameter("type",
+						"employee");
 				int count = fullTextQuery.getResultList().size();
 				List<User> userResult = fullTextQuery.getResultList();
 				return userResult;

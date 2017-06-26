@@ -20,7 +20,7 @@ public class CustomExceptionMapper implements ExceptionMapper<Exception> {
 	@Override
 	public Response toResponse(Exception exception) {
 		if (exception instanceof EntityNotFoundException) {
-			ErrorMessage errorMessage = new ErrorMessage(exception.getMessage(), 422, "https:github.com/vivek166");
+			ErrorMessage errorMessage = new ErrorMessage(exception.getMessage(), 404, "https:github.com/vivek166");
 			return Response.status(Status.NOT_FOUND).entity(errorMessage).type("text/json").build();
 		} else if (exception instanceof NotFoundException) {
 			ErrorMessage errorMessage = new ErrorMessage(exception.getMessage(), 404, "https:github.com/vivek166");
@@ -29,13 +29,13 @@ public class CustomExceptionMapper implements ExceptionMapper<Exception> {
 			ErrorMessage errorMessage = new ErrorMessage("record already present", 409, "https:github.com/vivek166");
 			return Response.status(Status.NOT_FOUND).entity(errorMessage).type("text/json").build();
 		} else if (exception instanceof ObjectNotFoundException) {
-			ErrorMessage errorMessage = new ErrorMessage("no record found", 400, "https:github.com/vivek166");
+			ErrorMessage errorMessage = new ErrorMessage("no record found", 404, "https:github.com/vivek166");
 			return Response.status(Status.NOT_FOUND).entity(errorMessage).type("text/json").build();
 		} else if (exception instanceof HibernateException) {
 			ErrorMessage errorMessage = new ErrorMessage(exception.getMessage(), 501, "https:github.com/vivek166");
 			return Response.status(Status.NOT_FOUND).entity(errorMessage).type("text/json").build();
 		} else if (exception instanceof FieldCanNotEmpty) {
-			ErrorMessage errorMessage = new ErrorMessage(exception.getMessage(), 304, "https:github.com/vivek166");
+			ErrorMessage errorMessage = new ErrorMessage(exception.getMessage(), 400, "https:github.com/vivek166");
 			return Response.status(Status.NOT_FOUND).entity(errorMessage).type("text/json").build();
 		} else if (exception instanceof MediaTypeException) {
 			ErrorMessage errorMessage = new ErrorMessage(exception.getMessage(), 415, "https:github.com/vivek166");
@@ -47,13 +47,13 @@ public class CustomExceptionMapper implements ExceptionMapper<Exception> {
 			ErrorMessage errorMessage = new ErrorMessage(exception.getMessage(), 409, "https:github.com/vivek166");
 			return Response.status(Status.NOT_MODIFIED).entity(errorMessage).type("text/json").build();
 		} else if (exception instanceof CanNotChangePassword) {
-			ErrorMessage errorMessage = new ErrorMessage(exception.getMessage(), 409, "https:github.com/vivek166");
+			ErrorMessage errorMessage = new ErrorMessage(exception.getMessage(), 304, "https:github.com/vivek166");
 			return Response.status(Status.NOT_MODIFIED).entity(errorMessage).type("text/json").build();
 		} else if (exception instanceof ProjectAlreadyAssigned) {
 			ErrorMessage errorMessage = new ErrorMessage(exception.getMessage(), 409, "https:github.com/vivek166");
 			return Response.status(Status.NOT_MODIFIED).entity(errorMessage).type("text/json").build();
 		} else {
-			ErrorMessage errorMessage = new ErrorMessage("internal server error", 505, "https:github.com/vivek166");
+			ErrorMessage errorMessage = new ErrorMessage("internal server error", 500, "https:github.com/vivek166");
 			return Response.status(Status.INTERNAL_SERVER_ERROR).entity(errorMessage).type("text/json").build();
 		}
 	}

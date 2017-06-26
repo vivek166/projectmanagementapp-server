@@ -20,16 +20,14 @@ import org.hibernate.search.annotations.FullTextFilterDefs;
 import org.hibernate.search.annotations.Index;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.Store;
-import com.synerzip.projectmanagementapp.filter.SecurityFilterFactory;
-import com.synerzip.projectmanagementapp.filter.UserFilterByCompany;
-import com.synerzip.projectmanagementapp.filter.UserFilterFactoryByCompany;
+import com.synerzip.projectmanagementapp.filter.FilterByCompanyId;
+import com.synerzip.projectmanagementapp.filter.FilterByType;
 
 @Entity
 @Table(name = "user")
 @Indexed
-@FullTextFilterDefs({ @FullTextFilterDef(name = "typeFilter", impl = UserFilterByCompany.class),
-		@FullTextFilterDef(name = "UserFilterByType", impl = SecurityFilterFactory.class),
-		@FullTextFilterDef(name = "UserFilterByCompanyId", impl = UserFilterFactoryByCompany.class) })
+@FullTextFilterDefs({ @FullTextFilterDef(name = "UserFilterByType", impl = FilterByType.class),
+		@FullTextFilterDef(name = "UserFilterByCompanyId", impl = FilterByCompanyId.class) })
 @NamedQueries({ @NamedQuery(name = "getUserById", query = "from User where id = :id and company_id = :companyid") })
 public class User implements Principal {
 
@@ -72,10 +70,11 @@ public class User implements Principal {
 	@ManyToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "company_id")
 	private Company company;
-	
-	@Column(name="company_id", insertable=false, updatable=false)
+
+	@Column(name = "company_id", insertable = false, updatable = false)
+	@Field(index = Index.YES, analyze = Analyze.YES, store = Store.NO)
 	private Long companyId;
-	
+
 	public User() {
 
 	}
@@ -108,7 +107,7 @@ public class User implements Principal {
 		this.email = email;
 	}
 
-	public User(long id, String firstName, String lastName, String mobile, String type, String email, Company company) {
+	public User(long id, String firstName, String lastName, String type, String email, String mobile, Company company) {
 		super();
 		this.id = id;
 		this.firstName = firstName;
@@ -198,7 +197,7 @@ public class User implements Principal {
 	public void setCompany(Company company) {
 		this.company = company;
 	}
-	
+
 	public Long getCompanyId() {
 		return companyId;
 	}

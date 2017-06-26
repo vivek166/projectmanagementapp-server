@@ -11,27 +11,27 @@ import org.hibernate.search.annotations.Key;
 import org.hibernate.search.filter.FilterKey;
 import org.hibernate.search.filter.StandardFilterKey;
 
-public class SecurityFilterFactory {
-	private String type;
+public class FilterByCompanyId {
+	private long companyId;
 
-	public void setType(String type) {
-		this.type = type;
+	public void setCompanyId(long companyId) {
+		this.companyId = companyId;
 	}
 
-	public String getType() {
-		return type;
+	public long getCompanyId() {
+		return companyId;
 	}
 
 	@Key
 	public FilterKey getKey() {
 		StandardFilterKey key = new StandardFilterKey();
-		key.addParameter(type);
+		key.addParameter(companyId);
 		return key;
 	}
 
 	@Factory
 	public Filter getFilter() {
-		Query query1 = (Query) new TermQuery(new Term("type", type.toString()));
-		return new CachingWrapperFilter(new QueryWrapperFilter((org.apache.lucene.search.Query) query1));
+		Query query = (Query) new TermQuery(new Term("companyId", companyId+"".toString()));
+		return new CachingWrapperFilter(new QueryWrapperFilter((org.apache.lucene.search.Query) query));
 	}
 }

@@ -9,10 +9,10 @@ import org.hibernate.SessionFactory;
 
 public class HibernateUtils {
 
-	static final Logger logger = Logger.getLogger(HibernateUtils.class);
-	static Configuration con;
-	static ServiceRegistry registry;
-	static SessionFactory sf;
+	private static final Logger logger = Logger.getLogger(HibernateUtils.class);
+	private static Configuration con;
+	private static ServiceRegistry registry;
+	private static SessionFactory sf;
 	static {
 		logger.info("started initialising hibernate config");
 		con = new Configuration().configure();

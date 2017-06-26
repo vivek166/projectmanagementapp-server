@@ -125,7 +125,7 @@ public class CompanyServiceImplementation implements CompanyServices {
 		}
 	}
 
-	public Company add(User user) {
+	public User add(User user) {
 		Session session = HibernateUtils.getSession();
 		logger.info("session open successfully");
 		org.hibernate.Transaction tx = session.beginTransaction();
@@ -138,7 +138,7 @@ public class CompanyServiceImplementation implements CompanyServices {
 
 			UserServicesImplementation userService = new UserServicesImplementation();
 			userService.add(user, company.getCompanyId());
-			return company;
+			return user;
 		} catch (HibernateException exception) {
 			logger.error("abnormal ternination, add() of company");
 			throw new ConstraintViolationException("company already present with name-- " + company.getCompanyName(),
@@ -188,12 +188,12 @@ public class CompanyServiceImplementation implements CompanyServices {
 				logger.error("company contact number is empty");
 				throw new FieldCanNotEmpty("company contact number must be filled");
 			} else {
-				session.saveOrUpdate(company);
+				session.update(company);
 				tx.commit();
 			}
 			return company;
 		} catch (HibernateException exception) {
-			logger.error("abnormal ternination, update() of project");
+			logger.error("abnormal ternination, update() of company");
 			throw new ConstraintViolationException("record already present with title-- " + company.getCompanyName(),
 					null, null);
 		} finally {
