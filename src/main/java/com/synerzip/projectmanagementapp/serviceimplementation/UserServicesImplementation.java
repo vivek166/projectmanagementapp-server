@@ -19,6 +19,7 @@ import com.mysql.jdbc.StringUtils;
 import com.synerzip.projectmanagementapp.dbconnection.HibernateUtils;
 import com.synerzip.projectmanagementapp.exception.CanNotChangePassword;
 import com.synerzip.projectmanagementapp.exception.MediaTypeException;
+import com.synerzip.projectmanagementapp.exception.UserAlreadyPresent;
 import com.synerzip.projectmanagementapp.model.ChangePassword;
 import com.synerzip.projectmanagementapp.model.Company;
 import com.synerzip.projectmanagementapp.model.PageResult;
@@ -138,7 +139,7 @@ public class UserServicesImplementation implements UserServices {
 		}
 	}
 
-	public User add(User user, long companyId) {
+	public User add(User user, long companyId) throws UserAlreadyPresent {
 		Session session = HibernateUtils.getSession();
 		logger.info("session open successfully");
 		try {
@@ -148,7 +149,7 @@ public class UserServicesImplementation implements UserServices {
 			session.beginTransaction().commit();
 			return user;
 		} catch (HibernateException exception) {
-			throw new ConstraintViolationException("user  already present with name-- " + user.getEmail(), null, null);
+			throw new UserAlreadyPresent("user  already present with name-- " + user.getEmail());
 		} finally {
 			session.close();
 		}
@@ -402,12 +403,13 @@ public class UserServicesImplementation implements UserServices {
 						.get();
 				org.apache.lucene.search.Query query = qb.keyword().onFields("firstName", "lastName", "email")
 						.matching(content).createQuery();
-				javax.persistence.Query fullTextQuery = fullTextEntityManager.createFullTextQuery(query, User.class)
-						.setFirstResult(start).setMaxResults(size);
+				javax.persistence.Query fullTextQuery = fullTextEntityManager.createFullTextQuery(query, User.class);
 				((FullTextQuery) fullTextQuery).enableFullTextFilter("UserFilterByCompanyId").setParameter("companyId",
 						companyId);
 				((FullTextQuery) fullTextQuery).enableFullTextFilter("UserFilterByType").setParameter("type",
 						"employee");
+				fullTextQuery.setFirstResult(start);
+				fullTextQuery.setMaxResults(size);
 				int count = fullTextQuery.getResultList().size();
 				List<User> userResult = fullTextQuery.getResultList();
 				return userResult;
