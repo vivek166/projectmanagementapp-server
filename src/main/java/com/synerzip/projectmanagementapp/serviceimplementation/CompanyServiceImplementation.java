@@ -16,6 +16,7 @@ import org.hibernate.search.query.dsl.QueryBuilder;
 import com.mysql.jdbc.StringUtils;
 import com.synerzip.projectmanagementapp.dbconnection.HibernateUtils;
 import com.synerzip.projectmanagementapp.exception.FieldCanNotEmpty;
+import com.synerzip.projectmanagementapp.exception.UserAlreadyPresent;
 import com.synerzip.projectmanagementapp.model.Company;
 import com.synerzip.projectmanagementapp.model.PageResult;
 import com.synerzip.projectmanagementapp.model.User;
@@ -125,7 +126,7 @@ public class CompanyServiceImplementation implements CompanyServices {
 		}
 	}
 
-	public User add(User user) {
+	public void add(User user) {
 		Session session = HibernateUtils.getSession();
 		logger.info("session open successfully");
 		org.hibernate.Transaction tx = session.beginTransaction();
@@ -135,18 +136,20 @@ public class CompanyServiceImplementation implements CompanyServices {
 			company.setCompanyName(companyName);
 			session.save(company);
 			tx.commit();
-
 			UserServicesImplementation userService = new UserServicesImplementation();
 			userService.add(user, company.getCompanyId());
-			return user;
-		} catch (HibernateException exception) {
+		} catch (ConstraintViolationException exception) {
 			logger.error("abnormal ternination, add() of company");
 			throw new ConstraintViolationException("company already present with name-- " + company.getCompanyName(),
 					null, null);
+		}catch (UserAlreadyPresent exception) {
+			logger.error("abnormal ternination, add() of company");
+			throw new UserAlreadyPresent("user already present with name-- " + user.getEmail());
 		} finally {
 			session.close();
 			logger.info("session closed successfully");
 		}
+		
 	}
 
 	public String delete(long companyId) {
