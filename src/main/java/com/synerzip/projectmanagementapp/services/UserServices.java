@@ -1,6 +1,9 @@
 package com.synerzip.projectmanagementapp.services;
 
 import java.util.List;
+
+import org.hibernate.Session;
+
 import com.synerzip.projectmanagementapp.model.ChangePassword;
 import com.synerzip.projectmanagementapp.model.Company;
 import com.synerzip.projectmanagementapp.model.PageResult;

@@ -60,8 +60,9 @@ public class CompanyController {
 
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
-	public void add(User user) {
-		service.add(user);
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response add(User user) {
+		return Response.ok().entity(service.add(user)).build();
 	}
 
 	@DELETE

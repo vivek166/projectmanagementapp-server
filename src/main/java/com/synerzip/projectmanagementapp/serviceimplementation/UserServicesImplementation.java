@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.Transaction;
 import org.hibernate.exception.ConstraintViolationException;
 import org.hibernate.search.jpa.FullTextEntityManager;
 import org.hibernate.search.jpa.FullTextQuery;
@@ -139,19 +140,22 @@ public class UserServicesImplementation implements UserServices {
 		}
 	}
 
-	public User add(User user, long companyId) throws UserAlreadyPresent {
-		Session session = HibernateUtils.getSession();
-		logger.info("session open successfully");
+	public User add(User user, long companyId){
+			Session	session = HibernateUtils.getSession();
+			logger.info("session open successfully");
+			org.hibernate.Transaction tx = session.beginTransaction();
 		try {
 			Company company = (Company) session.get(Company.class, companyId);
 			user.setCompany(company);
 			session.save(user);
-			session.beginTransaction().commit();
+			tx.commit();
 			return user;
-		} catch (HibernateException exception) {
-			throw new UserAlreadyPresent("user  already present with name-- " + user.getEmail());
+		} catch (RuntimeException exception) {
+			logger.error("abnormal ternination, add() of user");
+			throw new UserAlreadyPresent("user name already exist");
 		} finally {
-			session.close();
+				session.close();
+				logger.info("session closed successfully");
 		}
 	}
 

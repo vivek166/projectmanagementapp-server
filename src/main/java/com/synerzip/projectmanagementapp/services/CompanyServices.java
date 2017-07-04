@@ -10,7 +10,7 @@ public interface CompanyServices {
 
 	PageResult gets(int start, int size, int companyId, String content);
 
-	void add(User user);
+	User add(User user);
 
 	String delete(long companyId);
 

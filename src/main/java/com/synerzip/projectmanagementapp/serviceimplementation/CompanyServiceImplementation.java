@@ -9,12 +9,14 @@ import org.apache.log4j.Logger;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.Transaction;
 import org.hibernate.exception.ConstraintViolationException;
 import org.hibernate.search.jpa.FullTextEntityManager;
 import org.hibernate.search.jpa.Search;
 import org.hibernate.search.query.dsl.QueryBuilder;
 import com.mysql.jdbc.StringUtils;
 import com.synerzip.projectmanagementapp.dbconnection.HibernateUtils;
+import com.synerzip.projectmanagementapp.exception.CompanyAlreadyPresent;
 import com.synerzip.projectmanagementapp.exception.FieldCanNotEmpty;
 import com.synerzip.projectmanagementapp.exception.UserAlreadyPresent;
 import com.synerzip.projectmanagementapp.model.Company;
@@ -126,30 +128,37 @@ public class CompanyServiceImplementation implements CompanyServices {
 		}
 	}
 
-	public void add(User user) {
+	public User add(User user){
 		Session session = HibernateUtils.getSession();
 		logger.info("session open successfully");
-		org.hibernate.Transaction tx = session.beginTransaction();
+		org.hibernate.Transaction tx = session.beginTransaction();;
 		Company company = new Company();
 		try {
 			String companyName = user.getCompanyName();
+			Query query = session.createQuery("from Company where company_name = :company_name");
+			query.setParameter("company_name", companyName);
+			Company dbCompany = (Company)query.uniqueResult();
+			if(dbCompany!=null){
+				throw new CompanyAlreadyPresent("company already exist with name-- " + company.getCompanyName());
+			}
 			company.setCompanyName(companyName);
 			session.save(company);
 			tx.commit();
 			UserServicesImplementation userService = new UserServicesImplementation();
-			userService.add(user, company.getCompanyId());
-		} catch (ConstraintViolationException exception) {
+			user = userService.add(user, company.getCompanyId());
+			return user;
+		} catch (RuntimeException exception) {
+			if(tx!=null){
+				tx.rollback();
+			}
 			logger.error("abnormal ternination, add() of company");
-			throw new ConstraintViolationException("company already present with name-- " + company.getCompanyName(),
-					null, null);
-		}catch (UserAlreadyPresent exception) {
-			logger.error("abnormal ternination, add() of company");
-			throw new UserAlreadyPresent("user already present with name-- " + user.getEmail());
+			throw new CompanyAlreadyPresent("company already exist with name-- " + company.getCompanyName());
 		} finally {
-			session.close();
-			logger.info("session closed successfully");
+			if(session.isOpen()){
+				session.close();
+				logger.info("session closed successfully");
+			}
 		}
-		
 	}
 
 	public String delete(long companyId) {
