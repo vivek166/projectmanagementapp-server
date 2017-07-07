@@ -141,6 +141,13 @@ public class CompanyServiceImplementation implements CompanyServices {
 			if(dbCompany!=null){
 				throw new CompanyAlreadyPresent("company already exist with name-- " + company.getCompanyName());
 			}
+			String userName = user.getEmail();
+			Query userQuery = session.createQuery("from User where email = :email");
+			userQuery.setParameter("email", userName);
+			User dbUser = (User)userQuery.uniqueResult();
+			if(dbUser!=null){
+				throw new UserAlreadyPresent("user already exist with name-- " + user.getEmail());
+			}
 			company.setCompanyName(companyName);
 			session.save(company);
 			tx.commit();

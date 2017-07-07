@@ -103,13 +103,13 @@ public class ProjectServiceImplementation implements ProjectServices {
 					.forEntity(Project.class).get();
 			org.apache.lucene.search.Query query = queryBuilder.keyword()
 					.onFields("projectTitle", "technologyUsed", "projectFeature", "projectDescription")
-					.matching(content).createQuery();
+					.matching(content +"*").createQuery();
 			javax.persistence.Query fullTextQuery = fullTextEntityManager.createFullTextQuery(query, Project.class);
-			int count = fullTextQuery.getResultList().size();
 			fullTextQuery.setFirstResult(start);
 			fullTextQuery.setMaxResults(size);
 			((FullTextQuery) fullTextQuery).enableFullTextFilter("ProjectFilterByCompanyId").setParameter("companyId",
 					companyId);
+			int count = fullTextQuery.getResultList().size();
 			List<Project> projectResult = fullTextQuery.getResultList();
 			if (projectResult.size() != 0) {
 				PageResult pageResults = new PageResult();
@@ -169,6 +169,9 @@ public class ProjectServiceImplementation implements ProjectServices {
 		logger.info("session open successfully");
 		org.hibernate.Transaction tx = session.beginTransaction();
 		try {
+			Query relQuery = session.createQuery("DELETE FROM ProjectEmployee WHERE project_id = :project_id");
+			relQuery.setParameter("project_id", projectId);
+			relQuery.executeUpdate();
 			String deleteQuery = "DELETE FROM Project WHERE project_id = :project_id and company_id = :company_id";
 			Query query = session.createQuery(deleteQuery);
 			query.setParameter("project_id", projectId);
@@ -361,7 +364,7 @@ public class ProjectServiceImplementation implements ProjectServices {
 						.forEntity(Project.class).get();
 				org.apache.lucene.search.Query query = queryBuilder.keyword()
 						.onFields("technologyUsed", "projectFeature", "projectDescription", "projectTitle")
-						.matching(content).createQuery();
+						.matching(content + "*").createQuery();
 				javax.persistence.Query fullTextQuery = fullTextEntityManager.createFullTextQuery(query, Project.class);
 				fullTextQuery.setFirstResult(start);
 				fullTextQuery.setMaxResults(size);

@@ -110,7 +110,7 @@ public class UserServicesImplementation implements UserServices {
 
 			QueryBuilder qb = fullTextEntityManager.getSearchFactory().buildQueryBuilder().forEntity(User.class).get();
 			org.apache.lucene.search.Query query = qb.keyword().onFields("firstName", "lastName", "mobile", "email")
-					.matching(content).createQuery();
+					.matching(content + "*").createQuery();
 			javax.persistence.Query fullTextQuery = fullTextEntityManager.createFullTextQuery(query, User.class);
 			((FullTextQuery) fullTextQuery).enableFullTextFilter("UserFilterByCompanyId").setParameter("companyId",
 					companyId);
@@ -164,6 +164,9 @@ public class UserServicesImplementation implements UserServices {
 		logger.info("session open successfully");
 		org.hibernate.Transaction tx = session.beginTransaction();
 		try {
+			Query relQuery = session.createQuery("DELETE FROM ProjectEmployee WHERE emp_id = :emp_id");
+			relQuery.setParameter("emp_id", id);
+			relQuery.executeUpdate();
 			String deleteQuery = "DELETE FROM User WHERE id = :id and company_id = :company_id";
 			Query query = session.createQuery(deleteQuery);
 			query.setParameter("id", id);
@@ -406,7 +409,7 @@ public class UserServicesImplementation implements UserServices {
 				QueryBuilder qb = fullTextEntityManager.getSearchFactory().buildQueryBuilder().forEntity(User.class)
 						.get();
 				org.apache.lucene.search.Query query = qb.keyword().onFields("firstName", "lastName", "email")
-						.matching(content).createQuery();
+						.matching(content + "*").createQuery();
 				javax.persistence.Query fullTextQuery = fullTextEntityManager.createFullTextQuery(query, User.class);
 				((FullTextQuery) fullTextQuery).enableFullTextFilter("UserFilterByCompanyId").setParameter("companyId",
 						companyId);
