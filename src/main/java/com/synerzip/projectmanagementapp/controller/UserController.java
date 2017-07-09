@@ -144,6 +144,16 @@ public class UserController {
 	public Response token(@PathParam("id") long id) {
 		return Response.ok().entity(service.token(id)).build();
 	}
+	
+	@DELETE
+	@Secure
+	@Produces(MediaType.TEXT_PLAIN)
+	@Path("{userId}/unassign/{projectId}")
+	public Response delete(@PathParam("userId") long userId, @PathParam("projectId") long projectId, @Context SecurityContext securityContext) {
+		User user = (User) securityContext.getUserPrincipal();
+		long companyId = user.getCompany().getCompanyId();
+		return Response.ok().entity(service.unAssign(userId, projectId, companyId)).build();
+	}
 
 	@PUT
 	@Secure

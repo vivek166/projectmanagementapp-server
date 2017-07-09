@@ -191,7 +191,27 @@ public class ProjectServiceImplementation implements ProjectServices {
 		}
 		return "record deleted";
 	}
-
+	
+	public String unAssign(long projectId, long userId, long companyId) {
+		Session session = HibernateUtils.getSession();
+		logger.info("session open successfully");
+		org.hibernate.Transaction tx = session.beginTransaction();
+		try {
+			Query relQuery = session.createQuery("DELETE FROM ProjectEmployee WHERE project_id = :project_id and emp_id = :emp_id");
+			relQuery.setParameter("project_id", projectId);
+			relQuery.setParameter("emp_id", userId);
+			relQuery.executeUpdate();
+			tx.commit();
+		} catch (HibernateException exception) {
+			logger.error("abnormal ternination, unAssign() of project");
+			throw new HibernateException("unable to process your request");
+		} finally {
+			session.close();
+			logger.info("session closed successfully");
+		}
+		return "unassigned project";
+	}
+	
 	public Project update(Project project, long projectId) {
 		Session session = HibernateUtils.getSession();
 		logger.info("session open successfully");
@@ -364,7 +384,7 @@ public class ProjectServiceImplementation implements ProjectServices {
 						.forEntity(Project.class).get();
 				org.apache.lucene.search.Query query = queryBuilder.keyword()
 						.onFields("technologyUsed", "projectFeature", "projectDescription", "projectTitle")
-						.matching(content + "*").createQuery();
+						.matching(content+"*").createQuery();
 				javax.persistence.Query fullTextQuery = fullTextEntityManager.createFullTextQuery(query, Project.class);
 				fullTextQuery.setFirstResult(start);
 				fullTextQuery.setMaxResults(size);

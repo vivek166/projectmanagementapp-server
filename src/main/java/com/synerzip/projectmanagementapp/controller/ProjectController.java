@@ -11,7 +11,9 @@ import javax.ws.rs.core.SecurityContext;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
+
 import java.io.IOException;
+
 import javax.persistence.EntityNotFoundException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -80,6 +82,14 @@ public class ProjectController {
 		long companyId = user.getCompany().getCompanyId();
 		return new ObjectMapper().writeValueAsString(service.getProjects(start, size, query, companyId));
 	}
+	
+	@GET
+	@Secure
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/{projectId}/assignedemployee")
+	public String assigned(@PathParam("projectId") long projectId) throws JsonGenerationException, JsonMappingException, IOException {
+		return new ObjectMapper().writeValueAsString(service.assigned(projectId));
+	}
 
 	@POST
 	@Secure
@@ -97,6 +107,16 @@ public class ProjectController {
 		User user = (User) securityContext.getUserPrincipal();
 		long companyId = user.getCompany().getCompanyId();
 		return Response.ok().entity(service.delete(projectId, companyId)).build();
+	}
+	
+	@DELETE
+	@Secure
+	@Produces(MediaType.TEXT_PLAIN)
+	@Path("{projectId}/unassign/{userId}")
+	public Response delete(@PathParam("projectId") long projectId, @PathParam("userId") long userId, @Context SecurityContext securityContext) {
+		User user = (User) securityContext.getUserPrincipal();
+		long companyId = user.getCompany().getCompanyId();
+		return Response.ok().entity(service.unAssign(projectId, userId, companyId)).build();
 	}
 
 	@PUT

@@ -186,6 +186,26 @@ public class UserServicesImplementation implements UserServices {
 		}
 		return "record deleted";
 	}
+	
+	public String unAssign(long userId, long projectId, long companyId) {
+		Session session = HibernateUtils.getSession();
+		logger.info("session open successfully");
+		org.hibernate.Transaction tx = session.beginTransaction();
+		try {
+			Query relQuery = session.createQuery("DELETE FROM ProjectEmployee WHERE emp_id = :emp_id and project_id = :project_id");
+			relQuery.setParameter("emp_id", userId);
+			relQuery.setParameter("project_id", projectId);
+			relQuery.executeUpdate();
+			tx.commit();
+		} catch (HibernateException exception) {
+			logger.error("abnormal ternination, unAssign() of user service");
+			throw new HibernateException("unable to process your request");
+		} finally {
+			session.close();
+			logger.info("session closed successfully");
+		}
+		return "unassigned project";
+	}
 
 	public User update(User user, long id) {
 		Session session = HibernateUtils.getSession();
@@ -409,15 +429,14 @@ public class UserServicesImplementation implements UserServices {
 				QueryBuilder qb = fullTextEntityManager.getSearchFactory().buildQueryBuilder().forEntity(User.class)
 						.get();
 				org.apache.lucene.search.Query query = qb.keyword().onFields("firstName", "lastName", "email")
-						.matching(content + "*").createQuery();
+						.matching(content+"%").createQuery();
 				javax.persistence.Query fullTextQuery = fullTextEntityManager.createFullTextQuery(query, User.class);
+				fullTextQuery.setFirstResult(start);
+				fullTextQuery.setMaxResults(size);
 				((FullTextQuery) fullTextQuery).enableFullTextFilter("UserFilterByCompanyId").setParameter("companyId",
 						companyId);
 				((FullTextQuery) fullTextQuery).enableFullTextFilter("UserFilterByType").setParameter("type",
 						"employee");
-				fullTextQuery.setFirstResult(start);
-				fullTextQuery.setMaxResults(size);
-				int count = fullTextQuery.getResultList().size();
 				List<User> userResult = fullTextQuery.getResultList();
 				return userResult;
 			} catch (HibernateException exception) {
