@@ -26,6 +26,6 @@ public interface ProjectServices {
 
 	PageResult search(int start, int size, String content, long companyId);
 
-	List<Project> getProjects(int start, int size, String content, long companyId);
+	List<Object> getProjects(int start, int size, String content, long userId, long companyId);
 
 }

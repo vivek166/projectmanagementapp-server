@@ -1,5 +1,6 @@
 package com.synerzip.projectmanagementapp.serviceimplementation;
 
+import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
@@ -94,16 +95,11 @@ public class ProjectServiceImplementation implements ProjectServices {
 		FullTextEntityManager fullTextEntityManager = Search.getFullTextEntityManager(entityManager);
 		try {
 
-			/*
-			 * try { fullTextEntityManager.createIndexer().startAndWait(); }
-			 * catch (InterruptedException e) { e.printStackTrace(); }
-			 */
-
 			QueryBuilder queryBuilder = fullTextEntityManager.getSearchFactory().buildQueryBuilder()
 					.forEntity(Project.class).get();
 			org.apache.lucene.search.Query query = queryBuilder.keyword()
 					.onFields("projectTitle", "technologyUsed", "projectFeature", "projectDescription")
-					.matching(content +"*").createQuery();
+					.matching(content + "*").createQuery();
 			javax.persistence.Query fullTextQuery = fullTextEntityManager.createFullTextQuery(query, Project.class);
 			fullTextQuery.setFirstResult(start);
 			fullTextQuery.setMaxResults(size);
@@ -136,6 +132,9 @@ public class ProjectServiceImplementation implements ProjectServices {
 		Session session = HibernateUtils.getSession();
 		logger.info("session open successfully");
 		org.hibernate.Transaction tx = session.beginTransaction();
+		EntityManager entityManager = Persistence.createEntityManagerFactory("HibernatePersistence")
+				.createEntityManager();
+		FullTextEntityManager fullTextEntityManager = Search.getFullTextEntityManager(entityManager);
 		try {
 			if (StringUtils.isEmptyOrWhitespaceOnly(project.getProjectTitle())) {
 				logger.error("project Title is empty");
@@ -153,6 +152,13 @@ public class ProjectServiceImplementation implements ProjectServices {
 				session.save(project);
 				tx.commit();
 			}
+
+			try {
+				fullTextEntityManager.createIndexer().startAndWait();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+
 			return project;
 		} catch (HibernateException exception) {
 			logger.error("abnormal ternination, add() of project");
@@ -160,6 +166,7 @@ public class ProjectServiceImplementation implements ProjectServices {
 					null, null);
 		} finally {
 			session.close();
+			fullTextEntityManager.close();
 			logger.info("session closed successfully");
 		}
 	}
@@ -191,13 +198,14 @@ public class ProjectServiceImplementation implements ProjectServices {
 		}
 		return "record deleted";
 	}
-	
+
 	public String unAssign(long projectId, long userId, long companyId) {
 		Session session = HibernateUtils.getSession();
 		logger.info("session open successfully");
 		org.hibernate.Transaction tx = session.beginTransaction();
 		try {
-			Query relQuery = session.createQuery("DELETE FROM ProjectEmployee WHERE project_id = :project_id and emp_id = :emp_id");
+			Query relQuery = session
+					.createQuery("DELETE FROM ProjectEmployee WHERE project_id = :project_id and emp_id = :emp_id");
 			relQuery.setParameter("project_id", projectId);
 			relQuery.setParameter("emp_id", userId);
 			relQuery.executeUpdate();
@@ -211,11 +219,14 @@ public class ProjectServiceImplementation implements ProjectServices {
 		}
 		return "unassigned project";
 	}
-	
+
 	public Project update(Project project, long projectId) {
 		Session session = HibernateUtils.getSession();
 		logger.info("session open successfully");
 		org.hibernate.Transaction tx = session.beginTransaction();
+		EntityManager entityManager = Persistence.createEntityManagerFactory("HibernatePersistence")
+				.createEntityManager();
+		FullTextEntityManager fullTextEntityManager = Search.getFullTextEntityManager(entityManager);
 		try {
 			if (StringUtils.isEmptyOrWhitespaceOnly(project.getProjectTitle())) {
 				logger.error("project Title is empty");
@@ -233,6 +244,13 @@ public class ProjectServiceImplementation implements ProjectServices {
 				session.saveOrUpdate(project);
 				tx.commit();
 			}
+
+			try {
+				fullTextEntityManager.createIndexer().startAndWait();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+
 			return project;
 		} catch (HibernateException exception) {
 			logger.error("abnormal ternination, update() of project");
@@ -348,61 +366,88 @@ public class ProjectServiceImplementation implements ProjectServices {
 		}
 	}
 
-	public List<Project> getProjects(int start, int size, String content, long companyId) {
-		if (org.apache.commons.lang.StringUtils.isEmpty(content)) {
-			Session session = HibernateUtils.getSession();
+	public List<Object> getProjects(int start, int size, String content, long userId, long companyId) {
+		Session session = HibernateUtils.getSession();
+		if (userId == 0) {
+			if (org.apache.commons.lang.StringUtils.isEmpty(content)) {
+				try {
+					Query getProject = session.createQuery(
+							"select new Project(p.projectId, p.projectTitle) from Project p where company_id = :company_id");
+					getProject.setParameter("company_id", companyId);
+					getProject.setFirstResult(start);
+					getProject.setMaxResults(size);
+					List<Object> projects = (List<Object>) getProject.list();
+					if (projects.isEmpty()) {
+						throw new EntityNotFoundException("unable to process your request");
+					}
+					return projects;
+				} catch (HibernateException exception) {
+					throw new EntityNotFoundException("unable to process your request");
+				} finally {
+					session.close();
+				}
+			} else {
+				EntityManager entityManager = Persistence.createEntityManagerFactory("HibernatePersistence")
+						.createEntityManager();
+				logger.info("session open successfully");
+				entityManager.getTransaction().begin();
+				FullTextEntityManager fullTextEntityManager = Search.getFullTextEntityManager(entityManager);
+				try {
+
+					QueryBuilder queryBuilder = fullTextEntityManager.getSearchFactory().buildQueryBuilder()
+							.forEntity(Project.class).get();
+					org.apache.lucene.search.Query query = queryBuilder.keyword()
+							.onFields("technologyUsed", "projectFeature", "projectDescription", "projectTitle")
+							.matching(content + "*").createQuery();
+					javax.persistence.Query fullTextQuery = fullTextEntityManager.createFullTextQuery(query,
+							Project.class);
+					fullTextQuery.setFirstResult(start);
+					fullTextQuery.setMaxResults(size);
+					((FullTextQuery) fullTextQuery).enableFullTextFilter("ProjectFilterByCompanyId")
+							.setParameter("companyId", companyId);
+					List<Object> projectResult = fullTextQuery.getResultList();
+					return projectResult;
+				} catch (HibernateException exception) {
+					logger.error("abnormal ternination, search() of project");
+					throw new HibernateException("unable to process your request");
+				} finally {
+					if (fullTextEntityManager != null) {
+						fullTextEntityManager.close();
+						logger.info("session closed successfully");
+					}
+					fullTextEntityManager = null;
+				}
+			}
+		} else {
 			try {
-				Query getProject = session.createQuery(
-						"select new Project(p.projectId, p.projectTitle) from Project p where company_id = :company_id");
-				getProject.setParameter("company_id", companyId);
+				Query getProject = session.createQuery("select project from ProjectEmployee where user_id = :user_id");
+				getProject.setParameter("user_id", userId);
 				getProject.setFirstResult(start);
 				getProject.setMaxResults(size);
-				List<Project> projects = (List<Project>) getProject.list();
+				List<Object> projects = (List<Object>) getProject.list();
 				if (projects.isEmpty()) {
 					throw new EntityNotFoundException("unable to process your request");
 				}
-				return projects;
+				ArrayList<Long> projectIds = new ArrayList<Long>();
+				Project projectObj = null;
+				for (Object project : projects) {
+					projectObj=(Project)project;
+					projectIds.add(projectObj.getProjectId());
+				}
+				List<Object> dbProject = null;
+				for (Long projectId : projectIds) {
+					Query query = session.createQuery("select new Project(p.projectId, p.projectTitle) from Project p where company_id = :company_id and project_id = :project_id");
+					query.setParameter("company_id", companyId);
+					query.setParameter("project_id", projectId);
+					dbProject.add((List<Object>) query.list());
+				}
+				return dbProject;
 			} catch (HibernateException exception) {
 				throw new EntityNotFoundException("unable to process your request");
 			} finally {
 				session.close();
 			}
-		} else {
-			EntityManager entityManager = Persistence.createEntityManagerFactory("HibernatePersistence")
-					.createEntityManager();
-			logger.info("session open successfully");
-			entityManager.getTransaction().begin();
-			FullTextEntityManager fullTextEntityManager = Search.getFullTextEntityManager(entityManager);
-			try {
 
-				/*
-				 * try { fullTextEntityManager.createIndexer().startAndWait(); }
-				 * catch (InterruptedException e) { e.printStackTrace(); }
-				 */
-
-				QueryBuilder queryBuilder = fullTextEntityManager.getSearchFactory().buildQueryBuilder()
-						.forEntity(Project.class).get();
-				org.apache.lucene.search.Query query = queryBuilder.keyword()
-						.onFields("technologyUsed", "projectFeature", "projectDescription", "projectTitle")
-						.matching(content+"*").createQuery();
-				javax.persistence.Query fullTextQuery = fullTextEntityManager.createFullTextQuery(query, Project.class);
-				fullTextQuery.setFirstResult(start);
-				fullTextQuery.setMaxResults(size);
-				((FullTextQuery) fullTextQuery).enableFullTextFilter("ProjectFilterByCompanyId")
-						.setParameter("companyId", companyId);
-				List<Project> projectResult = fullTextQuery.getResultList();
-				return projectResult;
-			} catch (HibernateException exception) {
-				logger.error("abnormal ternination, search() of project");
-				throw new HibernateException("unable to process your request");
-			} finally {
-				if (fullTextEntityManager != null) {
-					fullTextEntityManager.close();
-					logger.info("session closed successfully");
-				}
-				fullTextEntityManager = null;
-			}
 		}
 	}
-
 }

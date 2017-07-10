@@ -1,5 +1,6 @@
 package com.synerzip.projectmanagementapp.serviceimplementation;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
@@ -103,11 +104,6 @@ public class UserServicesImplementation implements UserServices {
 		FullTextEntityManager fullTextEntityManager = Search.getFullTextEntityManager(entityManager);
 		try {
 
-			/*
-			 * try { fullTextEntityManager.createIndexer().startAndWait(); }
-			 * catch (InterruptedException e) { e.printStackTrace(); }
-			 */
-
 			QueryBuilder qb = fullTextEntityManager.getSearchFactory().buildQueryBuilder().forEntity(User.class).get();
 			org.apache.lucene.search.Query query = qb.keyword().onFields("firstName", "lastName", "mobile", "email")
 					.matching(content + "*").createQuery();
@@ -140,22 +136,33 @@ public class UserServicesImplementation implements UserServices {
 		}
 	}
 
-	public User add(User user, long companyId){
-			Session	session = HibernateUtils.getSession();
-			logger.info("session open successfully");
-			org.hibernate.Transaction tx = session.beginTransaction();
+	public User add(User user, long companyId) {
+		Session session = HibernateUtils.getSession();
+		logger.info("session open successfully");
+		org.hibernate.Transaction tx = session.beginTransaction();
+		EntityManager entityManager = Persistence.createEntityManagerFactory("HibernatePersistence")
+				.createEntityManager();
+		FullTextEntityManager fullTextEntityManager = Search.getFullTextEntityManager(entityManager);
 		try {
 			Company company = (Company) session.get(Company.class, companyId);
 			user.setCompany(company);
 			session.save(user);
 			tx.commit();
+
+			try {
+				fullTextEntityManager.createIndexer().startAndWait();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+
 			return user;
 		} catch (RuntimeException exception) {
 			logger.error("abnormal ternination, add() of user");
 			throw new UserAlreadyPresent("user name already exist");
 		} finally {
-				session.close();
-				logger.info("session closed successfully");
+			session.close();
+			fullTextEntityManager.close();
+			logger.info("session closed successfully");
 		}
 	}
 
@@ -186,13 +193,14 @@ public class UserServicesImplementation implements UserServices {
 		}
 		return "record deleted";
 	}
-	
+
 	public String unAssign(long userId, long projectId, long companyId) {
 		Session session = HibernateUtils.getSession();
 		logger.info("session open successfully");
 		org.hibernate.Transaction tx = session.beginTransaction();
 		try {
-			Query relQuery = session.createQuery("DELETE FROM ProjectEmployee WHERE emp_id = :emp_id and project_id = :project_id");
+			Query relQuery = session
+					.createQuery("DELETE FROM ProjectEmployee WHERE emp_id = :emp_id and project_id = :project_id");
 			relQuery.setParameter("emp_id", userId);
 			relQuery.setParameter("project_id", projectId);
 			relQuery.executeUpdate();
@@ -211,6 +219,9 @@ public class UserServicesImplementation implements UserServices {
 		Session session = HibernateUtils.getSession();
 		logger.info("session open successfully");
 		org.hibernate.Transaction tx = session.beginTransaction();
+		EntityManager entityManager = Persistence.createEntityManagerFactory("HibernatePersistence")
+				.createEntityManager();
+		FullTextEntityManager fullTextEntityManager = Search.getFullTextEntityManager(entityManager);
 		try {
 			User dbUser = (User) session.get(User.class, id);
 			if (dbUser != null) {
@@ -226,6 +237,13 @@ public class UserServicesImplementation implements UserServices {
 				session.save(dbUser);
 				session.flush();
 				tx.commit();
+
+				try {
+					fullTextEntityManager.createIndexer().startAndWait();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+
 			}
 			return dbUser;
 		} catch (HibernateException exception) {
@@ -235,6 +253,7 @@ public class UserServicesImplementation implements UserServices {
 					null);
 		} finally {
 			session.close();
+			fullTextEntityManager.close();
 			logger.info("session closed successfully");
 		}
 	}
@@ -395,62 +414,90 @@ public class UserServicesImplementation implements UserServices {
 		}
 	}
 
-	public List<User> getEmployees(int start, int size, String content, long companyId) {
+	public List<Object> getEmployees(int start, int size, String content, long projectId, long companyId) {
 		Session session = HibernateUtils.getSession();
-		if (org.apache.commons.lang.StringUtils.isEmpty(content)) {
+		if (projectId == 0) {
+			if (org.apache.commons.lang.StringUtils.isEmpty(content)) {
+				try {
+					Query getEmployee = session.createQuery(
+							"select new User(u.id, u.firstName, u.lastName, u.email) from User u  where type = :query and company_id = :company_id");
+					getEmployee.setParameter("query", "employee");
+					getEmployee.setParameter("company_id", companyId);
+					getEmployee.setFirstResult(start);
+					getEmployee.setMaxResults(size);
+					List<Object> employees = (List<Object>) getEmployee.list();
+					if (employees.isEmpty()) {
+						throw new EntityNotFoundException("unable to process your request");
+					}
+					return employees;
+				} catch (HibernateException exception) {
+					throw new EntityNotFoundException("unable to process your request");
+				} finally {
+					session.close();
+				}
+			} else {
+				EntityManager entityManager = Persistence.createEntityManagerFactory("HibernatePersistence")
+						.createEntityManager();
+				FullTextEntityManager fullTextEntityManager = Search.getFullTextEntityManager(entityManager);
+				try {
+
+					QueryBuilder qb = fullTextEntityManager.getSearchFactory().buildQueryBuilder().forEntity(User.class)
+							.get();
+					org.apache.lucene.search.Query query = qb.keyword().onFields("firstName", "lastName", "email")
+							.matching(content + "%").createQuery();
+					javax.persistence.Query fullTextQuery = fullTextEntityManager.createFullTextQuery(query,
+							User.class);
+					fullTextQuery.setFirstResult(start);
+					fullTextQuery.setMaxResults(size);
+					((FullTextQuery) fullTextQuery).enableFullTextFilter("UserFilterByCompanyId")
+							.setParameter("companyId", companyId);
+					((FullTextQuery) fullTextQuery).enableFullTextFilter("UserFilterByType").setParameter("type",
+							"employee");
+					List<Object> userResult = fullTextQuery.getResultList();
+					return userResult;
+				} catch (HibernateException exception) {
+					logger.error("abnormal ternination, search() of user");
+					throw new HibernateException("unable to process your request");
+				} finally {
+					if (fullTextEntityManager != null) {
+						fullTextEntityManager.close();
+						logger.info("session closed successfully");
+					}
+					fullTextEntityManager = null;
+				}
+			}
+
+		} else {
 			try {
-				Query getEmployee = session.createQuery(
-						"select new User(u.id, u.firstName, u.lastName, u.email) from User u  where type = :query and company_id = :company_id");
-				getEmployee.setParameter("query", "employee");
-				getEmployee.setParameter("company_id", companyId);
-				getEmployee.setFirstResult(start);
-				getEmployee.setMaxResults(size);
-				List<User> employees = (List<User>) getEmployee.list();
-				if (employees.isEmpty()) {
+				Query getUsers = session
+						.createQuery("select user from ProjectEmployee where project_id = :project_id");
+				getUsers.setParameter("project_id", projectId);
+				List<Object> users = (List<Object>) getUsers.list();
+				if (users.isEmpty()) {
 					throw new EntityNotFoundException("unable to process your request");
 				}
-				return employees;
+				ArrayList<Long> userIds = new ArrayList<Long>();
+				User userObj = null;
+				for (Object user : users) {
+					userObj = (User) user;
+					userIds.add(userObj.getId());
+				}
+				List<Object> dbUser = null;
+				for (Long userId : userIds) {
+					Query query = session.createQuery(
+							"select new User(u.id, u.firstName, u.lastName, u.email) from User u  where type = :query and company_id = :company_id and user_id = user_id");
+					query.setParameter("query", "employee");
+					query.setParameter("company_id", companyId);
+					query.setParameter("user_id", userId);
+					dbUser.add((List<Object>) query.list());
+				}
+				return dbUser;
 			} catch (HibernateException exception) {
 				throw new EntityNotFoundException("unable to process your request");
 			} finally {
 				session.close();
 			}
-		} else {
-			EntityManager entityManager = Persistence.createEntityManagerFactory("HibernatePersistence")
-					.createEntityManager();
-			FullTextEntityManager fullTextEntityManager = Search.getFullTextEntityManager(entityManager);
-			try {
-
-				/*
-				 * try { fullTextEntityManager.createIndexer().startAndWait(); }
-				 * catch (InterruptedException e) { e.printStackTrace(); }
-				 */
-
-				QueryBuilder qb = fullTextEntityManager.getSearchFactory().buildQueryBuilder().forEntity(User.class)
-						.get();
-				org.apache.lucene.search.Query query = qb.keyword().onFields("firstName", "lastName", "email")
-						.matching(content+"%").createQuery();
-				javax.persistence.Query fullTextQuery = fullTextEntityManager.createFullTextQuery(query, User.class);
-				fullTextQuery.setFirstResult(start);
-				fullTextQuery.setMaxResults(size);
-				((FullTextQuery) fullTextQuery).enableFullTextFilter("UserFilterByCompanyId").setParameter("companyId",
-						companyId);
-				((FullTextQuery) fullTextQuery).enableFullTextFilter("UserFilterByType").setParameter("type",
-						"employee");
-				List<User> userResult = fullTextQuery.getResultList();
-				return userResult;
-			} catch (HibernateException exception) {
-				logger.error("abnormal ternination, search() of user");
-				throw new HibernateException("unable to process your request");
-			} finally {
-				if (fullTextEntityManager != null) {
-					fullTextEntityManager.close();
-					logger.info("session closed successfully");
-				}
-				fullTextEntityManager = null;
-			}
 		}
-
 	}
 
 	public String assignProject(long userId, long projectId) {

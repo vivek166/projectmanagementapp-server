@@ -76,18 +76,19 @@ public class ProjectController {
 	@Produces(MediaType.APPLICATION_JSON)
 	public String getProjects(@DefaultValue("0") @QueryParam("start") int start,
 			@DefaultValue("5") @QueryParam("size") int size, @QueryParam("query") String query,
-			@Context SecurityContext securityContext)
+			@DefaultValue("0") @QueryParam("userId") long userId, @Context SecurityContext securityContext)
 			throws JsonGenerationException, JsonMappingException, IOException {
 		User user = (User) securityContext.getUserPrincipal();
 		long companyId = user.getCompany().getCompanyId();
-		return new ObjectMapper().writeValueAsString(service.getProjects(start, size, query, companyId));
+		return new ObjectMapper().writeValueAsString(service.getProjects(start, size, query, userId, companyId));
 	}
-	
+
 	@GET
 	@Secure
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/{projectId}/assignedemployee")
-	public String assigned(@PathParam("projectId") long projectId) throws JsonGenerationException, JsonMappingException, IOException {
+	public String assigned(@PathParam("projectId") long projectId)
+			throws JsonGenerationException, JsonMappingException, IOException {
 		return new ObjectMapper().writeValueAsString(service.assigned(projectId));
 	}
 
@@ -108,12 +109,13 @@ public class ProjectController {
 		long companyId = user.getCompany().getCompanyId();
 		return Response.ok().entity(service.delete(projectId, companyId)).build();
 	}
-	
+
 	@DELETE
 	@Secure
 	@Produces(MediaType.TEXT_PLAIN)
 	@Path("{projectId}/unassign/{userId}")
-	public Response delete(@PathParam("projectId") long projectId, @PathParam("userId") long userId, @Context SecurityContext securityContext) {
+	public Response delete(@PathParam("projectId") long projectId, @PathParam("userId") long userId,
+			@Context SecurityContext securityContext) {
 		User user = (User) securityContext.getUserPrincipal();
 		long companyId = user.getCompany().getCompanyId();
 		return Response.ok().entity(service.unAssign(projectId, userId, companyId)).build();

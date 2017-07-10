@@ -91,11 +91,11 @@ public class UserController {
 	@Produces(MediaType.APPLICATION_JSON)
 	public String getEmployees(@DefaultValue("0") @QueryParam("start") int start,
 			@DefaultValue("5") @QueryParam("size") int size, @QueryParam("query") String query,
-			@Context SecurityContext securityContext)
+			@DefaultValue("0") @QueryParam("projectId") long projectId, @Context SecurityContext securityContext)
 			throws JsonGenerationException, JsonMappingException, IOException {
 		User user = (User) securityContext.getUserPrincipal();
 		long companyId = user.getCompany().getCompanyId();
-		return new ObjectMapper().writeValueAsString(service.getEmployees(start, size, query, companyId));
+		return new ObjectMapper().writeValueAsString(service.getEmployees(start, size, query, projectId, companyId));
 	}
 
 	@POST
@@ -144,12 +144,13 @@ public class UserController {
 	public Response token(@PathParam("id") long id) {
 		return Response.ok().entity(service.token(id)).build();
 	}
-	
+
 	@DELETE
 	@Secure
 	@Produces(MediaType.TEXT_PLAIN)
 	@Path("{userId}/unassign/{projectId}")
-	public Response delete(@PathParam("userId") long userId, @PathParam("projectId") long projectId, @Context SecurityContext securityContext) {
+	public Response delete(@PathParam("userId") long userId, @PathParam("projectId") long projectId,
+			@Context SecurityContext securityContext) {
 		User user = (User) securityContext.getUserPrincipal();
 		long companyId = user.getCompany().getCompanyId();
 		return Response.ok().entity(service.unAssign(userId, projectId, companyId)).build();
